@@ -1,0 +1,1006 @@
+% Pandoc LaTeX template for Helen X. H. Bao's academic CV
+% Style: clean academic, single-column, section headers in small-caps bold
+% Engine: xelatex (better Unicode + font handling than pdflatex)
+
+\documentclass[11pt,a4paper]{article}
+
+%---------- Geometry / page setup ----------
+\usepackage[a4paper,margin=1in,top=0.8in,bottom=0.8in]{geometry}
+\usepackage{parskip}             % blank line between paragraphs instead of indent
+
+%---------- Tables (required by Pandoc-generated longtable blocks) ----------
+\usepackage{longtable,booktabs,array}
+\usepackage{calc}
+% Pandoc emits \def\LTcaptype{none} to suppress captions; we need an actual
+% counter named "none" so longtable's \refstepcounter call doesn't error.
+\newcounter{none}
+% Allow footnotes in longtable head/foot (defensive)
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+
+%---------- Fonts ----------
+% Using macOS-bundled fonts (fontspec on macOS uses CoreText, which doesn't see
+% TeX Live's OTF fonts without manual registration). Palatino + Helvetica Neue
+% give a classic academic CV look.
+% NOTE: For CJK author names, install xeCJK via:
+%   sudo /Library/TeX/texbin/tlmgr -repository https://tex.org.uk/systems/texlive/tlnet/ install xecjk
+% then add the \usepackage{xeCJK} + \setCJKmainfont{PingFang SC} block here.
+\usepackage{fontspec}
+\setmainfont{Palatino}
+\setsansfont{Helvetica Neue}
+
+%---------- Hyperlinks ----------
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=true,
+  urlcolor=NavyBlue,
+  linkcolor=NavyBlue,
+  citecolor=NavyBlue,
+  pdftitle={Helen Xiaohui Bao — CV},
+  pdfauthor={Helen Xiaohui Bao}
+}
+\usepackage[svgnames]{xcolor}
+
+%---------- Lists ----------
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.4em, itemsep=1pt, parsep=0pt, topsep=2pt}
+\setlist[description]{leftmargin=0pt, itemsep=2pt, parsep=0pt, topsep=2pt}
+
+%---------- Section formatting ----------
+\usepackage{titlesec}
+\titleformat{\section}
+  {\Large\bfseries\scshape\color{NavyBlue}}
+  {}{0pt}{}
+  [\vspace{-6pt}\hrulefill]
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+
+\titleformat{\subsection}
+  {\large\bfseries}
+  {}{0pt}{}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\itshape}
+  {}{0pt}{}
+\titlespacing*{\subsubsection}{0pt}{8pt}{3pt}
+
+%---------- Header ----------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\fancyfoot[L]{\footnotesize\itshape Helen Xiaohui
+Bao — CV — last updated 2026-05-30}
+\renewcommand{\headrulewidth}{0pt}
+
+%---------- Tighter line spacing within bullet lists ----------
+\linespread{1.05}
+
+%---------- Pandoc-required macros ----------
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}}
+
+%---------- Document ----------
+\begin{document}
+
+\begin{center}
+  {\Huge\bfseries\color{NavyBlue} Helen Xiaohui Bao}\\[8pt]
+  {\large Professor of Urban Economics \& Public Policy}\\[2pt]
+  Department of Land Economy, University of Cambridge\\
+  17 Mill Lane, Cambridge, CB2 1RX, United Kingdom\\[4pt]
+  \href{mailto:hxb20@cam.ac.uk}{hxb20@cam.ac.uk} \quad \textbar \quad +44
+(0)1223 337 116
+\end{center}
+
+\vspace{6pt}
+\hrule
+\vspace{12pt}
+
+\section{CV --- source document (Helen X. H.
+Bao)}\label{cv-source-document-helen-x.-h.-bao}
+
+This is the \textbf{structured Markdown source} that the CV build script
+reads to render the LaTeX/PDF version. Peer-reviewed journal articles
+and books/chapters come dynamically from
+\texttt{60\ My\ works/Publications/*.md} joined with
+\texttt{Journals.md}; everything else lives here.
+
+Edit a section, run \texttt{python3\ build-cv.py}, regenerate the PDF.
+
+\begin{quote}
+\textbf{Privacy}: \texttt{publish:\ false} --- this source file is not
+exposed on the website. The compiled CV PDF is linked from
+\texttt{index.md} (the site homepage) instead.
+\end{quote}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Current position and past
+employment}\label{current-position-and-past-employment}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Period
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Role
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+2025 -- present & Deputy Head of Department, Department of Land Economy,
+University of Cambridge \\
+2024 -- present & Director, Lab for Interdisciplinary Spatial Analysis,
+Department of Land Economy, University of Cambridge \\
+2024 -- present & Professor of Urban Economics \& Public Policy,
+Department of Land Economy, University of Cambridge \\
+2023 -- present & Academic Project Director, School of Humanities and
+Social Sciences, University of Cambridge \\
+2021 -- 2024 & Professor of Land Economy, Department of Land Economy,
+University of Cambridge \\
+2020 -- 2021 & Reader in Land Economy, Department of Land Economy,
+University of Cambridge \\
+2019 -- present & Director of Graduate Admissions, Department of Land
+Economy, University of Cambridge \\
+2017 -- 2020 & Senior Lecturer in Real Estate Finance, Department of
+Land Economy, University of Cambridge \\
+2014 -- present & Director of International Relations, Department of
+Land Economy, University of Cambridge \\
+2013 -- present & Fellow in Land Economy, Newnham College, University of
+Cambridge \\
+2009 -- 2013 & Fellow in Economics, Newnham College, University of
+Cambridge \\
+2006 -- 2017 & Lecturer in Real Estate Finance, Department of Land
+Economy, University of Cambridge \\
+2004 -- 2006 & Instructor, Department of Management Sciences, Faculty of
+Business, City University of Hong Kong \\
+\end{longtable}
+}
+
+\subsection{Academic qualifications}\label{academic-qualifications}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Degree
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Institution
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Ph.D.~in Statistics (2004) & City University of Hong Kong, Hong Kong.
+\emph{Thesis:} An Econometric Analysis of the Hong Kong Real Estate
+Market: Hedonic Price Study and Index Number Construction \\
+M.A.~(Honorary, 2016) & University of Cambridge, Cambridge, UK \\
+M.A.~in Statistics (2000) & Dongbei University of Finance and Economics,
+Dalian, China. \emph{Thesis:} Risk Evaluation in the Securities Market
+of China \\
+B.A. in Finance (1997) & Dongbei University of Finance and Economics,
+Dalian, China \\
+\end{longtable}
+}
+
+\subsection{Visiting positions}\label{visiting-positions}
+
+\begin{itemize}
+\tightlist
+\item
+  Honorary Associate Professor, The Bartlett School of Construction and
+  Project Management, UCL, 2018 -- 2022
+\item
+  Visiting Professor, School of Public Administration, Renmin University
+  of China, China, 2017 -- present
+\item
+  Visiting Professor, Nanjing Agricultural University, China, 2020 --
+  present
+\item
+  Visiting Professor, Land and Urban-rural Development Research
+  Institute, Zhejiang University of Finance and Economics, China, 2020
+  -- present
+\end{itemize}
+
+\subsection{Professional memberships}\label{professional-memberships}
+
+\begin{itemize}
+\tightlist
+\item
+  American Economic Association
+\item
+  Asian Real Estate Society
+\item
+  American Real Estate Society
+\item
+  International Society for Urban Informatics (ISUI)
+\end{itemize}
+
+\subsection{External examiner roles}\label{external-examiner-roles}
+
+\begin{itemize}
+\tightlist
+\item
+  School of Business, Real Estate Undergraduate Programme, University of
+  Aberdeen, October 2021 -- September 2024
+\item
+  Master of Science in Real Estate, Department of Real Estate and
+  Construction, University of Hong Kong, September 2022 -- August 2025
+\item
+  Master of International Real Estate, Department of Building and Real
+  Estate, The Hong Kong Polytechnic University, September 2022 -- August
+  2025
+\end{itemize}
+
+\subsection{Departmental responsibilities (Land Economy,
+Cambridge)}\label{departmental-responsibilities-land-economy-cambridge}
+
+\begin{itemize}
+\tightlist
+\item
+  Board of Land Economy: 2009 -- 2011, 2022 -- present
+\item
+  Cambridge Real Estate Research Centre Management Board: 2013 --
+  present
+\item
+  Degree Committee: 2014 -- 2017
+\item
+  Research Committee: 2014 -- present
+\item
+  Director of International Relations: 2015 -- present
+\item
+  Director of Graduate Admissions: 2019 -- present
+\item
+  Director of Research (sabbatical leave cover, 2021/2022)
+\item
+  Member of the Postgraduate Funding Competition Committee: 2022 --
+  present
+\end{itemize}
+
+\subsection{College responsibilities (Newnham College,
+Cambridge)}\label{college-responsibilities-newnham-college-cambridge}
+
+\subsubsection{Committee memberships}\label{committee-memberships}
+
+\begin{itemize}
+\tightlist
+\item
+  Audit Committee: 2017 -- 2018
+\item
+  Council: 2018 -- present
+\item
+  Disciplinary Committee: 2017 -- 2018
+\item
+  Finance Committee: 2013 -- present
+\item
+  Loan and Grants Committee: 2016 -- present
+\end{itemize}
+
+\subsubsection{College teaching}\label{college-teaching}
+
+\begin{itemize}
+\tightlist
+\item
+  Fellow in Land Economy: 80 hours of supervisions per year (Part IIA,
+  Paper 3)
+\item
+  Undergraduate Tutor: \textasciitilde35 tutees per year
+\item
+  Graduate Tutor: \textasciitilde25 tutees per year
+\item
+  Graduate Mentor: \textasciitilde5 mentees per year
+\end{itemize}
+
+\subsubsection{Equity and inclusion
+roles}\label{equity-and-inclusion-roles}
+
+Supporting students with disabilities, especially mental-health issues
+and learning difficulties such as autism. I take on a significant
+proportion of students with Supported Self-Declarations in Newnham
+(currently 11 students with declared disability among my supervisees,
+all with mental-health issues). I am also the College's Discrimination
+and Harassment Advisor.
+
+\subsection{Research grants}\label{research-grants}
+
+\subsubsection{As Principal
+Investigator}\label{as-principal-investigator}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{``Using Explainable AI in Spatial Analysis to Improve Urban
+  Well-being and Mental Health''}, Cambridge--CityUHK Postdoctoral
+  Research Fellow Scheme, £300,000. 1 September 2025 -- 31 August 2029.
+\item
+  \textbf{``Mapping and Studying Global Housing Discrimination''},
+  Cambridge--CityUHK Postdoctoral Research Fellow Scheme, £300,000. 1
+  September 2025 -- 31 August 2029.
+\item
+  \textbf{``Spatial Governance, Behavioural Interventions and Regional
+  Inequality: A Tale of Two Countries''}, The Royal Society, £12,000. 1
+  January 2025 -- 31 December 2026.
+\item
+  \textbf{``Consortium-building and project development for Horizon
+  Europe call: New sustainable business and production models for
+  farmers and rural communities''}, Horizon Europe Pump Priming
+  Collaboration UK--EU, British Academy, £9,994.56. March -- September
+  2024.
+\item
+  \textbf{``Nudging Towards a Better Financial Future: Applying
+  Behavioural Insights in the Development of Financial Systems in Rural
+  China''}, ESRC \& NSFC, £318,236 (ESRC) + CNY 2,000,000 (NSFC,
+  \textasciitilde£230,000). January 2017 -- August 2021.
+\item
+  \textbf{``Financing the New Urbanization Plan in China''}, Xuyi
+  Institute for Financial Research, China, £300,000. October 2016 --
+  September 2019.
+\item
+  \textbf{ESRC International PhD Partnering Initiative (China)}, ESRC,
+  £20,360. January 2013 -- December 2015.
+\item
+  \textbf{PhD Partnering Scheme --- Proposal Development Travel Grants
+  for India and China}, ESRC \& RCUK, £1,500. July 2013.
+\item
+  \textbf{``Semi-parametric Modelling of Sample Selection Bias in Real
+  Estate Price Indices''}, Investment Property Forum Education Trust,
+  £2,500. September 2007 -- August 2008.
+\end{itemize}
+
+\subsubsection{As Co-Investigator}\label{as-co-investigator}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{``Characteristic analysis, effect measurement, and governance
+  optimization of the operation-oriented transfer of rural homesteads in
+  typical reform pilot areas''}, National Natural Science Foundation of
+  China (Sichuan University), CNY 632,000 (\textasciitilde£71,200).
+  January 2024 -- December 2027.
+\item
+  \textbf{``Micro-foundation of China's Rural Land Institutional
+  Changes: Construction and Tests of Dynamic Models''}, NSFC (Renmin
+  University of China), CNY 480,000 (\textasciitilde£55,600). January
+  2022 -- December 2025.
+\item
+  \textbf{``Land Use Policies for Smart City Development in Hong Kong: A
+  Participatory Platform Supported by Spatial Analysis Technologies''},
+  Interdisciplinary Research Fund in Smart Cities (IRF-SC), Smart Cities
+  Research Institute, The Hong Kong Polytechnic University, HKD 500,000
+  (\textasciitilde£50,000). July 2021 -- June 2023.
+\item
+  \textbf{``Theoretical Modelling and Empirical Investigation of Risk
+  Coupling and Contagion Mechanism''}, NSFC (Huazhong University of
+  Science and Technology), CNY 480,000 (\textasciitilde£53,000). January
+  2017 -- December 2020.
+\item
+  \textbf{``Formal Rules in the Rural Land Institutional Change in
+  China: Development, Implementation and Evolution --- Based on
+  Behavioral Economics Theory and Empirical Study''}, NSFC (Renmin
+  University of China), CNY 676,000 (\textasciitilde£67,600). January
+  2017 -- December 2020.
+\item
+  \textbf{``Pricing and Risk Management of Real Estate Financial Assets
+  and Derivatives''}, NSFC (Huazhong University of Science and
+  Technology), CNY 260,000 (\textasciitilde£26,000). January 2013 --
+  December 2017.
+\item
+  \textbf{``The Impact of Land Market on Macro-economy during Transition
+  Period: Theoretical Framework, Institutional and Resource Constraints,
+  and Policy Framework''}, NSFC (Renmin University of China), CNY
+  430,000 (\textasciitilde£43,000). January 2012 -- December 2015.
+\item
+  \textbf{``Research in Integrated Risk Management System of Financial
+  Derivatives Based on VaR''}, Huazhong University of Science and
+  Technology Independent Innovation Research Fund, CNY 300,000
+  (\textasciitilde£30,000). December 2008 -- December 2010.
+\item
+  \textbf{``Urban Land and Residential Housing Markets in Post Reform
+  China: the characteristics, outcomes and hidden problems of fast
+  urbanization process''}, Academic Research Fund, National University
+  of Singapore, S\$ 177,370 (\textasciitilde£100,000). April 2007 --
+  April 2010.
+\end{itemize}
+
+\subsection{Peer-reviewed journal
+articles}\label{peer-reviewed-journal-articles}
+
+\subsubsection{2026}\label{section}
+
+\begin{itemize}
+\tightlist
+\item
+  J Xu, M Liu, HXH Bao (2026). Beyond the ESG Facade: Measuring and
+  Addressing Corporate `Lip Service'. \emph{Business Strategy and the
+  Environment}.
+\item
+  P He, QC Wang, H Wang, J Xue, HX Bao, GQ Shen, S Guo, M Ni, S Wang
+  (2026). From participation to partnership: A systematic review of
+  public engagement in sustainable urban planning. \emph{Environmental
+  Impact Assessment Review}.
+\item
+  AH Huang, HXH Bao (2026). Good jobs, good tenants? Understanding
+  racial and gender discrimination in the housing market. \emph{Housing
+  Studies}.
+\item
+  H Xu, Q Liu, HXH Bao (2026). Impact of straw burning on air quality in
+  China: An empirical analysis based on Landsat-8 moderate resolution
+  satellite monitoring data. \emph{Journal of Rural Studies}.
+\item
+  C Zhang, HXH Bao, LHT Choy, KW Chau (2026). The hidden cost of
+  uncertainty: How policy instability delays industrial land development
+  in Shanghai, China. \emph{Land Use Policy}.
+\item
+  L Tian, Y Li, H Bao, M Zhang, Z Shen (2026). Beyond Sensing: AI-Driven
+  Planning Paradigm Shifts for Sustainable Development.
+  \emph{Sustainable Cities and Society}.
+\end{itemize}
+
+\subsubsection{2025}\label{section-1}
+
+\begin{itemize}
+\tightlist
+\item
+  T Wang, L Wan, HXH Bao (2025). Land-use efficiency and local
+  government revenue: Evidence from 272 Chinese cities using a novel
+  structural equation modelling approach. \emph{Environment and Planning
+  B: Urban Analytics and City Science}.
+\item
+  Z Zhao, X Zhou, Z Lin, HXH Bao, T Meng, D Fang (2025). A
+  resident-centric framework for postdisaster infrastructure recovery:
+  Characterizing hierarchical needs and fulfillment cycles to assess
+  urban resilience. \emph{Journal of Management in Engineering}.
+\item
+  NH Ismail, MZA Karim, HXH Bao (2025). Foreign Investment and Housing
+  Market Stability in Developing Economies: Empirical Evidence from
+  Malaysia. \emph{Journal of Risk and Financial Management}.
+\item
+  Y Liu, HXH Bao, J Liu (2025). The Effectiveness of Behavioural
+  Interventions on Residential Location Choices and Commute Behaviours:
+  Experimental Evidence from China. \emph{Land}.
+\end{itemize}
+
+\subsubsection{2024}\label{section-2}
+
+\begin{itemize}
+\tightlist
+\item
+  TH Tang, HXH Bao (2024). Political uncertainty and carbon emission
+  trading: Evidence from China. \emph{Cities}.
+\item
+  S Chen, M Quinton, A Alharbi, HXH Bao, B Bell, B Carter, MB Duignan
+  (2024). Propositions and recommendations for enhancing the legacies of
+  major sporting events for disadvantaged communities and individuals.
+  \emph{Event Management}.
+\item
+  HXH Bao (2024). Between carrots and sticks, from intentions to
+  actions: Behavioural interventions for housing decisions.
+  \emph{Housing, Theory and Society}.
+\item
+  Q Zhao, HXH Bao, S Yao (2024). Unpacking the effects of rural
+  homestead development rights reform on rural revitalization in China.
+  \emph{Journal of Rural Studies}.
+\item
+  HXH Bao, Z Wang, RL Wu (2024). Understanding local government debt
+  financing of infrastructure projects in China: Evidence based on
+  accounting data from local government financing vehicles. \emph{Land
+  Use Policy}.
+\item
+  HXH Bao, Y Jiang, Z Wang, L Feng (2024). Social capital and the
+  effectiveness of land use policies: Evidence from rural China.
+  \emph{Land Use Policy}.
+\item
+  HXH Bao (2024). Is hiding my first name enough? Using behavioural
+  interventions to mitigate racial and gender discrimination in the
+  rental housing market. \emph{Urban Studies}.
+\end{itemize}
+
+\subsubsection{2023}\label{section-3}
+
+\begin{itemize}
+\tightlist
+\item
+  HXH Bao, R Saunders (2023). Reference dependence in the UK housing
+  market. \emph{Housing Studies}.
+\item
+  HXH Bao, R Cardoza (2023). Political institutions and corporate
+  risk-taking: International evidence. \emph{International Review of
+  Finance}.
+\item
+  L Li, HXH Bao, KW Chau (2023). On the Strategic Timing of Sales by
+  Real Estate Developers: To Wait or To Presell?. \emph{The Journal of
+  Real Estate Finance and Economics}.
+\item
+  L Qiu, HXH Bao (2023). Assessing the ecological impacts of coastal
+  reclamation on cropland protection: An integrated index system.
+  \emph{Land Degradation \& Development}.
+\item
+  HXH Bao, CC Meng (2023). Housing wealth distribution, inequality and
+  residential satisfaction. \emph{Regional Studies}.
+\end{itemize}
+
+\subsubsection{2022}\label{section-4}
+
+\begin{itemize}
+\tightlist
+\item
+  J Liu, B Gao, HX Bao, Z Shi (2022). Isolating the net effect of
+  multiple government interventions with an extended
+  susceptible-exposed-infectious-recovered (SEIR) framework: empirical
+  evidence from the second wave. \emph{BMJ Open}.
+\item
+  HXH Bao, J Ng (2022). Tradable parking permits as a transportation
+  demand management strategy: a behavioural investigation.
+  \emph{Cities}.
+\item
+  HXH Bao, GM Robinson (2022). Behavioural land use policy studies:
+  Past, present, and future. \emph{Land Use Policy}.
+\item
+  HXH Bao, Y Song (2022). Improving food security through entomophagy:
+  can behavioural interventions influence consumer preference for edible
+  insects?. \emph{Sustainability}.
+\item
+  HXH Bao, Y Lim (2022). Behavioural interventions for micro-mobility
+  adoption: Low-hanging fruits or hard nuts to crack?.
+  \emph{Transportation Research Part F: Traffic Psychology and
+  Behaviour}.
+\end{itemize}
+
+\subsubsection{2021}\label{section-5}
+
+\begin{itemize}
+\tightlist
+\item
+  HXH Bao, CC Meng, J Wu (2021). Reference dependence, loss aversion and
+  residential property development decisions. \emph{Journal of Housing
+  and the Built Environment}.
+\item
+  Q Zhao, HXH Bao, Z Zhang (2021). Off-farm employment and agricultural
+  land use efficiency in China. \emph{Land Use Policy}.
+\item
+  HXH Bao, JP Larsson, V Wong (2021). Light at the end of the tunnel:
+  The impacts of expected major transport improvements on residential
+  property prices. \emph{Urban Studies}.
+\end{itemize}
+
+\subsubsection{2020}\label{section-6}
+
+\begin{itemize}
+\tightlist
+\item
+  HXH Bao, SH Li (2020). Housing wealth and residential energy
+  consumption. \emph{Energy Policy}.
+\item
+  HXH Bao, S Shah (2020). The impact of home sharing on residential real
+  estate markets. \emph{Journal of Risk and Financial Management}.
+\item
+  HXH Bao, SH Li (2020). Investor overconfidence and trading activity in
+  the Asia Pacific REIT markets. \emph{Journal of Risk and Financial
+  Management}.
+\item
+  L Li, HXH Bao, GM Robinson (2020). The return of state control and its
+  impact on land market efficiency in urban China. \emph{Land Use
+  Policy}.
+\item
+  Z Deng, Q Zhao, HXH Bao (2020). The impact of urbanization on farmland
+  productivity: Implications for China's requisition--compensation
+  balance of farmland policy. \emph{Land}.
+\item
+  J Liu, J Hao, Z Shi, HXH Bao (2020). Building the COVID-19
+  Collaborative Emergency Network: a case study of COVID-19 outbreak in
+  Hubei Province, China. \emph{Natural Hazards}.
+\end{itemize}
+
+\subsection{Books and book chapters}\label{books-and-book-chapters}
+
+\begin{itemize}
+\tightlist
+\item
+  H Bao, L Feng (2025). \emph{Behavioural Economic Analysis of
+  Institutional Changes: Lessons Learned from China's Land System
+  Reforms}. Taylor \& Francis.
+\item
+  H Bao, C Lizieri (2024). \emph{Behavioural Finance and the Housing
+  Market}. The Routledge Handbook of Housing Economics.
+\item
+  RT Abdulai, KG Baffour Awuah, HXH Bao (2021). \emph{Sustainable Real
+  Estate in the Developing World}. Emerald Publishing Limited.
+\item
+  H Bao (2020). \emph{Behavioural science and housing decision making: A
+  case study approach}. Routledge.
+\end{itemize}
+
+\subsection{Invited talks and
+seminars}\label{invited-talks-and-seminars}
+
+\subsubsection{2024}\label{section-7}
+
+\begin{itemize}
+\tightlist
+\item
+  ``Tradable Parking Permits as a Transportation Demand Management
+  Strategy: A Behavioural Investigation'', The 2024 Asian Real Estate
+  Society International Conference, Singapore. 8 -- 11 July 2024.
+\item
+  ``The use of correspondence tests in the study of discriminatory
+  behaviours'', Surrey Business School, Centre for Competitiveness of
+  the Visitor Economy, 18 April 2024, Surrey, UK.
+\item
+  ``The Use of Online Panel Data in Urban Studies'', IACP Academic
+  Workshop: Mixed Research Methodology in Urban Studies -- IACP, 29
+  March 2024, online.
+\end{itemize}
+
+\subsubsection{2023}\label{section-8}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Keynote}: ``Is the sum greater than its parts? Strategies of
+  rural homestead development rights reform and their impacts on rural
+  revitalization'', 7th Joint Forum on Land Use Policy by SSCI Journal:
+  Land Rights and Spatial Governance, Hangzhou, China, 14 -- 15 October
+  2023.
+\item
+  ``The effectiveness of behavioural interventions on residential
+  location choices and commute behaviours'', Zhejiang University,
+  Hangzhou, China, 22 September 2023.
+\item
+  ``When the cat is away, the mice will not play: The political economy
+  of carbon emission trading systems'', Zhenjiang City University,
+  Hangzhou, China, 22 September 2023.
+\item
+  ``The effectiveness of behavioural interventions on residential
+  location choices and commute behaviours'', Huazhong Agriculture
+  University, Wuhan, China, 24 September 2023.
+\end{itemize}
+
+\subsubsection{2022}\label{section-9}
+
+\begin{itemize}
+\tightlist
+\item
+  ``Between Carrots and Sticks, from Intentions to Actions: How
+  Technology Changes the Application of Behavioural Insights in Social
+  Science Research and Practice'', 2nd IAS Annual Conference, University
+  of Macau, 11 -- 13 May 2022.
+\item
+  ``Healthy Cities, Happy Cities: The Nexus between Mental Health,
+  Subjective Wellbeing, and Urban Environment'', International
+  Conference on National Spatial Planning and Advanced Urban
+  Development, Zhejiang University City College, 18 -- 19 June 2022,
+  Hangzhou, China.
+\item
+  ``Is hiding my first name enough? Using behavioural interventions to
+  mitigate racial and gender discrimination in housing markets'', HKU --
+  Cambridge Joint Seminar Series on Field and National Experiments:
+  Housing, Transport and Health, 17 June 2022, Hong Kong, China.
+\item
+  ``Housing and the city: livability, equity and well-being'' (panel),
+  Asia-Pacific Network for Housing Research Annual Forum, 2 -- 3 July
+  2022, Shanghai, China.
+\end{itemize}
+
+\subsubsection{2021}\label{section-10}
+
+\begin{itemize}
+\tightlist
+\item
+  ``Globalization, Real Estate and Urban Development'' (panel), Cátedra
+  Europa International Conference, The University of the North, 26
+  October 2021, Colombia.
+\item
+  ``Designing and Structuring a Research Project'', Northeast Forestry
+  University, 29 November 2021, Heilongjiang, China.
+\end{itemize}
+
+\subsubsection{2020}\label{section-11}
+
+\begin{itemize}
+\tightlist
+\item
+  ``Behavioural Sciences and Applications in Real Estate Finance'',
+  Northeast Forestry University, 19 October 2020, Heilongjiang, China.
+\item
+  ``Housing Provident Fund and Homeownership'', School of Public
+  Administration, Zhejiang University, China, 24 May 2020, Hangzhou,
+  China.
+\end{itemize}
+
+\subsubsection{2019}\label{section-12}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Panelist}: Effective Teaching using Case Studies (Education
+  Track), 2019 American Real Estate Society Annual Meeting, Arizona,
+  USA.
+\item
+  ``Nudging Towards a Better Financial Future: Applying Behavioural
+  Insights in the Development of Financial Systems in Rural China'',
+  Henley Business School, University of Reading, 16 January 2019,
+  Reading, UK.
+\end{itemize}
+
+\subsubsection{2018}\label{section-13}
+
+\begin{itemize}
+\tightlist
+\item
+  ``Nudging Towards a Better Financial Future'', Bartlett School of
+  Planning, 21 November 2018, London, UK.
+\item
+  \emph{Panelist}: Tenure, Publication and Careers for Young Scholars,
+  2018 Asian Real Estate Society Annual Meeting, Incheon, South Korea.
+\item
+  \emph{Session Chair}: IRES Global Real Estate and Property Education
+  Panel, 2018 European Real Estate Society Annual Meeting, Reading, UK.
+\item
+  ``Applying Behavioural Insights in Land Economy Research: Examples
+  from the UK'', Ministry of Natural Resources, 23 July 2018, Beijing,
+  China.
+\item
+  ``Land and property market in the UK, and applications of behavioural
+  sciences in land economy research'', Chinese Academy of Land and
+  Resource, 18 July 2018, Beijing, China.
+\end{itemize}
+
+\subsubsection{2017}\label{section-14}
+
+\begin{itemize}
+\tightlist
+\item
+  ``Nudging Towards a Better Financial Future'', MIT Center for Real
+  Estate and Department of Urban Studies and Planning, MIT, 7 November
+  2017, Boston, USA.
+\item
+  ``Nudging Towards a Better Financial Future'', School of Public
+  Administration, Zhejiang University, 11 October 2017, Hangzhou, China.
+\item
+  ``Trust and the Effectiveness of Land Use Policies: Perception,
+  Attitude and Behavior of Rural Residents in China'', 2017 Academic
+  Seminar of Lin Zengjie Land Science Fund, Renmin University of China,
+  2 October 2017, Beijing, China.
+\item
+  ``Housing Wealth and Energy Consumption: A Behavioural Analysis'',
+  Department of Public Policy, City University of Hong Kong, 21
+  September 2017, Hong Kong.
+\item
+  ``Housing Markets in China'', Centre for Real Estate and Urban
+  Economics, University of Connecticut, 19 May 2017, Storrs, USA.
+\item
+  ``Housing Wealth and Energy Consumption: A Behavioural Analysis'', The
+  Bartlett School of Construction \& Project Management, UCL, 30 March
+  2017, London, UK.
+\end{itemize}
+
+\subsection{Conference papers and
+presentations}\label{conference-papers-and-presentations}
+
+\subsubsection{2024}\label{section-15}
+
+\begin{itemize}
+\tightlist
+\item
+  ``Racial and Gender Discrimination in Rental Housing Markets: Field
+  Evidence from Singapore'', 3rd Workshop on Residential Housing
+  Markets: A Market in Distress and Potential Solutions, 26 -- 27 June
+  2024, Vienna, Austria.
+\end{itemize}
+
+\subsubsection{2023}\label{section-16}
+
+\begin{itemize}
+\tightlist
+\item
+  Zhao, Q., Bao, H. X. H., \& Yao, S. ``Is the sum greater than its
+  parts? Strategies of rural homestead development rights reform and
+  their impacts on rural revitalization'', 7th Joint Forum on Land Use
+  Policy, Hangzhou, China, 11 October 2023.
+\item
+  Bao, H. X. H. \& Tang, T. H. ``When the cat is away, the mice will not
+  play: The political economy of carbon emission trading systems'',
+  International Forum on High-Quality Economic Development in the
+  Context of Carbon Neutrality, Wuhan University, 23 -- 24 September
+  2023.
+\item
+  Bao, H. X. H. ``Behavioural interventions in the housing market: The
+  last mile of sustainable development'', Sustainability Science Forum,
+  City University of Hong Kong, 13 June 2023.
+\item
+  Bao, H. X. H. ``Is hiding my first name enough? Using behavioural
+  interventions to mitigate racial and gender discrimination in the
+  rental housing market'', ASSA 2022 Annual Conference, 5 -- 9 January
+  2023, New Orleans, USA.
+\end{itemize}
+
+\subsubsection{2020}\label{section-17}
+
+\begin{itemize}
+\tightlist
+\item
+  Bao, H. X. H. \& Ng, J. ``Tradable Parking Permits as a Transportation
+  Demand Management Strategy: A Behavioural Investigation'', ANREV 2020
+  Annual Research Conference (Virtual), September -- October 2020.
+\item
+  Bao, H. X. H. \& Lim, Y. ``The Barriers and Enablers of Micro-mobility
+  Adoption: A Behavioural Approach'', ANREV 2020 Annual Research
+  Conference (Virtual), September -- October 2020.
+\end{itemize}
+
+\subsubsection{2019}\label{section-18}
+
+\begin{itemize}
+\tightlist
+\item
+  Bao, H. X. H. ``The Use of Online Panel Data in Housing Research'',
+  2019 Asian Real Estate Society Annual Meeting, Shenzhen, China.
+\item
+  Li, L., Bao, H. X. H., Zhu, E., \& Liu, H. ``Policy Uncertainty and
+  Real Estate Development: Evidences from China'', 2019 American Real
+  Estate Society (ARES) Annual Meeting, Arizona, USA.
+\end{itemize}
+
+\subsubsection{2018}\label{section-19}
+
+\begin{itemize}
+\tightlist
+\item
+  Yan, J. \& Bao, H. X. H. ``Behavioral Analysis of Housing Satisfaction
+  with Relocations: Field Evidence from China'', 2018 American Real
+  Estate Society Annual Meeting, Florida, USA.
+\item
+  Li, L., Bao, H. X. H., Zhu, E., \& Liu, H. ``What Makes Housing
+  Developers Hold? Evidences from China'', 2018 Asian Real Estate
+  Society Annual International Meeting, Incheon, South Korea.
+\end{itemize}
+
+\subsubsection{2017}\label{section-20}
+
+\begin{itemize}
+\tightlist
+\item
+  Bao, H. X. H., Feng, L., Ye, J., \& Wang, Z. ``Trust and the
+  Effectiveness of Land Use Policies: Perception, Attitude and Behavior
+  of Rural Residents in China'', 2017 European Real Estate Society
+  Annual Conference, Delft, The Netherlands.
+\item
+  Bao, H. X. H., Feng, L., Ye, J., \& Wang, Z. ``Trust and the
+  Effectiveness of Land Use Policies'', 2017 Global Chinese Real Estate
+  Congress Annual Conference, Taichung, Taiwan.
+\end{itemize}
+
+\subsubsection{2016}\label{section-21}
+
+\begin{itemize}
+\tightlist
+\item
+  Bao, H. X. H. ``A Behavioral Explanation for the Easterlin Paradox in
+  Housing Market'', 2016 Global Chinese Real Estate Congress Annual
+  Conference, Hangzhou, China.
+\item
+  Bao, H. X. H. \& Meng, C. ``Loss Aversion and Residential Property
+  Development Decisions in China: A Semi-Parametric Estimation'', 2016
+  AREUEA International Conference, Alicante, Spain.
+\item
+  Bao, H. X. H. \& Li, H. ``Overconfidence in Real Estate Markets: A
+  Curse or A Blessing?'', 2016 AREUEA International Conference,
+  Alicante, Spain.
+\end{itemize}
+
+\subsubsection{Pre-2016 (selected)}\label{pre-2016-selected}
+
+\begin{itemize}
+\tightlist
+\item
+  Bao, H. X. H. ``Housing Wealth and Energy Consumption: A Behavioural
+  Analysis'', 2015 International AREUEA-AsRES-GCREC-IRES Conference,
+  Washington DC, USA.
+\item
+  Bao, H. X. H. \& Gong, C. M. ``Capital Structure Decisions and REITs
+  Performance: Reference Point Matters'', 2015 International
+  AREUEA-AsRES-GCREC-IRES Conference, Washington DC.
+\item
+  Bao, H. X. H. \& Li, H. ``Overconfidence and Real Estate Investments:
+  Empirical Evidence from Six Asia-Pacific Countries'', 2015
+  International AREUEA-AsRES-GCREC-IRES Conference, Washington DC.
+\item
+  Bao, H. X. H. ``The Social and Behavioural Aspects of Sustainable
+  Urban Renewal'', Second International Conference on Sustainable
+  Urbanization (ICSU 2015), Hong Kong.
+\item
+  Bao, H. X. H. ``The Behavioral Perspective of Stakeholder Engagement
+  and Management for Sustainable Urban Renewal'', 2014 International
+  Workshop on Sustainable Urban Renewal in High-Density Cities, Hong
+  Kong.
+\item
+  Bao, H. X. H., Zhang, N., \& Feng, L. ``Judgmental Bias in Housing
+  Decisions'', 2014 Eurasia Business and Economics Society International
+  Conference, Singapore.
+\item
+  Bao, H. X. H. ``Land Planning Policies and Housing Supply in the UK'',
+  23rd National Land Day Symposium, Beijing, China, 2013.
+\item
+  Bao, H. X. H. \& Zhao, Y. ``Housing Satisfaction and Social
+  Comparison'', 2011 American Real Estate Society Annual Conference,
+  Seattle, USA.
+\item
+  Bao, H. X. H., Gao, Y., \& Wan, A. T. K. ``Hybrid Estimation of
+  Housing Price Indices: A Semi-parametric Approach'', 2011 Global
+  Chinese Real Estate Congress Annual Meeting, Hangzhou, China.
+\end{itemize}
+
+\emph{Earlier conference presentations (2005--2009) available on
+request.}
+
+\subsection{Editorial work}\label{editorial-work}
+
+\subsubsection{Editor / Associate / Section
+Editor}\label{editor-associate-section-editor}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Associate Editor}, \emph{Cities} (2021 -- present)
+\item
+  \textbf{Section Editor (Land Planning \& Landscape Architecture)},
+  \emph{Land} (2024 -- present)
+\end{itemize}
+
+\subsubsection{Guest Editor}\label{guest-editor}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Sustainable Cities and Society}, Special Issue on ``Integrating
+  AI into Sustainable Urban Development: Planning Approaches and
+  Strategies'' (2025 -- 2026)
+\item
+  \emph{Management \& Organization Review}, Special Issue on
+  ``Data-Driven Innovation: Unravelling the Dynamics of Organizational
+  Transformation'' (2025 -- 2026)
+\item
+  \emph{Land}, Special Issue on ``Green Sustainable Development,
+  Technology Innovation and Sustainable Land Management'' (2023 -- 2024)
+\item
+  \emph{Cities}, Special Issue on ``Healthy Cities, Happy Cities:
+  Behavioural Insights'' (2019 -- 2020)
+\item
+  \emph{Land Use Policy}, Special Issue on ``Behavioural Land Use Policy
+  Studies'' (2019 -- 2020)
+\end{itemize}
+
+\subsubsection{Editorial board
+memberships}\label{editorial-board-memberships}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Cities} (2020 -- present)
+\item
+  \emph{Economic and Political Studies} (2014 -- present)
+\item
+  \emph{International Journal of Real Estate Studies} (2020 -- present)
+\item
+  \emph{Journal of Risk and Financial Management} (2020 -- present)
+\item
+  \emph{Land Use Policy} (2016 -- present)
+\end{itemize}
+
+\subsubsection{Reviewer for}\label{reviewer-for}
+
+\emph{Cities, Environment and Planning B, Habitat International, Housing
+Policy Debate, Journal of Business Research, Journal of Real Estate
+Finance and Economics, Journal of Regional Science, Journal of Urban
+Management, Land Use Policy, PNAS, Nature --- Cities / Human Behaviours
+/ Communication, Real Estate Economics, Regional Studies, Social
+Indicators Research, Urban Studies.}
+
+\end{document}
