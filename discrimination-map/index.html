@@ -98,6 +98,14 @@
 // The page reads exactly one data file (this dated CSV) plus the static basemap world.geojson.
 const DATA_FILE = "data/race_map_data_20260717.csv";
 
+// When embedded (via ?embed on the /research/discrimination-map wrapper), hide the standalone
+// header so the site page's own title and intro show instead.
+if(new URLSearchParams(location.search).has("embed") || location.hash.includes("embed")){
+  const hide=s=>{const e=document.querySelector(s); if(e) e.style.display="none";};
+  hide("h1"); hide(".sub");
+  const c=document.querySelector(".container"); if(c) c.style.paddingTop="12px";
+}
+
 const proj = ([lon,lat]) => [ (lon+180)/360*1000, (90-lat)/180*500 ];
 function ringPath(r){ let d=""; for(let i=0;i<r.length;i++){ const [x,y]=proj(r[i]);
   d += (i?"L":"M")+x.toFixed(1)+","+y.toFixed(1); } return d+"Z"; }
