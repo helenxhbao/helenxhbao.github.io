@@ -305,7 +305,7 @@ function drawSparks(){
   spark("sparkF", SERIES.map(s=>({x:s.year,y:s.flights})), yr, "#2166ac", v=>v.toFixed(2));
 }
 function spark(id,pts,selX,color,fmtv){
-  const svg=$(id), W=340, H=320, mL=46, mR=16, mT=18, mB=38;
+  const svg=$(id), W=340, H=256, mL=46, mR=16, mT=18, mB=38;
   svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.innerHTML=""; if(!pts.length) return;
   const xs=pts.map(p=>p.x), ys=pts.map(p=>p.y);
   const x0=Math.min(...xs), x1=Math.max(...xs); let y0=Math.min(...ys), y1=Math.max(...ys);
