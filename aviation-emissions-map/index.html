@@ -74,7 +74,7 @@
       <option value="40">Top 40 trunk routes</option>
       <option value="80">Top 80 routes</option>
     </select></div>
-    <div><label for="fCity">City</label><select id="fCity"><option value="">All</option></select></div>
+    <div><label for="fCity">YRD Airport</label><select id="fCity"><option value="">All</option></select></div>
   </div>
 
   <div class="cols">
@@ -144,7 +144,7 @@ Promise.all([
   PROJ=makeProjection();
   const years=Object.keys(MET).sort();
   fill($("fYear"), years, years.includes("2023")?"2023":years[years.length-1]);
-  const cs=$("fCity"); Object.keys(NODE).sort().forEach(c=>{const o=document.createElement("option"); o.value=c; o.textContent=c; cs.appendChild(o);});
+  const cs=$("fCity"); Object.keys(NODE).filter(c=>NODE[c].yrd).sort().forEach(c=>{const o=document.createElement("option"); o.value=c; o.textContent=c; cs.appendChild(o);});
   ["fYear","fView","fRoutes","fCity"].forEach(id=>$(id).addEventListener("change",onChange));
   $("map").addEventListener("click", ev=>{ if(ev.target.tagName!=="circle"){ SEL=null; redraw(); } });
   redraw();
@@ -165,7 +165,7 @@ function linePath(g,proj){ let s=""; const parts=g.type==="MultiLineString"?g.co
 
 function metricOf(m,view){ return view==="degree"?m.d : m.e; }   // comm uses emissions for size
 
-function redraw(){ const fc=$("fCity"); if(fc) fc.value=SEL||""; drawMap(); drawPanel(); drawSparks(); }
+function redraw(){ const fc=$("fCity"); if(fc) fc.value=(SEL&&NODE[SEL]&&NODE[SEL].yrd)?SEL:""; drawMap(); drawPanel(); drawSparks(); }
 
 function drawMap(){
   const yr=$("fYear").value, view=$("fView").value, nTrunk=+$("fRoutes").value;
