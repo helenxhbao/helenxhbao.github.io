@@ -47,7 +47,7 @@
   .clear{ font-size:12px; color:var(--accent); cursor:pointer; float:right; }
   .spark{ margin-top:14px; }
   .spark .st{ font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); font-weight:600; margin-bottom:2px; }
-  .sc{ width:100%; max-width:360px; height:auto; display:block; margin:6px auto 0; }
+  .sc{ width:100%; max-width:540px; height:auto; display:block; margin:6px auto 0; }
   .cx{ font-size:12.5px; color:#5c564a; margin:8px 0 0; }
   .charts{ display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-top:22px; align-items:start; }
   .spark{ text-align:center; }
@@ -305,7 +305,7 @@ function drawSparks(){
   spark("sparkF", SERIES.map(s=>({x:s.year,y:s.flights})), yr, "#2166ac", v=>v.toFixed(2));
 }
 function spark(id,pts,selX,color,fmtv){
-  const svg=$(id), W=340, H=256, mL=46, mR=16, mT=18, mB=38;
+  const svg=$(id), W=520, H=210, mL=46, mR=16, mT=16, mB=34;
   svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.innerHTML=""; if(!pts.length) return;
   const xs=pts.map(p=>p.x), ys=pts.map(p=>p.y);
   const x0=Math.min(...xs), x1=Math.max(...xs); let y0=Math.min(...ys), y1=Math.max(...ys);
