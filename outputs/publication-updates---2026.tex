@@ -2,9 +2,9 @@
 % Simpler than the CV — covers publications from (currentYear - 1) onwards
 % Engine: xelatex
 
-\documentclass[11pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 
-\usepackage[a4paper,margin=1in,top=0.8in,bottom=0.8in]{geometry}
+\usepackage[a4paper,margin=0.9in,top=0.6in,bottom=0.6in]{geometry}
 \usepackage{parskip}
 
 % macOS-bundled fonts (TeX Live's OTF fonts aren't auto-registered with CoreText).
@@ -27,6 +27,9 @@
 
 \usepackage{enumitem}
 \setlist[itemize]{leftmargin=1.2em, itemsep=4pt, parsep=2pt, topsep=4pt}
+% Numbered entries (Publications by year, Under Review, Work in Progress) are
+% kept tight so each section fits on a single page.
+\setlist[enumerate]{leftmargin=1.5em, itemsep=2pt, parsep=0pt, topsep=2pt}
 
 % Suppress automatic section numbering ("0.1.1 2026" etc.)
 \setcounter{secnumdepth}{-2}
@@ -233,6 +236,8 @@ Present)}\label{publications-jan-2025-present}
   Uncertainty. Submitted to \emph{Nature - Communications
   Sustainability}, revised and resubmitted (April 2026).
 \end{enumerate}
+
+\newpage
 
 \subsection{Work in Progress}\label{work-in-progress}
 
