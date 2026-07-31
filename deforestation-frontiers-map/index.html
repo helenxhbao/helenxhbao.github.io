@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frontier Archetypes of Central America's Tropical Moist Forests</title>
+<style>
+  :root{ --ink:#1c1b18; --paper:#fbf8f2; --line:#d9d2c5; --accent:#7a4b2b; --land:#ece5d7; --sea:#eef2f4; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:Georgia,"Times New Roman",serif; color:var(--ink); background:var(--paper); line-height:1.5; }
+  .container{ max-width:1080px; margin:0 auto; padding:22px 26px 48px; }
+  h1{ font-size:23px; margin:0 0 6px; font-weight:600; }
+  .sub{ font-size:14px; color:#5c564a; margin:0 0 10px; }
+  .embed h1, .embed .sub{ display:none; }
+  .filters{ display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; margin:16px 0 8px;
+            padding-bottom:14px; border-bottom:1px solid var(--line); }
+  .filters label{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#6b6455; margin-bottom:3px; }
+  select{ font-family:inherit; font-size:14px; padding:5px 8px; border:1px solid var(--line); background:#fff; color:var(--ink); max-width:260px; }
+  .cols{ display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:28px; align-items:start; margin-top:6px; }
+  .mapwrap{ position:relative; }
+  #map{ width:100%; height:auto; display:block; background:var(--sea); border:1px solid var(--line); }
+  .tip{ position:absolute; pointer-events:none; background:#fffdf8; border:1px solid var(--ink); padding:5px 8px;
+        font-size:12.5px; box-shadow:2px 3px 8px rgba(0,0,0,.12); display:none; white-space:nowrap; z-index:5; }
+  .legend{ margin:12px 0 2px; }
+  .lgrid{ display:flex; flex-wrap:wrap; gap:5px 14px; }
+  .lg{ display:flex; align-items:center; gap:6px; font-size:12.5px; cursor:pointer; padding:2px 4px; border-radius:3px; }
+  .lg.dim{ opacity:.35; }
+  .lg .sw{ width:13px; height:13px; border:1px solid rgba(0,0,0,.2); flex:0 0 13px; }
+  .lg .pc{ color:#6b6455; font-variant-numeric:tabular-nums; }
+  .note{ font-size:11.5px; color:#7a7466; margin-top:10px; }
+  h2{ font-size:16px; margin:0 0 2px; font-weight:600; }
+  .psub{ font-size:12.5px; color:#6b6455; margin:0 0 12px; }
+  .bar{ display:flex; align-items:center; gap:8px; margin:4px 0; font-size:13px; }
+  .bar .sw{ width:12px; height:12px; flex:0 0 12px; border:1px solid rgba(0,0,0,.15); }
+  .bar .nm{ flex:1 1 auto; }
+  .bar .track{ flex:0 0 120px; height:8px; background:#eee7db; border-radius:2px; overflow:hidden; }
+  .bar .fill{ display:block; height:100%; }
+  .bar .pc{ flex:0 0 40px; text-align:right; font-variant-numeric:tabular-nums; color:#5c564a; }
+  table.ct{ width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
+  table.ct th, table.ct td{ padding:3px 5px; text-align:right; }
+  table.ct th:first-child, table.ct td:first-child{ text-align:left; }
+  table.ct thead th{ border-bottom:1px solid var(--line); color:#6b6455; font-weight:600; }
+  table.ct tbody tr:hover{ background:#f3ecdf; }
+  .desc{ font-size:12.5px; color:#5c564a; margin:10px 0 0; }
+  .desc b{ color:var(--ink); }
+  .drivers{ margin-top:24px; border-top:1px solid var(--line); padding-top:14px; }
+  .dh{ width:100%; border-collapse:collapse; font-size:12px; }
+  .dh th, .dh td{ padding:4px 6px; border-bottom:1px solid #eee7db; }
+  .dh th{ color:#6b6455; font-weight:600; text-align:center; }
+  .dh th:first-child, .dh td:first-child{ text-align:left; }
+  .dh td.v{ text-align:center; font-variant-numeric:tabular-nums; }
+  @media(max-width:820px){ .cols{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Frontier Archetypes of Central America's Tropical Moist Forests</h1>
+  <p class="sub">A classification of where and how tropical moist forest is being lost across Central America, 1990–2023, on a 1.5-km grid. Choose a layer: the frontier <i>archetypes</i>, or the three thematic typologies they combine. Hover to read a cell; click a class to isolate it. For the archetypes, the panel below shows which covariates shift the odds of each frontier state.</p>
+
+  <div class="filters">
+    <div><label for="fLayer">Layer</label><select id="fLayer"></select></div>
+    <div><label for="fClass">Highlight</label><select id="fClass"></select></div>
+    <div><label for="fCountry">Country</label><select id="fCountry"></select></div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <div class="mapwrap">
+        <canvas id="map"></canvas>
+        <div class="tip" id="tip"></div>
+      </div>
+      <div class="legend"><div class="lgrid" id="legend"></div></div>
+      <p class="note">Coloured cells are classified tropical-moist-forest frontier pixels; pale land carries no classification. Hover for the class; click a legend swatch to isolate one class.</p>
+    </div>
+    <div class="col-side">
+      <h2 id="pTitle"></h2>
+      <p class="psub" id="pSub"></p>
+      <div id="pShares"></div>
+      <div id="pCountry"></div>
+      <div class="desc" id="pDesc"></div>
+    </div>
+  </div>
+
+  <div class="drivers" id="drivers"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>(s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+if(location.search.includes("embed")||location.hash.includes("embed")) document.documentElement.classList.add("embed");
+
+let META=null, GEO=null, PROJ=null, GRID={}, NORM={};
+let layer="archetypes", hi=0, country="";
+
+Promise.all([
+  fetch("data/layers.json").then(r=>r.json()),
+  fetch("data/centralamerica.geojson").then(r=>r.json())
+]).then(([meta,geo])=>{
+  META=meta; GEO=geo; PROJ=fitProjection(geo, 660);
+  Promise.all(meta.layers.map(L=>decode(L))).then(()=>{
+    fill($("fLayer"), meta.layers.map(L=>[L.id,L.title]), "archetypes");
+    fill($("fCountry"), [["","All Central America"]].concat(
+      (meta.layers.find(L=>L.id==="archetypes").by_country||[]).map(r=>[r.country,r.country])), "");
+    $("fLayer").addEventListener("change",()=>{ layer=$("fLayer").value; hi=0; syncClass(); redraw(); });
+    $("fClass").addEventListener("change",()=>{ hi=+$("fClass").value; redraw(); });
+    $("fCountry").addEventListener("change",()=>{ country=$("fCountry").value; redraw(); });
+    syncClass(); redraw();
+  });
+});
+function fill(sel,pairs,def){ sel.innerHTML=""; pairs.forEach(([v,t])=>{const o=document.createElement("option");o.value=v;o.textContent=t;sel.appendChild(o);}); if(def!=null) sel.value=def; }
+function curLayer(){ return META.layers.find(L=>L.id===layer); }
+function syncClass(){ const L=curLayer(); fill($("fClass"), [[0,"All classes"]].concat(L.classes.map(c=>[c.code,c.label])), hi); }
+
+function decode(L){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement("canvas"); c.width=L.w; c.height=L.h;
+      const cx=c.getContext("2d"); cx.drawImage(img,0,0);
+      const d=cx.getImageData(0,0,L.w,L.h).data;
+      const codes=new Uint8Array(L.w*L.h);
+      for(let i=0;i<codes.length;i++) codes[i]= d[i*4+3]>0 ? d[i*4] : 0;
+      GRID[L.id]={w:L.w,h:L.h,codes,bounds:L.bounds};
+      NORM[L.id]=buildImage(L, codes, 0);
+      res();
+    };
+    img.src="data/"+L.id+".png";
+  });
+}
+function hexToRGB(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+function buildImage(L, codes, hiCode){
+  const pal=[[0,0,0,0]];
+  L.classes.forEach(c=>{ const [r,g,b]=hexToRGB(c.color);
+    pal[c.code]= (hiCode && c.code!==hiCode) ? [214,205,188,150] : [r,g,b,255]; });
+  const out=new ImageData(L.w,L.h); const o=out.data;
+  for(let i=0;i<codes.length;i++){ const p=pal[codes[i]]||pal[0]; const j=i*4;
+    o[j]=p[0]; o[j+1]=p[1]; o[j+2]=p[2]; o[j+3]=p[3]; }
+  return out;
+}
+
+function fitProjection(geo, W){
+  let a=1e9,b=-1e9,c=1e9,d=-1e9;
+  const scan=x=>{ if(typeof x[0]==="number"){ a=Math.min(a,x[0]);b=Math.max(b,x[0]);c=Math.min(c,x[1]);d=Math.max(d,x[1]); } else x.forEach(scan); };
+  geo.features.forEach(f=>scan(f.geometry.coordinates));
+  const k=Math.cos((c+d)/2*Math.PI/180), s=W/((b-a)*k), H=(d-c)*s;
+  return {W,H,a,b,c,d,k,s, p:([lon,lat])=>[ (lon-a)*k*s, (d-lat)*s ], inv:(x,y)=>[ a + x/(k*s), d - y/s ] };
+}
+function ring(r){ let s=""; for(let i=0;i<r.length;i++){ const [x,y]=PROJ.p(r[i]); s+=(i?"L":"M")+x.toFixed(1)+","+y.toFixed(1);} return s+"Z"; }
+function pathParts(g){ const out=[]; const ps=(g.type==="Polygon")?[g.coordinates]:g.coordinates; ps.forEach(p=>p.forEach(r=>out.push(ring(r)))); return out; }
+
+function redraw(){ drawMap(); drawLegendUI(); drawPanel(); drawDrivers(); }
+
+function drawMap(){
+  const cv=$("map"), DPR=Math.min(2, window.devicePixelRatio||1);
+  const W=PROJ.W, H=PROJ.H;
+  cv.width=W*DPR; cv.height=H*DPR; cv.style.aspectRatio=W+" / "+H;
+  const g=cv.getContext("2d"); g.setTransform(DPR,0,0,DPR,0,0); g.clearRect(0,0,W,H);
+  g.fillStyle="#ece5d7";
+  GEO.features.forEach(f=>{ g.fill(new Path2D(pathParts(f.geometry).join(" "))); });
+  const L=curLayer(), gr=GRID[layer];
+  const img = hi ? buildImage(L, gr.codes, hi) : NORM[layer];
+  const oc=document.createElement("canvas"); oc.width=gr.w; oc.height=gr.h; oc.getContext("2d").putImageData(img,0,0);
+  const [bw,bs,be,bn]=gr.bounds; const tl=PROJ.p([bw,bn]), br=PROJ.p([be,bs]);
+  g.imageSmoothingEnabled=false;
+  g.drawImage(oc, tl[0], tl[1], br[0]-tl[0], br[1]-tl[1]);
+  g.lineWidth=0.7; g.strokeStyle="#9a8f78";
+  GEO.features.forEach(f=>{ g.stroke(new Path2D(pathParts(f.geometry).join(" "))); });
+  if(country){ const f=GEO.features.find(x=>x.properties.name===country);
+    if(f){ g.lineWidth=2; g.strokeStyle="#1c1b18"; g.stroke(new Path2D(pathParts(f.geometry).join(" "))); } }
+}
+
+$("map").addEventListener("mousemove",ev=>{
+  const cv=$("map"), r=cv.getBoundingClientRect();
+  const x=(ev.clientX-r.left)/r.width*PROJ.W, y=(ev.clientY-r.top)/r.height*PROJ.H;
+  const [lon,lat]=PROJ.inv(x,y); const gr=GRID[layer];
+  const [bw,bs,be,bn]=gr.bounds;
+  const col=Math.floor((lon-bw)/(be-bw)*gr.w), row=Math.floor((bn-lat)/(bn-bs)*gr.h);
+  const t=$("tip");
+  if(col>=0&&col<gr.w&&row>=0&&row<gr.h){
+    const code=gr.codes[row*gr.w+col];
+    if(code){ const c=curLayer().classes.find(k=>k.code===code);
+      t.innerHTML=`<b>${esc(c.label)}</b>`; t.style.display="block";
+      t.style.left=(x+14)+"px"; t.style.top=(y+8)+"px"; return; } }
+  t.style.display="none";
+});
+$("map").addEventListener("mouseleave",()=>$("tip").style.display="none");
+
+function drawPanel(){
+  const L=curLayer();
+  $("pTitle").textContent=L.title;
+  $("pSub").textContent=L.sub;
+  let rows=L.classes.map(c=>({label:c.label,color:c.color,pct:c.pct,code:c.code}));
+  let scopeLabel="Central America";
+  if(layer==="archetypes" && country){
+    const cr=(L.by_country||[]).find(r=>r.country===country);
+    if(cr){ rows=L.classes.map(c=>({label:c.label,color:c.color,pct:cr[c.label]??0,code:c.code})); scopeLabel=country; }
+  }
+  const mx=Math.max(...rows.map(r=>r.pct),1);
+  $("pShares").innerHTML=`<div class="psub" style="margin:2px 0 6px">Share of classified area — ${esc(scopeLabel)}</div>`+
+    rows.map(r=>`<div class="bar">
+      <span class="sw" style="background:${r.color}"></span>
+      <span class="nm">${esc(r.label)}</span>
+      <span class="track"><span class="fill" style="width:${(r.pct/mx*100).toFixed(0)}%;background:${r.color}"></span></span>
+      <span class="pc">${r.pct.toFixed(1)}%</span></div>`).join("");
+  if(layer==="archetypes" && L.by_country){
+    const cls=L.classes.map(c=>c.label);
+    $("pCountry").innerHTML=`<div class="psub" style="margin:14px 0 2px">Composition by country (% of each country's classified area)</div>`+
+      `<table class="ct"><thead><tr><th>Country</th>${cls.map(c=>`<th>${esc(c.slice(0,4))}</th>`).join("")}</tr></thead><tbody>`+
+      L.by_country.map(r=>`<tr><td>${esc(r.country)}</td>${cls.map(c=>`<td>${(r[c]??0).toFixed(0)}</td>`).join("")}</tr>`).join("")+
+      `</tbody></table><div class="note" style="margin-top:4px">Columns: ${cls.map(c=>esc(c)).join(", ")}.</div>`;
+  } else $("pCountry").innerHTML="";
+  if(layer==="archetypes"){
+    $("pDesc").innerHTML=`<div class="psub" style="margin:14px 0 4px">What each archetype means</div>`+
+      L.classes.map(c=>`<div style="margin:5px 0"><b style="color:${c.color}">${esc(c.label)}.</b> ${esc(META.arch_rules[c.label]||"")}</div>`).join("");
+  } else {
+    $("pDesc").innerHTML=`<div class="desc" style="margin-top:14px">Each cell combines two ordered dimensions (see the legend); paler tones are lower-impact, darker tones higher-impact combinations.</div>`;
+  }
+}
+
+function drawLegendUI(){
+  const L=curLayer();
+  $("legend").innerHTML=L.classes.map(c=>
+    `<span class="lg ${hi&&hi!==c.code?'dim':''}" data-code="${c.code}">
+       <span class="sw" style="background:${c.color}"></span>${esc(c.label)} <span class="pc">${c.pct.toFixed(1)}%</span></span>`).join("");
+  $("legend").querySelectorAll(".lg").forEach(el=>el.addEventListener("click",()=>{
+    const code=+el.dataset.code; hi = (hi===code)?0:code; $("fClass").value=hi; redraw();
+  }));
+}
+
+function drawDrivers(){
+  const box=$("drivers");
+  if(layer!=="archetypes"){ box.innerHTML=""; return; }
+  const D=META.drivers, arch=D.archetypes;
+  const cell=(v,sig)=>{ const a=Math.min(1,Math.abs(v)/1.2);
+    const col = v>0 ? `rgba(178,24,43,${0.12+0.6*a})` : `rgba(33,102,172,${0.12+0.6*a})`;
+    const w = sig ? "600" : "400"; const o = sig ? "1" : ".55";
+    return `<td class="v" style="background:${col};font-weight:${w};opacity:${o}">${v>0?'+':''}${v.toFixed(2)}</td>`; };
+  box.innerHTML=`<h2>What shapes each frontier archetype</h2>`+
+    `<p class="psub">${esc(D.note)} Reference category: <b>${esc(D.reference)}</b>. Red raises the odds of that archetype, blue lowers them; bold cells have strong evidence (95% credible interval excludes zero).</p>`+
+    `<div style="overflow-x:auto"><table class="dh"><thead><tr><th>Covariate</th>${arch.map(a=>`<th>${esc(a)}</th>`).join("")}</tr></thead><tbody>`+
+    D.rows.map(([name,vals])=>`<tr><td>${esc(name)}</td>${vals.map(([v,s])=>cell(v,s)).join("")}</tr>`).join("")+
+    `</tbody></table></div>`;
+}
+</script>
+</body>
+</html>
