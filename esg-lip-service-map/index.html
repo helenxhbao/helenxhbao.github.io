@@ -47,7 +47,7 @@
 <body>
 <div class="container">
   <h1>The ESG Facade: Disclosure and Lip Service among Chinese Listed Firms</h1>
-  <p class="sub">Geographic and industry patterns of ESG disclosure and lip-service (LS) behaviour among sampled Chinese listed firms, 2006–2022. Lip service identifies firms that disclose extensively on ESG yet show comparatively weak ESG performance. Explore by year, province, industry, and ESG dimension; hover a province for its rate. Provinces with fewer than five sampled firms in a year are left grey.</p>
+  <p class="sub">Geographic and industry patterns of ESG disclosure and lip-service (LS) behaviour among sampled Chinese listed firms, 2006–2022. Lip service identifies firms that disclose extensively on ESG yet show comparatively weak ESG performance. Explore by year, province, and ESG dimension; hover a province for its rate. The industries most engaged in each behaviour are ranked in the panel. Provinces with fewer than five sampled firms in a year are left grey.</p>
 
   <div class="filters">
     <div><label for="fYear">Year</label><select id="fYear"></select></div>
@@ -55,7 +55,6 @@
     <div><label for="fDim">ESG dimension</label><select id="fDim">
       <option value="all">All ESG</option><option value="E">Environmental</option>
       <option value="S">Social</option><option value="G">Governance</option></select></div>
-    <div><label for="fIndustry">Industry</label><select id="fIndustry"></select></div>
   </div>
 
   <div class="cols">
@@ -99,7 +98,7 @@ function parseCSV(text){ const rows=[]; let row=[],f="",q=false;
   if(f.length||row.length){row.push(f);rows.push(row);} return rows; }
 
 let META=null, GEO=null, DASH=null, PROJ=null, FIRMS=[];
-let year=2022, ind="ls", dim="all", industry=-1;
+let year=2022, ind="ls", dim="all";
 
 Promise.all([
   fetch("data/meta.json").then(r=>r.json()),
@@ -115,11 +114,9 @@ Promise.all([
       ls:+r[ix.ls],w:+r[ix.w],we:+r[ix.we],ws:+r[ix.ws],wg:+r[ix.wg],al:+r[ix.al]}); }
   fill($("fYear"), meta.years.map(y=>[y,y]), meta.years.includes(2022)?2022:meta.years[meta.years.length-1]);
   fill($("fInd"), meta.indicators.map(o=>[o.id,o.label]), "ls");
-  fill($("fIndustry"), [[-1,"All industries"]].concat(meta.industries.map(o=>[o.id,o.name])), -1);
   $("fYear").addEventListener("change",()=>{year=+$("fYear").value;redraw();});
   $("fInd").addEventListener("change",()=>{ind=$("fInd").value;syncDim();redraw();});
   $("fDim").addEventListener("change",()=>{dim=$("fDim").value;redraw();});
-  $("fIndustry").addEventListener("change",()=>{industry=+$("fIndustry").value;redraw();});
   syncDim(); redraw();
 });
 function fill(sel,pairs,def){ sel.innerHTML=""; pairs.forEach(([v,t])=>{const o=document.createElement("option");o.value=v;o.textContent=t;sel.appendChild(o);}); if(def!=null) sel.value=def; }
@@ -140,14 +137,14 @@ function linePath(g,proj){ let s=""; const ls=(g.type==="LineString")?[g.coordin
 // aggregate the chosen indicator to provinces for the current year+industry filter
 function aggregate(y){
   const col=colOf(), acc={};
-  for(const f of FIRMS){ if(f.year!==y) continue; if(industry>=0 && f.ind!==industry) continue;
+  for(const f of FIRMS){ if(f.year!==y) continue;
     const a=acc[f.prov]||(acc[f.prov]={s:0,n:0}); a.s+=f[col]; a.n++; }
   const out={}; let mx=0;
   for(const p in acc){ const a=acc[p]; if(a.n<META.min_firms) continue; const v=a.s/a.n; out[p]={v,n:a.n}; if(v>mx)mx=v; }
   return {out, mx:Math.max(mx,0.05)};
 }
 function nationalSeries(){ const col=colOf(); return META.years.map(y=>{ let s=0,n=0;
-  for(const f of FIRMS){ if(f.year!==y) continue; if(industry>=0 && f.ind!==industry) continue; s+=f[col]; n++; }
+  for(const f of FIRMS){ if(f.year!==y) continue; s+=f[col]; n++; }
   return {year:y, v:n?s/n:null, n}; }); }
 
 function redraw(){ drawMap(); drawPanel(); }
@@ -193,8 +190,7 @@ function showTip(ev,html){ const t=$("tip"),b=$("map").getBoundingClientRect(); 
 function drawPanel(){
   const {out}=aggregate(year);
   $("pTitle").textContent=indLabel();
-  const indName=industry>=0 ? META.industries.find(o=>o.id===industry).name : "all industries";
-  $("pSub").textContent=`Share of sampled firms, ${year} · ${indName}.`;
+  $("pSub").textContent=`Share of sampled firms, ${year}.`;
   // province ranking
   const rank=Object.entries(out).map(([p,r])=>({en:META.provinces_en[p]||p,v:r.v,n:r.n})).sort((a,b)=>b.v-a.v).slice(0,10);
   const mx=Math.max(...rank.map(r=>r.v),0.01);
