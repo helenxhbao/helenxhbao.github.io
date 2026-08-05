@@ -30,6 +30,8 @@
   .bar{ height:12px; width:150px; border:1px solid var(--line); }
   .sw{ display:inline-block; width:12px; height:12px; vertical-align:-1px; margin-right:4px; border:1px solid rgba(0,0,0,.15); }
   .note{ font-size:11.5px; color:#7a7466; margin-top:10px; }
+  .defs{ font-size:12px; color:#5c564a; margin-top:8px; }
+  .defs div{ margin:4px 0; } .defs b{ color:var(--accent); }
   h2{ font-size:16px; margin:0 0 2px; font-weight:600; }
   .psub{ font-size:12.5px; color:#6b6455; margin:0 0 10px; }
   .row{ display:flex; align-items:center; gap:8px; margin:3px 0; font-size:13px; }
@@ -47,11 +49,11 @@
 <body>
 <div class="container">
   <h1>The ESG Facade: Disclosure and Lip Service among Chinese Listed Firms</h1>
-  <p class="sub">Geographic and industry patterns of ESG disclosure and lip-service (LS) behaviour among sampled Chinese listed firms, 2006–2022. Lip service identifies firms that disclose extensively on ESG yet show comparatively weak ESG performance. Explore by year, province, and ESG dimension; hover a province for its rate. The industries most engaged in each behaviour are ranked in the panel. Provinces with fewer than five sampled firms in a year are left grey.</p>
+  <p class="sub">Geographic and industry patterns of ESG disclosure and lip-service (LS) behaviour among sampled Chinese listed firms, 2006–2022. Lip service identifies firms that disclose extensively on ESG yet show comparatively weak ESG performance. Explore by year, province, and ESG dimension; hover a province for its rate. Provinces with fewer than five sampled firms in a year are left grey.</p>
 
   <div class="filters">
     <div><label for="fYear">Year</label><select id="fYear"></select></div>
-    <div><label for="fInd">Behaviour</label><select id="fInd"></select></div>
+    <div><label for="fInd">Indicators</label><select id="fInd"></select></div>
     <div><label for="fDim">ESG dimension</label><select id="fDim">
       <option value="all">All ESG</option><option value="E">Environmental</option>
       <option value="S">Social</option><option value="G">Governance</option></select></div>
@@ -64,7 +66,12 @@
         <div class="tip" id="tip"></div>
       </div>
       <div class="legend" id="legend"></div>
-      <p class="note">Colour = the share of that province's sampled firms exhibiting the selected behaviour. Hover a province for the rate and firm count. The South China Sea islands and the ten-dash line are shown in the corner inset.</p>
+      <p class="note">Colour = the share of a province's sampled firms in the selected indicator. Hover a province for the rate and firm count. The South China Sea islands and the ten-dash line are shown in the corner inset.</p>
+      <div class="defs">
+        <div><b>Lip service (LS)</b> — firms that disclose extensively on ESG yet show comparatively weak ESG performance.</div>
+        <div><b>ESG disclosure</b> — firms with extensive ESG disclosure; pick an ESG dimension for environmental, social, or governance disclosure.</div>
+        <div><b>Action gap</b> — firms whose ESG actions lag their disclosure (the weak-performance side of lip service).</div>
+      </div>
     </div>
     <div class="col-side">
       <h2 id="pTitle"></h2>
@@ -75,7 +82,7 @@
         <p class="cx" id="trendCx"></p></div>
       <div class="sec"><div class="ct">Highest-rate industries</div>
         <div id="pIndustry"></div>
-        <p class="cx">Industry rate for the selected year and behaviour, sampled firms only.</p></div>
+        <p class="cx">Industry rate for the selected year and indicator, sampled firms only.</p></div>
     </div>
   </div>
 </div>
