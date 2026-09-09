@@ -1,0 +1,34 @@
+{
+ "groups": [
+  {
+   "title": "Slides",
+   "items": [
+    {
+     "label": "Slides, full deck",
+     "href": "slides.pdf",
+     "kind": "PDF"
+    }
+   ]
+  },
+  {
+   "title": "Reading",
+   "items": [
+    {
+     "label": "Week 2 reading list",
+     "href": "resources/Week 2 reading list.pdf",
+     "kind": "PDF"
+    }
+   ]
+  },
+  {
+   "title": "Interactive exercise",
+   "items": [
+    {
+     "label": "The four-quadrant model, calibrated to real data",
+     "href": "four-quadrant-model.html",
+     "kind": "web page"
+    }
+   ]
+  }
+ ]
+}

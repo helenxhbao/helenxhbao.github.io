@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RE02 Week 2: Space and Capital Markets, Pricing Processes</title>
+<style>
+  :root{--paper:#F3F6F5;--ink:#15211E;--teal:#1B6B58;--mist:#DCE8E4;
+        --line:#cfdcd7;--muted:#5d6b65;--fig:"Times New Roman",Times,serif}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fig);line-height:1.5}
+  a{color:var(--teal)}
+  header{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+         padding:14px 22px 12px;border-bottom:1px solid var(--line)}
+  header h1{font-size:17px;margin:0;font-weight:700}
+  header .sub{font-size:13px;color:var(--muted)}
+  header .spacer{margin-left:auto}
+  button{font-family:inherit;font-size:13px;padding:5px 11px;border:1px solid var(--line);
+         background:#fff;color:var(--ink);cursor:pointer;border-radius:3px}
+  button:hover{border-color:var(--teal);color:var(--teal)}
+  button[aria-pressed="true"]{background:var(--mist);border-color:var(--teal)}
+  input[type="search"]{font-family:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--line);
+        border-radius:3px;background:#fff;color:var(--ink);width:190px}
+  .hits{font-size:11.5px;color:var(--muted);margin:0 0 6px}
+  .track{height:3px;background:var(--mist);margin:0 22px}
+  .track i{display:block;height:3px;background:var(--teal);transition:width .18s}
+
+  .stage{display:grid;grid-template-columns:minmax(0,1fr);padding:18px 22px 8px;align-items:start}
+  .stage.with-panel{grid-template-columns:minmax(0,1fr) 360px;gap:22px}
+  @media(max-width:900px){.stage.with-panel{grid-template-columns:minmax(0,1fr)}}
+  figure{margin:0;min-width:0}
+  img#slide{width:100%;max-height:calc(100vh - 250px);height:auto;object-fit:contain;
+            display:block;border:1px solid var(--line);background:#fff}
+  .callout{margin-top:12px;border:1px solid var(--teal);background:#fff;padding:12px 15px;font-size:14px}
+  .callout b{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+             color:var(--teal);margin-bottom:4px;font-weight:700}
+  .callout.hidden{display:none}
+
+  aside{border:1px solid var(--line);background:#fff;padding:13px 15px;
+        max-height:calc(100vh - 250px);overflow-y:auto}
+  aside h2{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--teal);
+           margin:0 0 8px;font-weight:700;position:sticky;top:-13px;background:#fff;padding:4px 0}
+  aside p{font-size:13.5px;margin:0 0 9px;white-space:pre-wrap}
+  aside .none{color:var(--muted);font-style:italic}
+  .plist{list-style:none;margin:0;padding:0}
+  .plist li{font-size:13px;padding:1px 0}
+  .plist .grp{margin:11px 0 3px;font-weight:700;color:var(--teal);font-size:11px;
+              letter-spacing:.05em;text-transform:uppercase}
+  .plist a{text-decoration:none;color:var(--ink);padding:2px 5px;border-radius:3px;
+           display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .plist a:hover{background:var(--mist)}
+  .plist a.here{background:var(--mist);font-weight:700;color:var(--teal)}
+  .plist .num{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:7px}
+
+  nav.bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 22px 20px}
+  nav.bar .count{font-variant-numeric:tabular-nums;font-size:13.5px;color:var(--muted)}
+  nav.bar .title{font-size:13.5px;flex:1 1 auto;min-width:0;overflow:hidden;
+                 text-overflow:ellipsis;white-space:nowrap}
+  .chip{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;
+        border-radius:50%;background:var(--teal);color:#fff;font-size:11.5px;font-weight:700}
+  .hint{padding:9px 22px 0;font-size:12.5px;color:var(--muted)}
+  .hint kbd{font-family:inherit;font-weight:700;color:var(--ink);border:1px solid var(--line);
+            border-radius:3px;padding:0 4px;background:#fff}
+  footer{border-top:1px solid var(--line);padding:12px 22px 30px;font-size:12.5px;color:var(--muted)}
+
+/* Lecture switcher, sits directly under the viewer's title line. */
+.lecture-nav{display:flex;align-items:baseline;gap:10px 20px;flex-wrap:wrap;
+             padding:9px 22px;border-bottom:1px solid var(--line);font-size:12.5px}
+.lecture-nav .lngroup{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.lecture-nav .lncourse{color:var(--muted);font-size:11px;letter-spacing:.06em;
+                       text-transform:uppercase;font-weight:700}
+.lecture-nav .lnitem{color:var(--ink);text-decoration:none;padding:1px 7px;border-radius:3px;
+                     border:1px solid transparent;white-space:nowrap}
+.lecture-nav a.lnitem:hover{border-color:var(--teal);color:var(--teal)}
+.lecture-nav .lnitem.here{background:var(--mist);border-color:var(--teal);
+                          color:var(--teal);font-weight:700}
+.lecture-nav .lnback{margin-left:auto;color:var(--muted);text-decoration:none;white-space:nowrap}
+.lecture-nav .lnback:hover{color:var(--teal)}
+@media(max-width:700px){.lecture-nav{gap:6px 12px}.lecture-nav .lncourse{width:100%}}
+
+  .resgrp{margin-bottom:16px}
+  .resgrp h3{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--teal);
+             margin:0 0 5px;font-weight:700}
+  .resgrp h3 a{color:var(--teal);text-decoration:none;border-bottom:1px solid var(--mist)}
+  .resgrp h3 a:hover{border-bottom-color:var(--teal)}
+  .resgrp ul{margin:0;padding-left:16px}
+  .resgrp li{margin:2px 0;font-size:13px}
+  .resgrp li a{color:var(--ink)}
+  .resgrp li a:hover{color:var(--teal)}
+  .resnote{font-size:12px;color:var(--muted);margin:0}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Space and Capital Markets, Pricing Processes</h1>
+  <span class="sub">RE02 Real Estate Finance and Investment &middot; Michaelmas Week 2</span>
+  <span class="spacer"></span>
+  <input type="search" id="q" placeholder="Search the slides" aria-label="Search the slides">
+  <button id="btnToc" aria-pressed="false">Contents</button>
+  <button id="btnRes" aria-pressed="false" hidden>Resources</button>
+  <button id="btnNotes" aria-pressed="false">Lecturer notes</button>
+</header>
+
+<div class="lecture-nav" id="lecture-nav"></div>
+
+<div class="track"><i id="bar"></i></div>
+
+<p class="hint">
+  Arrow keys move between slides. <kbd>C</kbd> opens the contents, <kbd>R</kbd> the resources, and <kbd>N</kbd> the lecturer notes,
+  both beside the slide. <kbd>/</kbd> jumps to the search box, which looks inside the text of all 63 slides.
+  Every slide has its own address, so a link such as <code>#23</code> opens there.
+</p>
+
+<div class="stage" id="stage">
+  <div>
+    <figure><img id="slide" alt=""></figure>
+    <div class="callout hidden" id="callout"></div>
+  </div>
+  <aside id="panel" hidden>
+    <h2 id="panelTitle"></h2>
+    <div id="panelBody"></div>
+  </aside>
+</div>
+
+<nav class="bar">
+  <button id="prev">&larr; Previous</button>
+  <button id="next">Next &rarr;</button>
+  <span class="count" id="count"></span>
+  <span class="chip" id="chip" hidden></span>
+  <span class="title" id="title"></span>
+</nav>
+
+<footer>
+  RE02 Real Estate Finance and Investment, Michaelmas Term 2026. Department of Land Economy, University of Cambridge.
+</footer>
+
+<script>
+const TOOL = 'four-quadrant-model.html';
+const CALLOUTS = {
+  39: ['Open the interactive exercise alongside this block',
+       'Block F works through Cambridge in 2022 using the same equations the exercise solves. Have it open in a second window and follow along: <a href="' + TOOL + '">the four-quadrant model, calibrated to a British housing market</a>.'],
+  44: ['Try it now',
+       'Every control in the exercise is one symbol in one equation on this slide. Open <a href="' + TOOL + '">the exercise</a>, move a single slider, and watch the named curve respond before you move a second one.']
+};
+
+let S = [], i = 0, panel = null, R = null;
+const el = id => document.getElementById(id);
+const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const fromHash = () => {
+  const n = parseInt((location.hash||'').replace('#',''),10);
+  return (n>=1 && n<=S.length) ? n-1 : 0;
+};
+
+function tocHtml(){
+  const q = (el('q').value || '').trim().toLowerCase();
+  const rows = q ? S.filter(s => ((s.text||'') + ' ' + (s.title||'')).toLowerCase().includes(q)) : S;
+  const out = [];
+  if (q) out.push('<p class="hits">' + rows.length + (rows.length === 1 ? ' slide matches' : ' slides match') +
+                  ' &ldquo;' + esc(el('q').value.trim()) + '&rdquo;</p>');
+  if (!rows.length) return out.join('') + '<p class="none">Nothing matches that.</p>';
+  out.push('<ul class="plist">'); let blk = null;
+  rows.forEach(s => {
+    if (s.block && s.block !== blk){
+      blk = s.block;
+      out.push('<li class="grp">Block ' + blk + ' &middot; ' + esc(s.blockname || '') + '</li>');
+    }
+    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+s.n+'</span>'+
+             esc(s.title || ('Slide '+s.n))+'</a></li>');
+  });
+  return out.join('') + '</ul>';
+}
+
+function search(){
+  if (panel !== 'toc') showPanel('toc'); else { el('panelBody').innerHTML = tocHtml(); paintPanel(); }
+}
+
+function resHtml(){
+  if (!R || !R.groups || !R.groups.length) return '';
+  return R.groups.map(function(g){
+    var head = g.href
+      ? '<a href="' + g.href + '" target="_blank" rel="noopener">' + esc(g.title) + '</a>'
+      : esc(g.title);
+    var body = '';
+    if (g.items && g.items.length){
+      body = '<ul>' + g.items.map(function(it){
+        return it.href
+          ? '<li><a href="' + it.href + '" target="_blank" rel="noopener">' + esc(it.label) + '</a></li>'
+          : '<li>' + esc(it.label) + '</li>';
+      }).join('') + '</ul>';
+    }
+    if (g.note) body += '<p class="resnote">' + esc(g.note) + '</p>';
+    return '<div class="resgrp"><h3>' + head + '</h3>' + body + '</div>';
+  }).join('');
+}
+
+function paintPanel(){
+  if (!panel) return;
+  const s = S[i];
+  if (panel === 'res'){
+    el('panelTitle').textContent = 'Resources';
+    if (!el('panelBody').querySelector('.resgrp')) el('panelBody').innerHTML = resHtml();
+  } else if (panel === 'toc'){
+    el('panelTitle').textContent = 'Contents';
+    if (!el('panelBody').querySelector('.plist')) el('panelBody').innerHTML = tocHtml();
+    if (el('panelBody').querySelector('.hits') && !el('q').value.trim()) el('panelBody').innerHTML = tocHtml();
+    el('panelBody').querySelectorAll('a').forEach(a => {
+      const on = +a.dataset.n === s.n;
+      a.classList.toggle('here', on);
+      if (on) a.scrollIntoView({block:'nearest'});
+    });
+  } else {
+    el('panelTitle').textContent = 'Lecturer notes';
+    el('panelBody').innerHTML = s.notes
+      ? s.notes.split('\n').filter(Boolean).map(p => '<p>'+esc(p)+'</p>').join('')
+      : '<p class="none">No notes on this slide.</p>';
+  }
+}
+
+function showPanel(kind){
+  panel = (panel === kind) ? null : kind;
+  el('panel').hidden = !panel;
+  el('stage').classList.toggle('with-panel', !!panel);
+  el('btnToc').setAttribute('aria-pressed', String(panel === 'toc'));
+  el('btnNotes').setAttribute('aria-pressed', String(panel === 'notes'));
+  el('btnRes').setAttribute('aria-pressed', String(panel === 'res'));
+  if (panel === 'res') el('panelBody').innerHTML = resHtml();
+  if (panel === 'toc') el('panelBody').innerHTML = tocHtml();
+  paintPanel();
+  try { localStorage.setItem('re02w2-panel', panel || ''); } catch(e) {}
+}
+
+function draw(){
+  const s = S[i];
+  el('slide').src = s.img;
+  el('slide').alt = 'Slide ' + s.n + (s.title ? ': ' + s.title : '');
+  el('count').textContent = s.n + ' / ' + S.length;
+  el('title').textContent = s.title || '';
+  el('chip').hidden = !s.block;
+  el('chip').textContent = s.block || '';
+  el('bar').style.width = (100*s.n/S.length) + '%';
+  const c = CALLOUTS[s.n], box = el('callout');
+  if (c){ box.innerHTML = '<b>'+c[0]+'</b>'+c[1]; box.classList.remove('hidden'); }
+  else box.classList.add('hidden');
+  el('prev').disabled = i===0; el('next').disabled = i===S.length-1;
+  if (location.hash !== '#'+s.n) history.replaceState(null,'','#'+s.n);
+  paintPanel();
+  const nx = S[i+1]; if (nx) new Image().src = nx.img;
+}
+function go(d){ i = Math.min(S.length-1, Math.max(0, i+d)); draw(); }
+
+fetch('slides.json').then(r => r.json()).then(data => {
+  S = data; i = fromHash(); draw();
+  el('panelBody').addEventListener('click', e => {
+    const a = e.target.closest('a[data-n]'); if (!a) return;
+    e.preventDefault(); i = +a.dataset.n - 1; draw();
+  });
+  try {
+    const saved = localStorage.getItem('re02w2-panel');
+    if (saved === 'toc' || saved === 'notes') showPanel(saved);
+  } catch(e) {}
+});
+
+el('prev').onclick = () => go(-1);
+el('next').onclick = () => go(1);
+el('btnToc').onclick = () => showPanel('toc');
+el('btnNotes').onclick = () => showPanel('notes');
+el('btnRes').onclick = () => showPanel('res');
+
+// the button appears only where the bundle actually carries resources
+fetch('resources.json').then(r => r.ok ? r.json() : null).then(function(d){
+  if (d && d.groups && d.groups.length){ R = d; el('btnRes').hidden = false; }
+}).catch(function(){});
+el('q').addEventListener('input', search);
+window.addEventListener('hashchange', () => { i = fromHash(); draw(); });
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT'){ if (e.key === 'Escape') e.target.blur(); return; }
+  if (e.key === '/'){ e.preventDefault(); el('q').focus(); return; }
+  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' '){ e.preventDefault(); go(1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); go(-1); }
+  else if (e.key === 'Home'){ i = 0; draw(); }
+  else if (e.key === 'End'){ i = S.length-1; draw(); }
+  else if (e.key === 'c' || e.key === 'C') showPanel('toc');
+  else if (e.key === 'r' || e.key === 'R'){ if (!el('btnRes').hidden) showPanel('res'); }
+  else if (e.key === 'n' || e.key === 'N') showPanel('notes');
+  else if (e.key === 'Escape' && panel) showPanel(panel);
+});
+</script>
+<script src="lecture-nav.js"></script>
+</body>
+</html>

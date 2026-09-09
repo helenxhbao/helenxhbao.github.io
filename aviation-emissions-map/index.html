@@ -330,5 +330,72 @@ function spark(id,pts,selX,color,fmtv){
     const lab=svgEl("text",{x:px(sel.x),y:py(sel.y)-8,"text-anchor":"middle","font-size":11.5,fill:color,"font-weight":"600"}); lab.textContent=fmtv(sel.y); svg.appendChild(lab); }
 }
 </script>
-</body>
+<script data-pageviews="1">
+(function () {
+  if (window.__pageviews) return;
+  window.__pageviews = true;
+  var CODE = "helenxhbao";
+  var BASE = "https://" + CODE + ".goatcounter.com/counter/";
+
+  // GoatCounter answers with a JSON body even when it replies 404, which is what
+  // it does for a path that has had no views yet, so the body is read regardless
+  // of status. Returns {n, text} with the count as a number and as GoatCounter's
+  // own formatted string, which carries the thousands separators.
+  function read(url) {
+    return fetch(url, { mode: "cors" })
+      .then(function (r) { return r.json().catch(function () { return null; }); })
+      .then(function (d) {
+        if (!d || d.count === undefined || d.count === null) return { n: 0, text: null };
+        var n = parseInt(String(d.count).replace(/[^0-9]/g, ""), 10);
+        return { n: isNaN(n) ? 0 : n, text: String(d.count) };
+      })
+      .catch(function () { return { n: 0, text: null }; });
+  }
+
+  // The documented path form keeps its leading slash, which leaves a double
+  // slash after /counter/. The undoubled form also answers, so if the documented
+  // one comes back empty the other is tried before giving up.
+  function pageCount(path) {
+    return read(BASE + path + ".json").then(function (a) {
+      if (a.n > 0) return a;
+      return read(BASE + path.replace(/^[/]/, "") + ".json");
+    });
+  }
+
+  function render() {
+    var host = document.querySelector("article") ||
+               document.querySelector(".center") ||
+               document.body;
+    if (!host) return;
+    var old = document.querySelector(".pageviews");
+    if (old) old.remove();
+
+    var path = location.pathname.replace(/index[.]html$/, "");
+    if (path.length > 1) path = path.replace(/[/]$/, "");
+    var isHome = path === "/" || path === "";
+
+    var jobs = [pageCount(isHome ? "/" : path)];
+    if (isHome) jobs.push(read(BASE + "TOTAL.json"));
+
+    Promise.all(jobs).then(function (res) {
+      var parts = [];
+      if (res[0].n > 0) parts.push(res[0].text + " views of this page");
+      if (isHome && res[1] && res[1].n > 0) parts.push(res[1].text + " views across the site");
+      if (!parts.length) return;   // nothing recorded yet: show nothing at all
+      var el = document.createElement("p");
+      el.className = "pageviews";
+      el.setAttribute("aria-live", "polite");
+      el.textContent = parts.join(" · ");
+      host.appendChild(el);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", render);
+  } else {
+    render();
+  }
+  document.addEventListener("nav", render);
+})();
+</script></body>
 </html>

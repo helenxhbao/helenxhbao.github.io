@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Two Margins of Housing Search</title>
+<style>
+  :root{--paper:#fbf8f2;--ink:#1c1b18;--terra:#7a4b2b;--teal:#3f6b5f;--hair:#d9d2c5;--muted:#6b6355;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,"Times New Roman",serif;line-height:1.5;}
+  .wrap{max-width:900px;margin:0 auto;padding:14px 16px 28px;}
+  h1{font-size:1.5rem;margin:.2rem 0 .1rem;}
+  .sub{color:var(--muted);margin:.1rem 0 1rem;max-width:70ch;}
+  .controls{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;margin-bottom:6px;}
+  .ctl{display:flex;flex-direction:column;gap:3px;font-size:.72rem;color:var(--muted);}
+  select{font-family:inherit;font-size:.9rem;padding:4px 6px;border:1px solid var(--hair);
+    border-radius:4px;background:var(--paper);color:var(--ink);max-width:280px;}
+  .seg{display:inline-flex;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+  .seg button{font-family:inherit;font-size:.85rem;padding:4px 14px;border:0;background:var(--paper);
+    color:var(--ink);cursor:pointer;}
+  .seg button.on{background:var(--terra);color:#fff;}
+  #chart{width:100%;height:auto;display:block;}
+  .legend .sw{flex:0 0 auto;}
+  .legend{margin:8px 2px 0;font-size:.85rem;}
+  .legend .row{display:flex;gap:10px;align-items:flex-start;margin-bottom:5px;}
+  .legend .sw{margin-top:3px;}
+  .readout{margin-top:12px;font-size:.95rem;background:#fffdf8;border:1px solid var(--hair);
+    border-radius:4px;padding:10px 12px;max-width:80ch;}
+  .note{font-size:.8rem;color:var(--muted);margin-top:8px;max-width:85ch;}
+  .tip{position:fixed;pointer-events:none;background:#fffdf8;border:1px solid var(--hair);border-radius:3px;
+    padding:6px 8px;font-size:.8rem;box-shadow:0 2px 8px rgba(0,0,0,.12);opacity:0;transition:opacity .08s;z-index:20;}
+  body.embed h1,body.embed .sub{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>The Two Margins of Housing Search</h1>
+  <p class="sub">After 2020 more searchers crossed their city boundary, but they did not look farther.</p>
+  <div class="controls">
+    <div class="ctl">Area (travel-to-work area)<select id="selUnit"></select></div>
+  </div>
+  <svg id="chart" viewBox="0 0 760 430" role="img" aria-label="Grouped bars of search distance and lines of boundary-crossing share, for sale and rent, by year"></svg>
+  <div class="legend">
+    <div class="row"><svg class="sw" width="40" height="16"><rect x="2" y="2" width="12" height="13" fill="#6aa0d8" stroke="#3f79bd" stroke-width="1"/><line x1="18" y1="8" x2="38" y2="8" stroke="#6aa0d8" stroke-width="2.4"/><circle cx="28" cy="8" r="3" fill="#6aa0d8" stroke="#fff" stroke-width="1"/></svg>
+      <div><strong>Sale</strong></div></div>
+    <div class="row"><svg class="sw" width="40" height="16"><rect x="2" y="2" width="12" height="13" fill="#a98fd0" stroke="#7d5cbf" stroke-width="1"/><line x1="18" y1="8" x2="38" y2="8" stroke="#a98fd0" stroke-width="2.4"/><circle cx="28" cy="8" r="3" fill="#a98fd0" stroke="#fff" stroke-width="1"/></svg>
+      <div><strong>Rent</strong></div></div>
+    <div class="row"><svg class="sw" width="40" height="16"></svg><div><strong>Bars</strong> (left axis): mean search distance, km. <strong>Lines</strong> (right axis): share of residents crossing the edge, %.</div></div>
+  </div>
+  <div class="readout" id="readout"></div>
+  <p class="note">Sale and rent together, with the two margins as two kinds of mark on two axes: bars for how far searchers look (left, kilometres) and lines for how many cross their travel-to-work-area boundary (right, per cent). Around the pandemic the bars stay roughly level while the lines climb, so more people crossed the edge but did not look farther; the sale line then falls back while the rental line stays high. Both axes rescale to the chosen area; smaller areas have noisier figures, search signals interest rather than a completed move, and England is the reliable canvas.</p>
+</div>
+<div class="tip" id="tip"></div>
+<script>
+const $=id=>document.getElementById(id);
+if(location.hash.includes("embed")||location.search.includes("embed"))document.body.classList.add("embed");
+const SVGNS="http://www.w3.org/2000/svg";
+function el(n,a,txt){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;}
+function parseCSV(t){return t.trim().split(/\r?\n/).map(r=>r.split(","));}
+
+let ROWS=[],UNITS=[],unit="NAT";
+const COL={Sale:{fill:"#6aa0d8",stroke:"#3f79bd"},Rent:{fill:"#a98fd0",stroke:"#7d5cbf"}};
+
+fetch("data/margins.csv?v=4").then(r=>r.text()).then(t=>{
+  const rows=parseCSV(t),h=rows[0];
+  ROWS=rows.slice(1).map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]])));
+  ROWS.forEach(d=>{d.year=+d.year;d.leaving_pct=+d.leaving_pct;d.mean_km=+d.mean_km;d.enq=+d.enq;});
+  const seen=new Map();ROWS.forEach(d=>{if(!seen.has(d.unit_cd))seen.set(d.unit_cd,d.unit_nm);});
+  UNITS=[...seen.entries()].filter(([c])=>c!=="NAT").sort((a,b)=>a[1].localeCompare(b[1]));
+  UNITS.unshift(["NAT","National (all areas)"]);
+  $("selUnit").innerHTML=UNITS.map(([c,n])=>`<option value="${c}">${n}</option>`).join("");
+  $("selUnit").onchange=()=>{unit=$("selUnit").value;draw();};
+  draw();
+});
+
+function niceFloor(v,s){return Math.floor(v/s)*s;}
+function niceCeil(v,s){return Math.ceil(v/s)*s;}
+
+function draw(){
+  const all=ROWS.filter(d=>d.unit_cd===unit);
+  const sale=all.filter(d=>d.tenure==="Sale").sort((a,b)=>a.year-b.year);
+  const rent=all.filter(d=>d.tenure==="Rent").sort((a,b)=>a.year-b.year);
+  const W=760,H=430,mL=52,mR=52,mT=22,mB=52;
+  const y0=2016,y1=2025,slot=(W-mL-mR)/(y1-y0+1);
+  const X=y=>mL+(y-y0+0.5)*slot;
+  const svg=$("chart");svg.innerHTML="";
+  const pT=mT,pB=H-mB,pH=pB-pT,mid=pT+pH/2;
+  if(all.length<1){svg.appendChild(el("text",{x:W/2,y:H/2,"text-anchor":"middle","font-size":13,fill:"#8a7358"},"Not enough data for this area."));return;}
+  // auto-scaled halves: distance fills the BOTTOM half, share fills the TOP half
+  const kmV=all.map(d=>d.mean_km),shV=all.map(d=>d.leaving_pct);
+  const dR=Math.max(Math.max(...kmV)-Math.min(...kmV),10);
+  const dLo=niceFloor(Math.min(...kmV)-dR*0.6,10),dHi=niceCeil(Math.max(...kmV)+dR*0.25,10);
+  const sR=Math.max(Math.max(...shV)-Math.min(...shV),4);
+  const sLo=Math.max(0,niceFloor(Math.min(...shV)-sR*0.4,5)),sHi=niceCeil(Math.max(...shV)+sR*0.4,5);
+  const YL=v=>pB-(v-dLo)/(dHi-dLo)*(pH/2);   // bottom half: km
+  const YR=v=>mid-(v-sLo)/(sHi-sLo)*(pH/2);   // top half: %
+  // pandemic band + gridlines + midline
+  svg.appendChild(el("rect",{x:X(2020)-slot/2,y:pT,width:slot*2,height:pH,fill:"#7a4b2b",opacity:.05}));
+  svg.appendChild(el("text",{x:X(2020)+slot/2,y:pT+11,"text-anchor":"middle","font-size":11,fill:"#8a7358"},"2020–21"));
+  for(let i=0;i<=4;i++){const gy=YL(dLo+(dHi-dLo)*i/4);
+    svg.appendChild(el("line",{x1:mL,y1:gy,x2:W-mR,y2:gy,stroke:"#ece5d5","stroke-width":1}));
+    svg.appendChild(el("text",{x:mL-8,y:gy+3,"text-anchor":"end","font-size":11,fill:"#6b6355"},Math.round(dLo+(dHi-dLo)*i/4)));}
+  for(let i=1;i<=4;i++){const gy=YR(sLo+(sHi-sLo)*i/4);
+    svg.appendChild(el("line",{x1:mL,y1:gy,x2:W-mR,y2:gy,stroke:"#ece5d5","stroke-width":1}));
+    svg.appendChild(el("text",{x:W-mR+8,y:gy+3,"text-anchor":"start","font-size":11,fill:"#6b6355"},Math.round(sLo+(sHi-sLo)*i/4)));}
+  svg.appendChild(el("line",{x1:mL,y1:mid,x2:W-mR,y2:mid,stroke:"#cfc6b6","stroke-width":1.2}));
+  svg.appendChild(el("text",{x:W-mR+8,y:YR(sLo)+3,"text-anchor":"start","font-size":11,fill:"#6b6355"},Math.round(sLo)));
+  svg.appendChild(el("text",{x:14,y:pB-pH/4,"text-anchor":"middle","font-size":11,fill:"#6b6355",transform:`rotate(-90 14 ${pB-pH/4})`},"Distance (km)"));
+  svg.appendChild(el("text",{x:W-12,y:pT+pH/4,"text-anchor":"middle","font-size":11,fill:"#6b6355",transform:`rotate(90 ${W-12} ${pT+pH/4})`},"Crossing share (%)"));
+  for(let yr=y0;yr<=y1;yr++)svg.appendChild(el("text",{x:X(yr),y:pB+18,"text-anchor":"middle","font-size":11,fill:"#6b6355"},yr));
+  // grouped bars: Sale then Rent per year, each labelled
+  const bw=Math.min(15,slot*0.28),gap=3,off=(bw*2+gap)/2;
+  function bars(rows,tenure,side){rows.forEach(d=>{
+    const bx=X(d.year)-off+(side?bw+gap:0),by=YL(d.mean_km),bh=pB-by,c=COL[tenure];
+    svg.appendChild(el("rect",{x:bx,y:by,width:bw,height:bh,fill:c.fill,stroke:c.stroke,"stroke-width":1}));
+    if(bh>=24)svg.appendChild(el("text",{x:bx+bw/2,y:by+11,"text-anchor":"middle","font-size":8.5,fill:"#fff","font-weight":"bold"},Math.round(d.mean_km)));
+    else svg.appendChild(el("text",{x:bx+bw/2,y:by-3,"text-anchor":"middle","font-size":8.5,fill:c.stroke,"font-weight":"bold"},Math.round(d.mean_km)));});}
+  bars(sale,"Sale",0);bars(rent,"Rent",1);
+  // share lines (top half), one per tenure, same colour as its bars
+  function line(rows,tenure){if(rows.length<1)return;const c=COL[tenure];
+    svg.appendChild(el("path",{d:rows.map((d,i)=>(i?"L":"M")+X(d.year).toFixed(1)+" "+YR(d.leaving_pct).toFixed(1)).join(" "),fill:"none",stroke:c.fill,"stroke-width":2.6,"stroke-linejoin":"round"}));
+    rows.forEach(d=>svg.appendChild(el("circle",{cx:X(d.year),cy:YR(d.leaving_pct),r:3.4,fill:c.fill,stroke:"#fff","stroke-width":1})));}
+  line(sale,"Sale");line(rent,"Rent");
+  // hover: both tenures for the year
+  const byYear=y=>({s:sale.find(d=>d.year===y),r:rent.find(d=>d.year===y)});
+  for(let yr=y0;yr<=y1;yr++){const h=byYear(yr);if(!h.s&&!h.r)continue;
+    const hit=el("rect",{x:X(yr)-slot/2,y:pT,width:slot,height:pH,fill:"transparent"});
+    hit.onmousemove=e=>{const tip=$("tip");
+      tip.innerHTML=`<strong>${yr}</strong>`+
+        (h.s?`<br><span style="color:${COL.Sale.stroke}">Sale</span>: ${h.s.mean_km.toFixed(0)} km, ${h.s.leaving_pct.toFixed(1)}%`:"")+
+        (h.r?`<br><span style="color:${COL.Rent.stroke}">Rent</span>: ${h.r.mean_km.toFixed(0)} km, ${h.r.leaving_pct.toFixed(1)}%`:"");
+      tip.style.opacity=1;tip.style.left=Math.min(e.clientX+14,window.innerWidth-200)+"px";tip.style.top=(e.clientY+14)+"px";};
+    hit.onmouseleave=()=>{$("tip").style.opacity=0;};svg.appendChild(hit);}
+  // readout: both tenures
+  const nm=(UNITS.find(u=>u[0]===unit)||["","this area"])[1];
+  const sgn=x=>(x>=0?"+":"")+x.toFixed(0);
+  function phrase(rows,label){const b=rows.find(d=>d.year===2019),p=rows.find(d=>d.year===2021),last=rows[rows.length-1];
+    if(!b||!p)return "";const de=(p.leaving_pct/b.leaving_pct-1)*100,deNow=(last.leaving_pct/b.leaving_pct-1)*100;
+    const rev=de>0?deNow<de*0.4:deNow>de*0.4;
+    return `${label} rose ${sgn(de)}% into 2021 and ${rev?"fell back":"stayed high"} by ${last.year} (${sgn(deNow)}% on 2019)`;}
+  const ps=phrase(sale,"sale"),pr=phrase(rent,"rent");
+  $("readout").innerHTML=`${nm}. Crossing share: ${ps}; ${pr}. Search distances (bars) barely moved throughout, so the shift was in how many crossed the edge, not how far they looked.`;
+}
+</script>
+<script data-pageviews="1">
+(function () {
+  if (window.__pageviews) return;
+  window.__pageviews = true;
+  var CODE = "helenxhbao";
+  var BASE = "https://" + CODE + ".goatcounter.com/counter/";
+
+  // GoatCounter answers with a JSON body even when it replies 404, which is what
+  // it does for a path that has had no views yet, so the body is read regardless
+  // of status. Returns {n, text} with the count as a number and as GoatCounter's
+  // own formatted string, which carries the thousands separators.
+  function read(url) {
+    return fetch(url, { mode: "cors" })
+      .then(function (r) { return r.json().catch(function () { return null; }); })
+      .then(function (d) {
+        if (!d || d.count === undefined || d.count === null) return { n: 0, text: null };
+        var n = parseInt(String(d.count).replace(/[^0-9]/g, ""), 10);
+        return { n: isNaN(n) ? 0 : n, text: String(d.count) };
+      })
+      .catch(function () { return { n: 0, text: null }; });
+  }
+
+  // The documented path form keeps its leading slash, which leaves a double
+  // slash after /counter/. The undoubled form also answers, so if the documented
+  // one comes back empty the other is tried before giving up.
+  function pageCount(path) {
+    return read(BASE + path + ".json").then(function (a) {
+      if (a.n > 0) return a;
+      return read(BASE + path.replace(/^[/]/, "") + ".json");
+    });
+  }
+
+  function render() {
+    var host = document.querySelector("article") ||
+               document.querySelector(".center") ||
+               document.body;
+    if (!host) return;
+    var old = document.querySelector(".pageviews");
+    if (old) old.remove();
+
+    var path = location.pathname.replace(/index[.]html$/, "");
+    if (path.length > 1) path = path.replace(/[/]$/, "");
+    var isHome = path === "/" || path === "";
+
+    var jobs = [pageCount(isHome ? "/" : path)];
+    if (isHome) jobs.push(read(BASE + "TOTAL.json"));
+
+    Promise.all(jobs).then(function (res) {
+      var parts = [];
+      if (res[0].n > 0) parts.push(res[0].text + " views of this page");
+      if (isHome && res[1] && res[1].n > 0) parts.push(res[1].text + " views across the site");
+      if (!parts.length) return;   // nothing recorded yet: show nothing at all
+      var el = document.createElement("p");
+      el.className = "pageviews";
+      el.setAttribute("aria-live", "polite");
+      el.textContent = parts.join(" · ");
+      host.appendChild(el);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", render);
+  } else {
+    render();
+  }
+  document.addEventListener("nav", render);
+})();
+</script></body>
+</html>

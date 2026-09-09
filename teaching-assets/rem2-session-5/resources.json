@@ -1,0 +1,29 @@
+{
+ "groups": [
+  {
+   "title": "Slides",
+   "items": [
+    {
+     "label": "Slides, full deck",
+     "href": "slides.pdf",
+     "kind": "PDF"
+    }
+   ]
+  },
+  {
+   "title": "Exercises",
+   "items": [
+    {
+     "label": "Lecture 5 Excercise",
+     "href": "resources/Lecture 5 Excercise.pdf",
+     "kind": "PDF"
+    },
+    {
+     "label": "Lecture 5 Exercises - STATA codes",
+     "href": "resources/Lecture 5 Exercises - STATA codes.do",
+     "kind": "Stata do-file"
+    }
+   ]
+  }
+ ]
+}
