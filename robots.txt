@@ -1,0 +1,10 @@
+# Served at https://helenbao.com/robots.txt (via build/redirects/, copied by deploy.sh Step 2b).
+# The Teaching area is kept out of search engines: its materials are shared with enrolled
+# students by password, not published. This is a request compliant crawlers honour; it is
+# not access control (that is the on-page password gate, and later Cloudflare Access). See
+# "10 Projects/Teaching/Teaching page - publishing checklist.md".
+User-agent: *
+Disallow: /teaching
+Disallow: /teaching-assets/
+
+Sitemap: https://helenbao.com/sitemap.xml

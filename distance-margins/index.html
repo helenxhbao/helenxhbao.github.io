@@ -132,15 +132,19 @@ function draw(){
         (h.r?`<br><span style="color:${COL.Rent.stroke}">Rent</span>: ${h.r.mean_km.toFixed(0)} km, ${h.r.leaving_pct.toFixed(1)}%`:"");
       tip.style.opacity=1;tip.style.left=Math.min(e.clientX+14,window.innerWidth-200)+"px";tip.style.top=(e.clientY+14)+"px";};
     hit.onmouseleave=()=>{$("tip").style.opacity=0;};svg.appendChild(hit);}
-  // readout: both tenures
+  // readout: both tenures, stated as share LEVELS (from X% to Y%) so there is no
+  // relative-change figure to be misread as percentage points.
   const nm=(UNITS.find(u=>u[0]===unit)||["","this area"])[1];
-  const sgn=x=>(x>=0?"+":"")+x.toFixed(0);
   function phrase(rows,label){const b=rows.find(d=>d.year===2019),p=rows.find(d=>d.year===2021),last=rows[rows.length-1];
-    if(!b||!p)return "";const de=(p.leaving_pct/b.leaving_pct-1)*100,deNow=(last.leaving_pct/b.leaving_pct-1)*100;
-    const rev=de>0?deNow<de*0.4:deNow>de*0.4;
-    return `${label} rose ${sgn(de)}% into 2021 and ${rev?"fell back":"stayed high"} by ${last.year} (${sgn(deNow)}% on 2019)`;}
+    if(!b||!p)return "";
+    const B=Math.round(b.leaving_pct),P=Math.round(p.leaving_pct),L=Math.round(last.leaving_pct);
+    const rise=p.leaving_pct-b.leaving_pct, remain=last.leaving_pct-b.leaving_pct;
+    const rev = rise>=0 ? remain<rise*0.4 : remain>rise*0.4;
+    const dir = P>=B ? "rose" : "eased";
+    const tail = rev ? `before easing back to ${L}% by ${last.year}` : `and held near ${L}% by ${last.year}`;
+    return `${label} ${dir} from ${B}% to ${P}% into 2021, ${tail}`;}
   const ps=phrase(sale,"sale"),pr=phrase(rent,"rent");
-  $("readout").innerHTML=`${nm}. Crossing share: ${ps}; ${pr}. Search distances (bars) barely moved throughout, so the shift was in how many crossed the edge, not how far they looked.`;
+  $("readout").innerHTML=`${nm}. Share crossing the city edge: ${ps}; ${pr}. Search distances (bars) barely moved throughout, so the shift was in how many crossed the edge, not how far they looked.`;
 }
 </script>
 <script data-pageviews="1">

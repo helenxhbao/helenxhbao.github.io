@@ -267,7 +267,7 @@ function citation(study){
   if(!p.title) return `${esc(p.authors)} (${esc(p.year)}). <span class="todo">Title, journal and DOI to be added (${esc(study)}).</span>`;
   let s=`${esc(p.authors)} (${esc(p.year)}). ${esc(p.title)}. `;
   if(p.journal) s+=`<span class="t">${esc(p.journal)}</span>. `;
-  if(p.doi) s+=`<a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noopener">doi:${esc(p.doi)}</a>`;
+  if(p.doi) s+=`<a href="https://doi.org/${esc(p.doi)}" target="_top" rel="noopener">doi:${esc(p.doi)}</a>`;
   return s;
 }
 function renderPapers(per){

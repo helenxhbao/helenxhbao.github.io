@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heat waves and the adaptation gap</title>
+<style>
+  :root{--paper:#fbf4ec;--ink:#1c1b18;--accent:#c4682b;--accent2:#e0b48f;--muted:#6b5a49;--hair:#e6d5c3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Spectral",Georgia,"Times New Roman",serif;line-height:1.5;}
+  .wrap{max-width:820px;margin:0 auto;padding:12px 14px 22px;}
+  h1{font-size:1.3rem;margin:.2rem 0 .1rem;}
+  .sub{color:var(--muted);margin:.1rem 0 .8rem;max-width:70ch;}
+  .controls{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:6px;}
+  .ctl{display:flex;flex-direction:column;gap:3px;font-size:.72rem;color:var(--muted);}
+  .seg{display:inline-flex;border:1px solid var(--hair);border-radius:4px;overflow:hidden;}
+  .seg button{font-family:inherit;font-size:.85rem;padding:5px 13px;border:0;background:#fff;color:var(--ink);cursor:pointer;}
+  .seg button.on{background:var(--accent);color:#fff;}
+  #chart{width:100%;height:auto;display:block;}
+  .legend{display:flex;gap:18px;font-size:.85rem;margin:6px 2px 0;flex-wrap:wrap;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{width:20px;height:0;border-top:3px solid;display:inline-block;}
+  .note{font-size:.78rem;color:var(--muted);margin:8px 2px 0;max-width:84ch;line-height:1.45;}
+  .tip{position:fixed;pointer-events:none;background:#fff;border:1px solid var(--hair);border-radius:3px;padding:6px 8px;font-size:.8rem;box-shadow:0 2px 8px rgba(0,0,0,.12);opacity:0;transition:opacity .08s;z-index:20;}
+  body.embed h1,body.embed .sub{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Heat waves and the adaptation gap</h1>
+  <p class="sub">As Britain warms, does the housing market reward heat-resilient homes? Listings 2018–2025, linked to the energy-certificate register and grid temperature.</p>
+  <div class="controls">
+    <div class="ctl">View<div class="seg" id="segView">
+      <button data-v="winter" class="on">A winter premium</button><button data-v="heatwaves">Heat waves move nothing</button><button data-v="cooling">Cooling barely advertised</button></div></div>
+    <div class="ctl">Market<div class="seg" id="segMkt">
+      <button data-m="Sale" class="on">Sale</button><button data-m="Rent">Rent</button></div></div>
+  </div>
+  <svg id="chart" viewBox="0 0 720 400" role="img" aria-label="Heat capitalisation evidence"></svg>
+  <div class="legend" id="legend"></div>
+  <div class="note" id="note"></div>
+</div>
+<div class="tip" id="tip"></div>
+<script>
+const $=id=>document.getElementById(id);
+if(location.hash.includes("embed")||location.search.includes("embed"))document.body.classList.add("embed");
+const NS="http://www.w3.org/2000/svg";
+const AC="#c4682b", AC2="#e0b48f", SUM="#c0392b", WIN="#2c7fb8";
+function el(n,a,t){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e;}
+let D=null,view="winter",mkt="Sale";
+fetch("data/heat.json?v=1").then(r=>r.json()).then(d=>{D=d;
+  $("segView").querySelectorAll("button").forEach(b=>b.onclick=()=>{view=b.dataset.v;
+    $("segView").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));draw();});
+  $("segMkt").querySelectorAll("button").forEach(b=>b.onclick=()=>{mkt=b.dataset.m;
+    $("segMkt").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));draw();});
+  draw();});
+
+function frame(W,H){const svg=$("chart");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.innerHTML="";
+  svg.appendChild(el("rect",{x:1,y:1,width:W-2,height:H-2,rx:12,fill:"#fff",stroke:"#f0e2d2","stroke-width":1.5}));return svg;}
+function yaxis(svg,mL,W,mR,Y,lo,hi,step,fmt){for(let v=Math.ceil(lo/step)*step;v<=hi+1e-9;v+=step){const gy=Y(v),z=Math.abs(v)<1e-9;
+  svg.appendChild(el("line",{x1:mL,y1:gy,x2:W-mR,y2:gy,stroke:z?"#cbb79f":"#f2e8dc","stroke-width":z?1.4:1,"stroke-dasharray":z?"4 3":""}));
+  svg.appendChild(el("text",{x:mL-8,y:gy+3,"text-anchor":"end","font-size":11,fill:"#6b5a49","font-family":"Georgia,serif"},fmt(v)));}}
+
+function drawWinter(){
+  const W=720,H=400,mL=64,mR=20,mT=26,mB=52,pT=mT,pB=H-mB,svg=frame(W,H);
+  const s=D.seasonal[mkt], m=s.months, ML=["J","F","M","A","M","J","J","A","S","O","N","D"];
+  const X=i=>mL+(i+0.5)*((W-mL-mR)/12);
+  const all=m.concat([0]);let lo=Math.min(...all),hi=Math.max(...all);const pad=(hi-lo)*0.2;lo-=pad;hi+=pad;
+  const Y=v=>pT+(1-(v-lo)/(hi-lo))*(pB-pT);
+  // season shading
+  svg.appendChild(el("rect",{x:X(5)-((W-mL-mR)/24),y:pT,width:((W-mL-mR)/12)*3,height:pB-pT,fill:SUM,opacity:.08}));
+  svg.appendChild(el("rect",{x:mL,y:pT,width:((W-mL-mR)/12)*2-((W-mL-mR)/24),height:pB-pT,fill:WIN,opacity:.08}));
+  svg.appendChild(el("rect",{x:X(11)-((W-mL-mR)/24),y:pT,width:((W-mL-mR)/24),height:pB-pT,fill:WIN,opacity:.08}));
+  yaxis(svg,mL,W,mR,Y,lo,hi,0.2,v=>v.toFixed(1));
+  svg.appendChild(el("text",{x:15,y:(pT+pB)/2,"text-anchor":"middle","font-size":11,fill:"#6b5a49","font-family":"Georgia,serif",transform:`rotate(-90 15 ${(pT+pB)/2})`},"EPC premium vs annual mean (pp)"));
+  svg.appendChild(el("path",{d:m.map((v,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)).join(" "),fill:"none",stroke:AC,"stroke-width":2.6,"stroke-linejoin":"round"}));
+  m.forEach((v,i)=>{svg.appendChild(el("circle",{cx:X(i),cy:Y(v),r:3.6,fill:AC,stroke:"#fff","stroke-width":1}));
+    svg.appendChild(el("text",{x:X(i),y:pB+18,"text-anchor":"middle","font-size":11,fill:"#6b5a49","font-family":"Georgia,serif"},ML[i]));});
+  svg.appendChild(el("text",{x:X(6),y:pB+38,"text-anchor":"middle","font-size":10.5,fill:SUM,"font-family":"Georgia,serif"},"summer"));
+  svg.appendChild(el("text",{x:X(0.5),y:pB+38,"text-anchor":"middle","font-size":10.5,fill:WIN,"font-family":"Georgia,serif"},"winter"));
+  $("legend").innerHTML=`<span><i style="border-color:${AC}"></i>High-EPC price premium, deviation from the annual mean</span>`;
+  const c=s.contrast;
+  $("note").innerHTML=`The premium buyers pay for an energy-efficient (A–C) home, by month of the year, as a deviation from its annual average (${mkt.toLowerCase()} market). ${mkt==="Sale"?`It peaks in late autumn and winter and dips through summer: the winter-minus-summer gap is +${c.toFixed(2)} pp. The certificate is read as a promise of a warm, cheap-to-heat home, not a cool one.`:`In the rental market the seasonal pattern is weaker and less winter-shaped (winter-minus-summer ${c>=0?"+":""}${c.toFixed(2)} pp).`} Shaded: summer (Jun–Aug) and winter (Dec–Feb).`;
+}
+function drawTS(key,ylab,fmt,step,legend,note){
+  const W=720,H=400,mL=64,mR=20,mT=26,mB=48,pT=mT,pB=H-mB,svg=frame(W,H);
+  const s=D[key==="prem"?"monthly":"cooling"][mkt];
+  const val=d=>key==="prem"?d.prem:d.ac;
+  const X=i=>mL+(i/(s.length-1))*(W-mL-mR);
+  const vals=s.map(val).concat(key==="prem"?[0]:[]);
+  let lo=Math.min(...vals),hi=Math.max(...vals);const pad=(hi-lo)*0.12||1;lo-=pad;hi+=pad;if(key!=="prem")lo=0;
+  const Y=v=>pT+(1-(v-lo)/(hi-lo))*(pB-pT);
+  yaxis(svg,mL,W,mR,Y,lo,hi,step,fmt);
+  svg.appendChild(el("text",{x:15,y:(pT+pB)/2,"text-anchor":"middle","font-size":11,fill:"#6b5a49","font-family":"Georgia,serif",transform:`rotate(-90 15 ${(pT+pB)/2})`},ylab));
+  // heatwave markers
+  D.heatwaves.forEach(hw=>{const i=s.findIndex(d=>d.ym===hw);if(i<0)return;const x=X(i);
+    svg.appendChild(el("line",{x1:x,y1:pT,x2:x,y2:pB,stroke:SUM,"stroke-width":1,"stroke-dasharray":"3 3"}));
+    svg.appendChild(el("text",{x:x,y:pT+11,"text-anchor":"middle","font-size":10,fill:SUM,"font-family":"Georgia,serif"},hw.slice(0,4)));});
+  // year ticks at January
+  s.forEach((d,i)=>{if(d.ym.endsWith("-01"))svg.appendChild(el("text",{x:X(i),y:pB+18,"text-anchor":"middle","font-size":11,fill:"#6b5a49","font-family":"Georgia,serif"},d.ym.slice(0,4)));});
+  svg.appendChild(el("path",{d:s.map((d,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(val(d)).toFixed(1)).join(" "),fill:"none",stroke:AC,"stroke-width":2,"stroke-linejoin":"round"}));
+  $("legend").innerHTML=legend;
+  $("note").innerHTML=note;
+}
+function drawHeatwaves(){
+  const ep=D.episodes[mkt].impact;
+  drawTS("prem","High-EPC premium (%)",v=>(v).toFixed(1),0.5,
+    `<span><i style="border-color:${AC}"></i>High-EPC price premium, monthly</span><span><i style="border-color:${SUM}"></i>heatwave</span>`,
+    `The monthly high-EPC premium (${mkt.toLowerCase()}), with the two hottest spells of the period marked: July 2018 and the July 2022 record. The premium wobbles with the seasons but shows no step at either heatwave. Estimated directly, the change in the premium in the months just after a heatwave is ${ep?`${(ep.coef>=0?"+":"")}${ep.coef.toFixed(2)} pp (p = ${ep.p.toFixed(2)})`:"indistinguishable from zero"}: acute salience does not move the market's valuation of efficiency.`);
+}
+function drawCooling(){
+  drawTS("ac","Listings mentioning cooling (%)",v=>v.toFixed(2),0.05,
+    `<span><i style="border-color:${AC}"></i>Share of listings advertising air conditioning</span>`,
+    `The share of ${mkt.toLowerCase()} listings whose text advertises air conditioning or comfort cooling. It is a fraction of one percent throughout, and although it edges up over the decade it does not jump after a heatwave. The most direct marker of a heat-ready home is almost absent from the market.`);
+}
+function draw(){ view==="winter"?drawWinter():view==="heatwaves"?drawHeatwaves():drawCooling(); }
+</script>
+<script data-pageviews="1">
+(function () {
+  if (window.__pageviews) return;
+  window.__pageviews = true;
+  var CODE = "helenxhbao";
+  var BASE = "https://" + CODE + ".goatcounter.com/counter/";
+
+  // GoatCounter answers with a JSON body even when it replies 404, which is what
+  // it does for a path that has had no views yet, so the body is read regardless
+  // of status. Returns {n, text} with the count as a number and as GoatCounter's
+  // own formatted string, which carries the thousands separators.
+  function read(url) {
+    return fetch(url, { mode: "cors" })
+      .then(function (r) { return r.json().catch(function () { return null; }); })
+      .then(function (d) {
+        if (!d || d.count === undefined || d.count === null) return { n: 0, text: null };
+        var n = parseInt(String(d.count).replace(/[^0-9]/g, ""), 10);
+        return { n: isNaN(n) ? 0 : n, text: String(d.count) };
+      })
+      .catch(function () { return { n: 0, text: null }; });
+  }
+
+  // The documented path form keeps its leading slash, which leaves a double
+  // slash after /counter/. The undoubled form also answers, so if the documented
+  // one comes back empty the other is tried before giving up.
+  function pageCount(path) {
+    return read(BASE + path + ".json").then(function (a) {
+      if (a.n > 0) return a;
+      return read(BASE + path.replace(/^[/]/, "") + ".json");
+    });
+  }
+
+  function render() {
+    var host = document.querySelector("article") ||
+               document.querySelector(".center") ||
+               document.body;
+    if (!host) return;
+    var old = document.querySelector(".pageviews");
+    if (old) old.remove();
+
+    var path = location.pathname.replace(/index[.]html$/, "");
+    if (path.length > 1) path = path.replace(/[/]$/, "");
+    var isHome = path === "/" || path === "";
+
+    var jobs = [pageCount(isHome ? "/" : path)];
+    if (isHome) jobs.push(read(BASE + "TOTAL.json"));
+
+    Promise.all(jobs).then(function (res) {
+      var parts = [];
+      if (res[0].n > 0) parts.push(res[0].text + " views of this page");
+      if (isHome && res[1] && res[1].n > 0) parts.push(res[1].text + " views across the site");
+      if (!parts.length) return;   // nothing recorded yet: show nothing at all
+      var el = document.createElement("p");
+      el.className = "pageviews";
+      el.setAttribute("aria-live", "polite");
+      el.textContent = parts.join(" · ");
+      host.appendChild(el);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", render);
+  } else {
+    render();
+  }
+  document.addEventListener("nav", render);
+})();
+</script></body>
+</html>

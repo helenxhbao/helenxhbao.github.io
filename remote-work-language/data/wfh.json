@@ -1,0 +1,238 @@
+{
+ "phrases": [
+  {
+   "key": "share_wfh_phrase",
+   "label": "Explicit \u201cwork from home\u201d"
+  },
+  {
+   "key": "share_office_study",
+   "label": "An office or study room"
+  },
+  {
+   "key": "share_garden_office",
+   "label": "A garden office"
+  },
+  {
+   "key": "share_broadband",
+   "label": "Broadband or connectivity"
+  }
+ ],
+ "series": {
+  "share_wfh_phrase": {
+   "Rent": [
+    {
+     "year": 2015,
+     "pct": 0.005
+    },
+    {
+     "year": 2017,
+     "pct": 0.005
+    },
+    {
+     "year": 2019,
+     "pct": 0.01
+    },
+    {
+     "year": 2021,
+     "pct": 0.183
+    },
+    {
+     "year": 2023,
+     "pct": 0.181
+    },
+    {
+     "year": 2025,
+     "pct": 0.431
+    }
+   ],
+   "Sale": [
+    {
+     "year": 2015,
+     "pct": 0.031
+    },
+    {
+     "year": 2017,
+     "pct": 0.035
+    },
+    {
+     "year": 2019,
+     "pct": 0.042
+    },
+    {
+     "year": 2021,
+     "pct": 0.247
+    },
+    {
+     "year": 2023,
+     "pct": 0.151
+    },
+    {
+     "year": 2025,
+     "pct": 0.126
+    }
+   ]
+  },
+  "share_office_study": {
+   "Rent": [
+    {
+     "year": 2015,
+     "pct": 1.361
+    },
+    {
+     "year": 2017,
+     "pct": 1.222
+    },
+    {
+     "year": 2019,
+     "pct": 1.176
+    },
+    {
+     "year": 2021,
+     "pct": 1.117
+    },
+    {
+     "year": 2023,
+     "pct": 1.104
+    },
+    {
+     "year": 2025,
+     "pct": 1.0
+    }
+   ],
+   "Sale": [
+    {
+     "year": 2015,
+     "pct": 2.095
+    },
+    {
+     "year": 2017,
+     "pct": 1.94
+    },
+    {
+     "year": 2019,
+     "pct": 1.759
+    },
+    {
+     "year": 2021,
+     "pct": 2.076
+    },
+    {
+     "year": 2023,
+     "pct": 1.754
+    },
+    {
+     "year": 2025,
+     "pct": 1.583
+    }
+   ]
+  },
+  "share_garden_office": {
+   "Rent": [
+    {
+     "year": 2015,
+     "pct": 0.393
+    },
+    {
+     "year": 2017,
+     "pct": 0.367
+    },
+    {
+     "year": 2019,
+     "pct": 0.363
+    },
+    {
+     "year": 2021,
+     "pct": 0.308
+    },
+    {
+     "year": 2023,
+     "pct": 0.407
+    },
+    {
+     "year": 2025,
+     "pct": 0.381
+    }
+   ],
+   "Sale": [
+    {
+     "year": 2015,
+     "pct": 1.486
+    },
+    {
+     "year": 2017,
+     "pct": 1.391
+    },
+    {
+     "year": 2019,
+     "pct": 1.428
+    },
+    {
+     "year": 2021,
+     "pct": 1.521
+    },
+    {
+     "year": 2023,
+     "pct": 1.714
+    },
+    {
+     "year": 2025,
+     "pct": 1.797
+    }
+   ]
+  },
+  "share_broadband": {
+   "Rent": [
+    {
+     "year": 2015,
+     "pct": 0.298
+    },
+    {
+     "year": 2017,
+     "pct": 0.367
+    },
+    {
+     "year": 2019,
+     "pct": 0.515
+    },
+    {
+     "year": 2021,
+     "pct": 0.687
+    },
+    {
+     "year": 2023,
+     "pct": 0.696
+    },
+    {
+     "year": 2025,
+     "pct": 0.816
+    }
+   ],
+   "Sale": [
+    {
+     "year": 2015,
+     "pct": 0.013
+    },
+    {
+     "year": 2017,
+     "pct": 0.013
+    },
+    {
+     "year": 2019,
+     "pct": 0.018
+    },
+    {
+     "year": 2021,
+     "pct": 0.039
+    },
+    {
+     "year": 2023,
+     "pct": 0.024
+    },
+    {
+     "year": 2025,
+     "pct": 0.036
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Remote work in the language of listings</title>
+<style>
+  :root{--paper:#fbf8f2;--ink:#1c1b18;--terra:#7a4b2b;--muted:#6b6355;--hair:#d9d2c5;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Spectral",Georgia,"Times New Roman",serif;line-height:1.5;}
+  .wrap{max-width:820px;margin:0 auto;padding:12px 14px 22px;}
+  h1{font-size:1.3rem;margin:.2rem 0 .1rem;}
+  .sub{color:var(--muted);margin:.1rem 0 .8rem;max-width:72ch;}
+  .prelim{display:inline-block;font-size:.7rem;letter-spacing:.5px;text-transform:uppercase;color:#8a5a2b;background:#f0e2cf;border:1px solid #e0c9a8;border-radius:3px;padding:1px 7px;margin-bottom:8px;}
+  .controls{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:6px;}
+  .ctl{display:flex;flex-direction:column;gap:3px;font-size:.72rem;color:var(--muted);}
+  select{font-family:inherit;font-size:.9rem;padding:4px 6px;border:1px solid var(--hair);border-radius:4px;background:var(--paper);color:var(--ink);max-width:260px;}
+  #chart{width:100%;height:auto;display:block;}
+  .legend{display:flex;gap:18px;font-size:.85rem;margin:6px 2px 0;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{width:20px;height:0;border-top:3px solid;display:inline-block;}
+  .note{font-size:.78rem;color:var(--muted);margin:8px 2px 0;max-width:84ch;line-height:1.45;}
+  .tip{position:fixed;pointer-events:none;background:#fffdf8;border:1px solid var(--hair);border-radius:3px;padding:6px 8px;font-size:.8rem;box-shadow:0 2px 8px rgba(0,0,0,.12);opacity:0;transition:opacity .08s;z-index:20;}
+  body.embed h1,body.embed .sub{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="prelim">Preliminary</span>
+  <h1>Remote work in the language of listings</h1>
+  <p class="sub">Before measuring what remote work did to housing costs, we can see it arrive in how properties are advertised.</p>
+  <div class="controls">
+    <div class="ctl">Remote-work cue<select id="selPhrase"></select></div>
+  </div>
+  <svg id="chart" viewBox="0 0 720 380" role="img" aria-label="Share of listings mentioning a remote-work cue over time"></svg>
+  <div class="legend"><span><i style="border-color:#6aa0d8"></i>Sale</span><span><i style="border-color:#a98fd0"></i>Rent</span></div>
+  <div class="note" id="note"></div>
+</div>
+<div class="tip" id="tip"></div>
+<script>
+const $=id=>document.getElementById(id);
+if(location.hash.includes("embed")||location.search.includes("embed"))document.body.classList.add("embed");
+const NS="http://www.w3.org/2000/svg";
+function el(n,a,t){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e;}
+const COL={Sale:{f:"#6aa0d8",s:"#3f79bd"},Rent:{f:"#a98fd0",s:"#7d5cbf"}};
+let D=null,phrase=null;
+
+fetch("data/wfh.json?v=1").then(r=>r.json()).then(d=>{D=d;phrase=d.phrases[0].key;
+  $("selPhrase").innerHTML=d.phrases.map(p=>`<option value="${p.key}">${p.label}</option>`).join("");
+  $("selPhrase").onchange=()=>{phrase=$("selPhrase").value;draw();};draw();});
+
+function draw(){
+  const W=720,H=380,mL=56,mR=18,mT=24,mB=46,pT=mT,pB=H-mB;
+  const svg=$("chart");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.innerHTML="";
+  svg.appendChild(el("rect",{x:1,y:1,width:W-2,height:H-2,rx:12,fill:"#fbf8f2",stroke:"#e4d8c4","stroke-width":1.5}));
+  const s=D.series[phrase];const all=[...s.Sale,...s.Rent];
+  const y0=2015,y1=2025;const hi=Math.max(...all.map(d=>d.pct))*1.12||1,lo=0;
+  const X=y=>mL+(y-y0)/(y1-y0)*(W-mL-mR),Y=v=>pT+(1-(v-lo)/(hi-lo))*(pB-pT);
+  for(let i=0;i<=5;i++){const v=hi*i/5,gy=Y(v);
+    svg.appendChild(el("line",{x1:mL,y1:gy,x2:W-mR,y2:gy,stroke:"#ece5d5","stroke-width":1}));
+    svg.appendChild(el("text",{x:mL-8,y:gy+3,"text-anchor":"end","font-size":11,fill:"#6b6355","font-family":"Georgia,serif"},v.toFixed(2)+"%"));}
+  svg.appendChild(el("rect",{x:X(2020),y:pT,width:X(2021)-X(2020),height:pB-pT,fill:"#7a4b2b",opacity:.05}));
+  svg.appendChild(el("text",{x:(X(2020)+X(2021))/2,y:pT+11,"text-anchor":"middle","font-size":11,fill:"#8a7358","font-family":"Georgia,serif"},"2020–21"));
+  svg.appendChild(el("text",{x:15,y:(pT+pB)/2,"text-anchor":"middle","font-size":11,fill:"#6b6355","font-family":"Georgia,serif",transform:`rotate(-90 15 ${(pT+pB)/2})`},"Share of listings mentioning it"));
+  for(let yr=y0;yr<=y1;yr+=2)svg.appendChild(el("text",{x:X(yr),y:pB+18,"text-anchor":"middle","font-size":11,fill:"#6b6355","font-family":"Georgia,serif"},yr));
+  ["Sale","Rent"].forEach(ten=>{const g=s[ten],c=COL[ten];
+    svg.appendChild(el("path",{d:g.map((d,i)=>(i?"L":"M")+X(d.year).toFixed(1)+" "+Y(d.pct).toFixed(1)).join(" "),fill:"none",stroke:c.f,"stroke-width":2.6,"stroke-linejoin":"round"}));
+    g.forEach(d=>svg.appendChild(el("circle",{cx:X(d.year),cy:Y(d.pct),r:3.4,fill:c.f,stroke:"#fff","stroke-width":1})));});
+  // hover
+  [2015,2017,2019,2021,2023,2025].forEach(yr=>{const hit=el("rect",{x:X(yr)-16,y:pT,width:32,height:pB-pT,fill:"transparent"});
+    const sp=s.Sale.find(d=>d.year===yr),rp=s.Rent.find(d=>d.year===yr);
+    hit.onmousemove=e=>{const tip=$("tip");tip.innerHTML=`<strong>${yr}</strong><br><span style="color:${COL.Sale.s}">Sale</span> ${sp?sp.pct.toFixed(2):"-"}%<br><span style="color:${COL.Rent.s}">Rent</span> ${rp?rp.pct.toFixed(2):"-"}%`;
+      tip.style.opacity=1;tip.style.left=Math.min(e.clientX+14,window.innerWidth-160)+"px";tip.style.top=(e.clientY+14)+"px";};
+    hit.onmouseleave=()=>{$("tip").style.opacity=0;};svg.appendChild(hit);});
+  const lab=D.phrases.find(p=>p.key===phrase).label;
+  $("note").innerHTML=`Share of property listings whose text mentions ${lab.toLowerCase()}, from a scan of several million listings, 2015 to 2025. Remote-work language, most sharply the explicit phrase, was close to absent before 2020 and rose afterwards; it reverts in the sale market while staying higher in the rental market. This is descriptive: it shows the shock arriving in behaviour, not yet its effect on housing costs. Measuring who bears that cost, where supply is inelastic, is the next stage and awaits external teleworkability and supply-elasticity data.`;
+}
+</script>
+<script data-pageviews="1">
+(function () {
+  if (window.__pageviews) return;
+  window.__pageviews = true;
+  var CODE = "helenxhbao";
+  var BASE = "https://" + CODE + ".goatcounter.com/counter/";
+
+  // GoatCounter answers with a JSON body even when it replies 404, which is what
+  // it does for a path that has had no views yet, so the body is read regardless
+  // of status. Returns {n, text} with the count as a number and as GoatCounter's
+  // own formatted string, which carries the thousands separators.
+  function read(url) {
+    return fetch(url, { mode: "cors" })
+      .then(function (r) { return r.json().catch(function () { return null; }); })
+      .then(function (d) {
+        if (!d || d.count === undefined || d.count === null) return { n: 0, text: null };
+        var n = parseInt(String(d.count).replace(/[^0-9]/g, ""), 10);
+        return { n: isNaN(n) ? 0 : n, text: String(d.count) };
+      })
+      .catch(function () { return { n: 0, text: null }; });
+  }
+
+  // The documented path form keeps its leading slash, which leaves a double
+  // slash after /counter/. The undoubled form also answers, so if the documented
+  // one comes back empty the other is tried before giving up.
+  function pageCount(path) {
+    return read(BASE + path + ".json").then(function (a) {
+      if (a.n > 0) return a;
+      return read(BASE + path.replace(/^[/]/, "") + ".json");
+    });
+  }
+
+  function render() {
+    var host = document.querySelector("article") ||
+               document.querySelector(".center") ||
+               document.body;
+    if (!host) return;
+    var old = document.querySelector(".pageviews");
+    if (old) old.remove();
+
+    var path = location.pathname.replace(/index[.]html$/, "");
+    if (path.length > 1) path = path.replace(/[/]$/, "");
+    var isHome = path === "/" || path === "";
+
+    var jobs = [pageCount(isHome ? "/" : path)];
+    if (isHome) jobs.push(read(BASE + "TOTAL.json"));
+
+    Promise.all(jobs).then(function (res) {
+      var parts = [];
+      if (res[0].n > 0) parts.push(res[0].text + " views of this page");
+      if (isHome && res[1] && res[1].n > 0) parts.push(res[1].text + " views across the site");
+      if (!parts.length) return;   // nothing recorded yet: show nothing at all
+      var el = document.createElement("p");
+      el.className = "pageviews";
+      el.setAttribute("aria-live", "polite");
+      el.textContent = parts.join(" · ");
+      host.appendChild(el);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", render);
+  } else {
+    render();
+  }
+  document.addEventListener("nav", render);
+})();
+</script></body>
+</html>
