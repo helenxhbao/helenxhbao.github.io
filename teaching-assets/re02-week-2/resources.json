@@ -21,11 +21,31 @@
    ]
   },
   {
-   "title": "Interactive exercise",
+   "title": "Interactive pages",
    "items": [
     {
      "label": "The four-quadrant model, calibrated to real data",
      "href": "four-quadrant-model.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Macroprudential and housing-related policy actions, 2000 to 2024",
+     "href": "macroprudential-policy-actions.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Construction and income: does the Bon curve show up in the data?",
+     "href": "bon-curve.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Which sectors create the jobs? Real estate in perspective",
+     "href": "sector-jobs.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Is London becoming a real estate economy?",
+     "href": "london-real-estate-economy.html",
      "kind": "web page"
     }
    ]

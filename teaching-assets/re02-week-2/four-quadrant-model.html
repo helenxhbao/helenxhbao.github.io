@@ -42,8 +42,8 @@
   .wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
 
   h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; letter-spacing:-.005em; }
-  .lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:66ch; }
-  .provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:78ch; }
+  .lede{ font-size:15px; color:var(--muted); margin:0 0 4px; }
+  .provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; }
 
   .rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
 
@@ -63,10 +63,21 @@
   @media(max-width:560px){ .topfilters{ grid-template-columns:1fr; gap:12px; } }
 
   .rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
-  .rail > .card{ flex:1 1 0; display:flex; flex-direction:column; }
-  .rail > .card > .controls{ flex:1 1 auto; display:flex; flex-direction:column;
+  .railscroll{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+  .railscroll > .card{ flex:1 1 0; display:flex; flex-direction:column; }
+  .railscroll > .card > .controls{ flex:1 1 auto; display:flex; flex-direction:column;
                              justify-content:space-between; gap:6px; }
-  @media(max-width:920px){ .rail > .card{ flex:0 0 auto; } }
+  @media(max-width:920px){ .railscroll > .card{ flex:0 0 auto; } }
+  /* On a wide screen the two control boxes sit in a frame exactly as tall as the diagram and scroll
+     inside it, so the chart stays in view while a slider is moved. The chart is also held to the
+     height of the window. */
+  @media(min-width:921px){
+    .rail{ position:relative; display:block; min-height:560px; }
+    .railscroll{ position:absolute; top:0; right:0; bottom:0; left:0; overflow-y:auto; overscroll-behavior:contain;
+                 border:1px solid var(--line); background:var(--ground); padding:10px; scrollbar-gutter:stable; }
+    .railscroll > .card{ flex:0 0 auto; }
+    #quad{ max-height:max(520px, calc(100vh - 110px)); }
+  }
   .card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
   .step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--teal);
          font-weight:700; margin:0 0 3px; }
@@ -87,6 +98,11 @@
   input[type=range]{ width:100%; accent-color:var(--teal); margin:0 0 3px; }
   .hint{ font-size:11.5px; color:var(--muted); margin:0 0 12px; }
   .hint:last-child{ margin-bottom:0; }
+  .slab .sym{ font-family:"Times New Roman", serif; font-size:14.5px; color:var(--teal);
+              padding-left:6px; letter-spacing:.02em; }
+  .axisflip{ display:flex; align-items:flex-start; gap:7px; font-size:11.5px;
+             margin:0 0 5px; cursor:pointer; color:var(--ink); }
+  .axisflip input{ accent-color:var(--teal); margin:1px 0 0; flex:0 0 auto; }
 
   .stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px;
           background:var(--line); border:1px solid var(--line); margin-top:14px; }
@@ -111,7 +127,9 @@
          border:1px solid var(--line); }
   .cap{ font-size:12px; color:var(--muted); margin:8px 0 0; }
 
-  .readout{ overflow-x:auto; display:flex; align-items:stretch; }
+  .readout{ overflow-x:auto; display:flex; flex-direction:column; align-items:stretch; }
+  .readout table{ flex:1 1 auto; height:auto; }
+  .readout .hint{ flex:0 0 auto; }
   table{ border-collapse:collapse; width:100%; height:100%; font-size:13.5px; }
   tbody td{ height:38px; }
   th, td{ border:1px solid var(--line); padding:7px 10px; text-align:right;
@@ -136,9 +154,11 @@
   .cmp .box.model .v{ color:var(--rust); }
   .cmp .box.actual .v{ color:var(--teal); }
 
-  .notes{ margin-top:24px; font-size:12.5px; color:var(--muted); max-width:82ch; }
+  .notes{ margin-top:24px; font-size:12.5px; color:var(--muted); }
   .notes h2{ font-size:14px; color:var(--ink); margin:0 0 6px; font-weight:600; }
-  .notes ul{ margin:0; padding-left:18px; }
+  .notes ul{ margin:0; padding-left:18px; columns:2; column-gap:38px; }
+  .notes li{ break-inside:avoid; }
+  @media(max-width:720px){ .notes ul{ columns:1; } }
   .notes li{ margin-bottom:6px; }
   @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
 </style>
@@ -156,8 +176,8 @@
   <hr class="rule">
 
   <div class="card topcard">
-    <p class="step">1. Calibrate to a real market</p>
-    <p class="cardsub">Every figure in the band below is observed for this place and year, not assumed.</p>
+    <p class="step">1. Markets</p>
+    <p class="cardsub">Information from real observations</p>
     <div class="topfilters">
       <div>
         <label class="f" for="area">Area</label>
@@ -178,26 +198,41 @@
   </div>
 
   <div class="main">
-    <div class="rail">
+    <div class="rail"><div class="railscroll">
       <div class="card">
-        <p class="step">2. Supply what the data cannot</p>
-        <p class="cardsub">Parameters, not observations. The values are your judgement.</p>
+        <p class="step">2. Parameters</p>
+        <p class="cardsub">Adjust the values by moving along the slide bars</p>
         <div class="controls">
           <div>
-            <div class="slab"><span class="nm">Rental elasticity of demand</span><span class="vl" id="vEps"></span></div>
+            <div class="slab"><span class="nm">Rental elasticity of demand<span class="sym">&#949;</span></span><span class="vl" id="vEps"></span></div>
             <input type="range" id="eps" min="0.15" max="1.5" step="0.05" value="0.5">
-            <p class="hint">How far occupiers economise on space when rent rises.</p>
+            <p class="hint" id="epsHint">How far occupiers economise on space when rent rises. Bends the north-east
+               curve, equation (1).</p>
           </div>
           <div>
-            <div class="slab"><span class="nm">Price elasticity of new supply</span><span class="vl" id="vBeta"></span></div>
+            <div class="slab"><span class="nm">Price elasticity of new supply<span class="sym">&#946;</span></span><span class="vl" id="vBeta"></span></div>
             <input type="range" id="beta" min="0.2" max="5" step="0.1" value="2">
-            <p class="hint">How readily building responds to price. The planning regime enters here.</p>
+            <p class="hint" id="betaHint">How readily building responds to price. The planning regime enters here.
+               Bends the south-west curve, equation (3).</p>
           </div>
           <div>
-            <div class="slab"><span class="nm">Replacement rate</span><span class="vl" id="vDelta"></span></div>
+            <div class="slab"><span class="nm">Replacement rate<span class="sym">&#948;</span></span><span class="vl" id="vDelta"></span></div>
             <input type="range" id="delta" min="0.3" max="3" step="0.1" value="1.5">
-            <p class="hint">The share of the stock lost each year, which building must replace to stand still.</p>
+            <p class="hint">The share of the stock lost each year, which building must replace to stand
+               still. Equations (3) and (4), the two lower quadrants.</p>
           </div>
+        </div>
+        <div class="checks">
+          <p class="cardsub" style="margin:14px 0 8px">Options</p>
+          <label class="axisflip" for="dform"><input type="checkbox" id="dform">
+             <span>Straight-line demand, as in the DiPasquale and Wheaton diagram</span></label>
+          <p class="hint" id="dformNote"></p>
+          <label class="axisflip" for="cform"><input type="checkbox" id="cform">
+             <span>Linear construction with a replacement-cost threshold, as in the DiPasquale and Wheaton diagram</span></label>
+          <p class="hint" id="cformNote"></p>
+          <label class="axisflip" for="fixAxis"><input type="checkbox" id="fixAxis">
+             <span>Fix the axis scale, so &#948; moves the curves</span></label>
+          <p class="hint" id="axisNote"></p>
         </div>
       </div>
 
@@ -206,16 +241,20 @@
         <p class="cardsub">Move one at a time before you move two.</p>
         <div class="controls">
           <div>
-            <div class="slab"><span class="nm">Demand for space</span><span class="vl" id="vG"></span></div>
+            <div class="slab"><span class="nm">Demand for space<span class="sym">g</span></span><span class="vl" id="vG"></span></div>
             <input type="range" id="g" min="-40" max="120" step="1" value="0">
+            <p class="hint">Shifts the north-east curve, equation (1): the proportional change in the stock demanded at any given rent.</p>
+            <p class="hint" id="gNote" style="margin-top:2px"></p>
           </div>
           <div>
-            <div class="slab"><span class="nm">Capitalisation rate</span><span class="vl" id="vCap"></span></div>
+            <div class="slab"><span class="nm">Capitalisation rate<span class="sym">i&#8321;</span></span><span class="vl" id="vCap"></span></div>
             <input type="range" id="cap" min="-300" max="300" step="5" value="0">
+            <p class="hint">Pivots the north-west ray, equation (2).</p>
           </div>
           <div>
-            <div class="slab"><span class="nm">Construction cost</span><span class="vl" id="vK"></span></div>
+            <div class="slab"><span class="nm">Construction cost<span class="sym">k</span></span><span class="vl" id="vK"></span></div>
             <input type="range" id="k" min="-25" max="60" step="1" value="0">
+            <p class="hint">Shifts the south-west curve, equation (3).</p>
           </div>
           <div>
             <div class="presets">
@@ -227,7 +266,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div></div>
 
     <figure>
       <svg id="quad" viewBox="0 0 790 750" role="img" aria-labelledby="quadTitle"></svg>
@@ -237,7 +276,7 @@
 
   <div class="lower">
     <div class="verdict">
-      <h2 id="vHead">Against what actually happened</h2>
+      <h2 id="vHead">Observations vs. Simulations</h2>
       <p id="vLede"></p>
       <div class="cmp">
         <div class="box model"><div class="k">Model, long-run rent</div><div class="v" id="cModel">&mdash;</div><div class="n">from the shock you set</div></div>
@@ -249,10 +288,11 @@
     <div class="readout">
       <table>
         <thead>
-          <tr><th>Quadrant variable</th><th>Base</th><th>Short run</th><th>Long run</th><th>Long-run change</th></tr>
+          <tr><th>Quadrant variable</th><th>Base</th><th>Short run (stock fixed)</th><th>Long run (stock adjusted)</th><th>Long-run change</th></tr>
         </thead>
         <tbody id="tbody"></tbody>
       </table>
+      <p class="hint" style="margin:8px 0 0">Short run: the year of the shock, with the stock still at its base level, so a demand shock lands on rent and a yield shock on price. Long run: the stock has fully adjusted and construction again equals replacement. The table gives these two snapshots only, not the years in between.</p>
     </div>
   </div>
 
@@ -328,14 +368,37 @@
   };
   var pc = function(v, dp){ return (v>=0?'+':'') + v.toFixed(dp===undefined?1:dp) + '%'; };
 
+  // the construction axis reference rate, used when the axis is held fixed
+  var DREF = 0.03;
+
   // ---------- the model
+  // the replacement-cost threshold of the linear form, as a share of the observed price. It is set so that
+  // the elasticity of the line at the observed point equals beta (a line through the origin has elasticity 1,
+  // so beta below 1 cannot be matched and the threshold is zero)
+  function ctShare(beta){ return Math.max(0, 1 - 1/beta); }
+  // rent relative to base at a stock ratio s = S/S0, for a demand shock g
+  function demandRent(s, g, eps, dform){
+    return dform === 'lin' ? Math.max(0, 1 + (1 - s/g)/eps)          // straight line, elasticity eps at the observed point
+                           : Math.pow(g, 1/eps) * Math.pow(s, -1/eps);   // constant elasticity
+  }
   function solve(o){
-    var eps = o.eps, beta = o.beta, g = o.g, k = o.k, i0 = o.i0, i1 = o.i1;
-    var p = Math.pow((i0/i1) * Math.pow(g, 1/eps) * Math.pow(k, beta/eps), eps/(eps+beta));
-    var s = Math.pow(k, -beta) * Math.pow(p, beta);
-    var rLR = Math.pow(g, 1/eps) * Math.pow(s, -1/eps);
-    var rSR = Math.pow(g, 1/eps);
-    var pSR = rSR * (i0/i1);
+    var eps = o.eps, beta = o.beta, g = o.g, k = o.k, i0 = o.i0, i1 = o.i1, p, s;
+    var ct = ctShare(beta), yr = i0/i1;
+    if(o.dform !== 'lin' && o.form !== 'lin'){
+      p = Math.pow(yr * Math.pow(g, 1/eps) * Math.pow(k, beta/eps), eps/(eps+beta));
+      s = Math.pow(k, -beta) * Math.pow(p, beta);
+    } else {
+      // no closed form once either schedule is a straight line: the construction-implied stock minus the
+      // stock is decreasing in the stock, so bisect
+      var constr = function(pp){ return o.form === 'lin' ? (pp - k*ct)/(1-ct) : Math.pow(Math.max(pp,0)/k, beta); };
+      var F = function(x){ return constr(yr*demandRent(x, g, eps, o.dform)) - x; };
+      var lo = 1e-9, hi = (o.dform === 'lin') ? g*(1+eps) : 1e3;
+      for(var it=0; it<200; it++){ var mid = 0.5*(lo+hi); if(F(mid) > 0) lo = mid; else hi = mid; }
+      s = 0.5*(lo+hi); p = yr*demandRent(s, g, eps, o.dform);
+    }
+    var rLR = demandRent(s, g, eps, o.dform);
+    var rSR = demandRent(1, g, eps, o.dform);
+    var pSR = rSR * yr;
     return { p:p, s:s, rLR:rLR, rSR:rSR, pSR:pSR };
   }
 
@@ -345,7 +408,7 @@
     return {
       a:a, yr:yr, idx:idx, rentM:rentM, price:price, rentY:rentY, i0:i0,
       eps:+el('eps').value, beta:+el('beta').value, delta:+el('delta').value/100,
-      gPc:+el('g').value, capBp:+el('cap').value, kPc:+el('k').value
+      gPc:+el('g').value, capBp:+el('cap').value, kPc:+el('k').value, form:el('cform').checked ? 'lin' : 'pow', dform:el('dform').checked ? 'lin' : 'pow'
     };
   }
 
@@ -369,18 +432,29 @@
     var st = state();
     var i1 = Math.max(0.004, st.i0 + st.capBp/10000);
     var g = 1 + st.gPc/100, k = 1 + st.kPc/100;
-    var sol = solve({eps:st.eps, beta:st.beta, g:g, k:k, i0:st.i0, i1:i1});
+    var sol = solve({eps:st.eps, beta:st.beta, g:g, k:k, i0:st.i0, i1:i1, form:st.form, dform:st.dform});
+    var lin = (st.form === 'lin'), dlin = (st.dform === 'lin'), ctAbs = ctShare(st.beta)*st.price;        // replacement-cost threshold, in pounds
 
     var S0 = 100, C0 = st.delta*S0;
     var R0 = st.rentY, P0 = st.price;
     var Rlr = R0*sol.rLR, Plr = P0*sol.p, Slr = S0*sol.s, Clr = st.delta*Slr;
     var Rsr = R0*sol.rSR, Psr = P0*sol.pSR;
-    var Csr = st.delta*S0*Math.pow(k, -st.beta)*Math.pow(sol.pSR, st.beta);
+    // construction at price P for a cost index kk, in either form; the curve passes through (P0, delta*S0) at kk = 1
+    var cfun = function(P, kk){
+      return lin ? st.delta*S0*Math.max(0, P - kk*ctAbs)/(P0 - ctAbs)
+                 : st.delta*S0*Math.pow(kk, -st.beta)*Math.pow(P/P0, st.beta);
+    };
+    var Csr = cfun(Psr, k);
 
-    var Rmax = Math.max(R0, Rsr, Rlr)*1.50,
+    // The construction axis is normally scaled by delta itself, which is why the
+    // replacement rate cancels out of the picture. Ticking the box scales it at a
+    // fixed reference rate instead, so delta moves the two lower quadrants.
+    var fixAxis = el('fixAxis').checked, dRef = fixAxis ? DREF : st.delta;
+
+    var Rmax = Math.max(R0, Rsr, Rlr)*2.20,
         Pmax = Math.max(P0, Psr, Plr)*1.92,
         Smax = Math.max(S0, Slr)*1.34,
-        Cmax = Math.max(C0, Clr)*2.10;
+        Cmax = dRef*Math.max(S0, Slr)*2.10;
 
     var INK = css('--ink'), TEAL = css('--teal'), RUST = css('--rust'),
         GRID = css('--grid'), MUT = css('--muted'), LINE = css('--line');
@@ -415,6 +489,24 @@
     }
     function dot(x,y,c,r){ svg.appendChild(mk('circle',{cx:x,cy:y,r:r||4.6,fill:c})); }
 
+    // parts are [text, 'sup'|'sub'|null]; used for the equation in each quadrant
+    function mathTxt(x,y,parts,o){
+      o = o||{};
+      var sz = o.size||13.5;
+      var t = mk('text',{x:x,y:y,fill:o.fill||INK,'font-size':sz,
+        'text-anchor':o.anchor||'start','font-family':'"Times New Roman", serif',
+        'paint-order':'stroke','stroke':css('--panel'),'stroke-width':3.6,
+        'stroke-linejoin':'round'});
+      var cur = 0;
+      parts.forEach(function(p){
+        var want = p[1]==='sup' ? -5.5 : (p[1]==='sub' ? 3.2 : 0);
+        var ts = mk('tspan',{dy:(want-cur).toFixed(1),
+                             'font-size':(want ? sz*0.70 : sz).toFixed(1)});
+        ts.textContent = p[0]; t.appendChild(ts); cur = want;
+      });
+      svg.appendChild(t); return t;
+    }
+
     // gridlines
     for(var f=0.25; f<=1.0001; f+=0.25){
       line(cx, cy-UP*f, cx+RGT, cy-UP*f, GRID, 1);
@@ -424,36 +516,67 @@
     }
 
     // schedules: base in muted, shocked in teal
-    function neCurve(gg){
+function neCurve(gg){
+      if(dlin){
+        // the straight line S = gg S0 [1 - eps (R/R0 - 1)]: from where it meets the top of the frame (or the rent
+        // axis) to where it meets the stock axis (rent zero) or the right edge
+        var Rf = function(S){ return Math.max(0, R0*(1 + (1 - S/(gg*S0))/st.eps)); };
+        var Stop = gg*S0*(1 + st.eps*(1 - Rmax/R0)), Sz = gg*S0*(1 + st.eps), Smin = Smax*0.002;
+        var Sa = Math.max(Stop, Smin), Sb = Math.min(Sz, Smax), topClip = Stop > Smin;
+        var ya = Y(Math.min(Rf(Sa), Rmax)), yb = Y(Rf(Sb));
+        return { d: (Sa < Sb) ? ('M' + X(Sa).toFixed(1) + ' ' + ya.toFixed(1) + 'L' + X(Sb).toFixed(1) + ' ' + yb.toFixed(1)) : '',
+                 clipped:topClip, x:X(Sa), y:ya, xe:X(Sb), ye:yb };
+      }
+      // rent climbs as the stock falls and leaves the top of the frame. Rather than
+      // dropping the samples that fall outside, which left the line starting in mid
+      // air, begin exactly where the curve crosses the top edge and mark it.
+      var A = R0*Math.pow(gg, 1/st.eps);           // rent at the base stock
+      var S0start = Smax*0.002, clipped = false;      // to the rent axis, not 6 per cent of the way along it (a flat demand curve used to start in mid air)
+      var Sclip = S0*Math.pow(A/Rmax, st.eps);     // stock at which rent reaches Rmax
+      if(Sclip > S0start){ S0start = Sclip; clipped = true; }
       var d='', n=140;
       for(var j=0;j<=n;j++){
-        var S = Smax*(0.06 + 0.94*j/n);
-        var R = R0*Math.pow(gg,1/st.eps)*Math.pow(S/S0, -1/st.eps);
-        if(R>Rmax) continue;
+        var S = S0start + (Smax - S0start)*j/n;
+        var R = Math.min(A*Math.pow(S/S0, -1/st.eps), Rmax);
         d += (d?'L':'M') + X(S).toFixed(1) + ' ' + Y(R).toFixed(1);
       }
-      return d;
+      return { d:d, clipped:clipped, x:X(S0start), y:Y(Math.min(A*Math.pow(S0start/S0, -1/st.eps), Rmax)),
+               xe:X(Smax), ye:Y(Math.min(A*Math.pow(Smax/S0, -1/st.eps), Rmax)) };
     }
     function swCurve(kk){
       var d='', n=120;
+      if(lin){
+        var Pst = kk*ctAbs, Pexit = Pst + (P0 - ctAbs)*Cmax/(st.delta*S0);
+        var clippedL = Pexit < Pmax, PendL = clippedL ? Pexit : Pmax;
+        if(Pst >= Pmax) return { d:'', clipped:false, x:XP(Pmax), y:cy };
+        d = 'M' + XP(Pst).toFixed(1) + ' ' + cy + 'L' + XP(PendL).toFixed(1) + ' ' + YC(Math.min(cfun(PendL, kk), Cmax)).toFixed(1);
+        return { d:d, clipped:clippedL, x:XP(PendL), y:YC(Cmax) };
+      }
+      var c0 = st.delta*S0*Math.pow(kk,-st.beta);
+      var Pexit = P0*Math.pow(Cmax/c0, 1/st.beta);         // price at which construction reaches the axis limit
+      var clipped = Pexit < Pmax, Pend = clipped ? Pexit : Pmax;
       for(var j=0;j<=n;j++){
-        var P = Pmax*j/n;
-        var C = st.delta*S0*Math.pow(kk,-st.beta)*Math.pow(P/P0, st.beta);
-        if(C>Cmax) break;
+        var P = Pend*j/n, C = Math.min(c0*Math.pow(P/P0, st.beta), Cmax);
         d += (d?'L':'M') + XP(P).toFixed(1) + ' ' + YC(C).toFixed(1);
       }
-      return d;
+      return { d:d, clipped:clipped, x:XP(Pend), y:YC(Cmax) };
     }
     var shocked = (st.gPc!==0 || st.capBp!==0 || st.kPc!==0);
 
     if(shocked){
-      path(neCurve(1), MUT, 1.5, '4 3');
-      line(cx, cy, XP(Pmax), Y(Math.min(st.i0*Pmax, Rmax)), MUT, 1.5, '4 3');
-      path(swCurve(1), MUT, 1.5, '4 3');
+      var ne0 = neCurve(1);
+      path(ne0.d, MUT, 1.5, '4 3');
+      var rayEnd0P = Math.min(Pmax, Rmax/st.i0);
+      line(cx, cy, XP(rayEnd0P), Y(st.i0*rayEnd0P), MUT, 1.5, '4 3');
+      var sw0 = swCurve(1);
+      path(sw0.d, MUT, 1.5, '4 3');
     }
-    path(neCurve(g), TEAL, 2.4);
-    line(cx, cy, XP(Pmax), Y(Math.min(i1*Pmax, Rmax)), TEAL, 2.4);
-    path(swCurve(k), TEAL, 2.4);
+    var ne1 = neCurve(g);
+    path(ne1.d, TEAL, 2.4);
+    var rayEnd1P = Math.min(Pmax, Rmax/i1);
+    line(cx, cy, XP(rayEnd1P), Y(i1*rayEnd1P), TEAL, 2.4);
+    var sw1 = swCurve(k);
+    path(sw1.d, TEAL, 2.4);
     line(cx, cy, X(Math.min(Cmax/st.delta, Smax)), YC(Math.min(st.delta*Smax, Cmax)), TEAL, 2.4);
 
     // equilibrium rectangles
@@ -468,19 +591,37 @@
     [[X(Slr),Y(Rlr)],[XP(Plr),Y(Rlr)],[XP(Plr),YC(Clr)],[X(Slr),YC(Clr)]]
       .forEach(function(q){ dot(q[0],q[1],RUST); });
 
+    // the short-run path, joined up. The heavy marks below are three separate pieces (the rent
+    // jump, the price jump, the construction jump); this dotted line carries the eye from the
+    // short-run rent across to the asset market and down to the construction curve, so the
+    // path reads as one connected route and not as three stray fragments
+    if(shocked && Math.abs(Psr-Plr)/P0 > 0.004){
+      var yPath = Y(Rsr), xPath = XP(Psr);
+      var csrShown = Math.abs(Csr-Clr)/Math.max(C0,1e-9) > 0.01;
+      line(X(S0), yPath, xPath, yPath, RUST, 1.8, '1.5 4.5');
+      if(csrShown) line(xPath, yPath, xPath, (Csr > Cmax ? cy+DWN-9 : YC(Csr)), RUST, 1.8, '1.5 4.5');
+    }
     // short-run overshoot
     if(shocked && Math.abs(Rsr-Rlr)/R0 > 0.004){
       line(X(S0), Y(R0), X(S0), Y(Rsr), RUST, 3);
       dot(X(S0), Y(Rsr), RUST, 4.2);
       txt(X(S0)-7, Y(Rsr)-9, 'short run', {anchor:'end', size:11.5, fill:RUST});
     }
+    // the short-run asset-market position is the short-run rent capitalised at the new
+    // yield, so the marker sits at that rent and its dot lands on the capitalisation ray
     if(shocked && Math.abs(Psr-Plr)/P0 > 0.004){
-      line(XP(P0), Y(R0), XP(Psr), Y(R0), RUST, 3);
-      dot(XP(Psr), Y(R0), RUST, 4.2);
+      line(XP(P0), Y(Rsr), XP(Psr), Y(Rsr), RUST, 3);
+      dot(XP(Psr), Y(Rsr), RUST, 4.2);
     }
     if(shocked && Math.abs(Csr-Clr)/Math.max(C0,1e-9) > 0.01){
-      line(XP(Psr), YC(C0), XP(Psr), YC(Csr), RUST, 3);
-      dot(XP(Psr), YC(Csr), RUST, 4.2);
+      var offScale = Csr > Cmax, yEnd = offScale ? cy+DWN-9 : YC(Csr);
+      line(XP(Psr), YC(C0), XP(Psr), yEnd, RUST, 3);
+      if(offScale){                      // an arrow, because the level is past the axis
+        path('M' + (XP(Psr)-5.5) + ' ' + yEnd + 'L' + XP(Psr) + ' ' + (yEnd+8) +
+             'L' + (XP(Psr)+5.5) + ' ' + yEnd, RUST, 2.4);
+      } else {
+        dot(XP(Psr), YC(Csr), RUST, 4.2);
+      }
     }
 
     // axes last, so they sit above the grid
@@ -488,34 +629,112 @@
     line(cx, cy-UP, cx, cy+DWN, INK, 1.6);
 
     // axis names and ticks
-    txt(cx+RGT, cy+18, 'Stock, index (' + st.yr + ' = 100)', {anchor:'end', size:12, fill:MUT});
-    txt(cx-LFT, cy+18, 'Price per dwelling', {size:12, fill:MUT});
-    txt(cx+7, cy-UP+2, 'Rent, £ per year', {size:12, fill:MUT});
-    txt(cx+7, cy+DWN+4, 'Construction per year, index', {size:12, fill:MUT});
+    txt(cx+RGT, cy+18, 'Stock S, index (' + st.yr + ' = 100)', {anchor:'end', size:12, fill:MUT});
+    txt(cx-LFT, cy+18, 'Price P per dwelling', {size:12, fill:MUT});
+    txt(cx+7, cy-UP+2, 'Rent R, £ per year', {size:12, fill:MUT});
+    txt(cx+7, cy+DWN+4, 'Construction C per year, index. Axis drawn to ' + Cmax.toFixed(1),
+        {size:12, fill:MUT});
+
+    // the four equations, each in its own quadrant, as on the lecture slide
+    if(dlin) mathTxt(cx+RGT, 48, [['(1)  S = gS',null],['0','sub'],[' [1 \u2212 \u03b5(R/R',null],['0','sub'],[' \u2212 1)]',null]], {anchor:'end'});
+    else     mathTxt(cx+RGT, 48, [['(1)  R = g',null],['1/\u03b5','sup'],[' S',null],['\u22121/\u03b5','sup']],
+            {anchor:'end'});
+    mathTxt(cx-LFT, 46, [['(2)  P = (i',null],['0','sub'],['/i',null],['1','sub'],[') R',null]]);
+    if(lin) mathTxt(cx-LFT, cy+DWN+46, [['(3)  C = \u03b4S',null],['0','sub'],[' (P \u2212 kc) / (P',null],['0','sub'],[' \u2212 c)',null]]);
+    else    mathTxt(cx-LFT, cy+DWN+46, [['(3)  C = \u03b4(P/k)',null],['\u03b2','sup']]);
+    if(lin && ctAbs > 0 && ctAbs*k < Pmax) txt(XP(ctAbs*k), cy-7, 'c', {anchor:'middle', size:12, fill:TEAL, fam:'"Times New Roman", serif', style:'italic'});
+    mathTxt(cx+RGT, cy+DWN+46, [['(4)  C = \u03b4S',null]], {anchor:'end'});
 
     txt(cx+RGT, 26, 'Space market: rent determination', {anchor:'end', size:11.5, fill:MUT, style:'italic'});
     txt(cx-LFT, 26, 'Asset market: valuation', {size:11.5, fill:MUT, style:'italic'});
     txt(cx-LFT, cy+DWN+26, 'Asset market: construction', {size:11.5, fill:MUT, style:'italic'});
     txt(cx+RGT, cy+DWN+26, 'Space market: stock adjustment', {anchor:'end', size:11.5, fill:MUT, style:'italic'});
 
+    // the yield label rides on the ray itself, on the side away from the base ray so the
+    // two never collide, and well clear of equation (2) in the corner
     var rayEndP = Math.min(Pmax, Rmax/i1);
-    txt(XP(rayEndP)+6, Y(i1*rayEndP)+16,
-        'P = R / i,  i = ' + (i1*100).toFixed(2) + '%',
-        {size:12, fill:TEAL, fam:'"Times New Roman", serif'});
+    // the ray falls away to the right, so a label set to the right of the ray and a
+    // little below its end clears the line along its whole width. It slides back down
+    // the ray until it is also clear of equation (2) and of the short-run price bar.
+    var yLab = 'P = R / i,  i = ' + (i1*100).toFixed(2) + '%', yW = yLab.length*6.2;
+    var eqBox = [cx-LFT, 34, cx-LFT+136, 52];
+    var barY = (shocked && Math.abs(Psr-Plr)/P0 > 0.004) ? Y(Rsr) : null;
+    var lx, ly;
+    for(var tt=1; tt>=0.3; tt-=0.05){
+      lx = XP(rayEndP*tt)+16; ly = Y(i1*rayEndP*tt)+14;
+      var b = [lx, ly-11, lx+yW, ly+4];
+      var hitEq  = b[0] < eqBox[2] && b[2] > eqBox[0] && b[1] < eqBox[3] && b[3] > eqBox[1];
+      var hitBar = barY !== null && barY > b[1]-4 && barY < b[3]+4;
+      if(!hitEq && !hitBar) break;
+    }
+    txt(lx, ly, yLab, {size:12, fill:TEAL, fam:'"Times New Roman", serif'});
     if(shocked && Math.abs(i1-st.i0) > 1e-6){
       var rayEnd0 = Math.min(Pmax, Rmax/st.i0);
-      txt(XP(rayEnd0)+6, Y(st.i0*rayEnd0)-8, (st.i0*100).toFixed(2) + '%',
+      txt(XP(rayEnd0*0.78)+16, Y(st.i0*rayEnd0*0.78)+14, (st.i0*100).toFixed(2) + '%',
           {size:11.5, fill:MUT, fam:'"Times New Roman", serif'});
     }
-    txt(cx+RGT-2, Y(R0*0.30), 'D', {anchor:'end', size:13, fill:TEAL, fam:'"Times New Roman", serif'});
+    txt(Math.min(ne1.xe, cx+RGT-2)-4, ne1.ye - 8 - (dlin?0:0), 'D', {anchor:'end', size:13, fill:TEAL, fam:'"Times New Roman", serif'});
 
     // value labels on the live equilibrium
-    txt(X(Slr)+9, Y(Rlr)-9, gbp(Rlr) + ' / yr',
+    var rTxt = 'R = ' + gbp(Rlr) + ' / yr', rFlip = X(Slr)+9+rTxt.length*6.6 > cx+RGT-14;
+    txt(X(Slr) + (rFlip ? -9 : 9), Y(Rlr)-9, rTxt,
+        {anchor: rFlip ? 'end' : 'start', size:12.5, weight:'700', fill:RUST,
+         fam:'"Times New Roman", serif'});
+    txt(XP(Plr)+9, Y(Rlr)-9, 'P = ' + gbp(Plr),
         {size:12.5, weight:'700', fill:RUST, fam:'"Times New Roman", serif'});
-    txt(XP(Plr)+9, Y(Rlr)-9, gbp(Plr),
-        {size:12.5, weight:'700', fill:RUST, fam:'"Times New Roman", serif'});
-    txt(X(Slr)+9, YC(Clr)+18, 'stock ' + Slr.toFixed(1),
-        {size:12, weight:'700', fill:RUST, fam:'"Times New Roman", serif'});
+    // below the box corner, and never so high that it meets the stock-axis caption
+    txt(X(Slr)-10, Math.max(YC(Clr)+20, cy+44), 'Stock = ' + Math.round(Slr),
+        {anchor:'end', size:12, weight:'700', fill:RUST, fam:'"Times New Roman", serif'});
+    // the construction value follows its own dot, on whichever side of the corner is
+    // clear. When the quadrant is squeezed and no side is clear, it parks in the empty
+    // inner corner with a leader to the dot instead.
+    (function(){
+      var tw = 58, pad = 10, need = 8;
+      function curveY(xx, kk){                 // screen y of a construction curve at screen x
+        var P = Pmax*(cx - xx)/LFT;
+        if(P <= 0) return null;
+        var C = cfun(P, kk);
+        return C > Cmax ? null : YC(C);
+      }
+      var caption = [cx-LFT, cy+6, cx-LFT+118, cy+23];   // 'Price P per dwelling'
+      var cands = [
+        {x: XP(Plr)-pad, anchor:'end',   mid: XP(Plr)-pad-tw/2, dy:-10},
+        {x: XP(Plr)-pad, anchor:'end',   mid: XP(Plr)-pad-tw/2, dy: 18},
+        {x: XP(Plr)+pad, anchor:'start', mid: XP(Plr)+pad+tw/2, dy: 18},
+        {x: XP(Plr)+pad, anchor:'start', mid: XP(Plr)+pad+tw/2, dy:-10},
+        {x: XP(Plr)-pad, anchor:'end',   mid: XP(Plr)-pad-tw/2, dy: 34},
+        {x: XP(Plr)+pad, anchor:'start', mid: XP(Plr)+pad+tw/2, dy: 34}
+      ];
+      var best = null;
+      cands.forEach(function(c){
+        var y = YC(Clr) + c.dy;
+        if(y < cy+17 || y > cy+DWN-8) return;
+        if(c.mid-tw/2 < cx-LFT+2 || c.mid+tw/2 > cx-2) return;
+        var box = [c.mid-tw/2, y-10, c.mid+tw/2, y+4], clear = 1e9;
+        [1, k].forEach(function(kk){
+          for(var j=0;j<=6;j++){
+            var xx = box[0] + (box[2]-box[0])*j/6, yy = curveY(xx, kk);
+            if(yy !== null && yy > box[1]-40 && yy < box[3]+40){
+              clear = Math.min(clear, (yy < box[1] ? box[1]-yy : (yy > box[3] ? yy-box[3] : 0)));
+            }
+          }
+        });
+        var ox = Math.min(box[2],caption[2]) - Math.max(box[0],caption[0]);
+        var oy = Math.min(box[3],caption[3]) - Math.max(box[1],caption[1]);
+        if(ox > 0 && oy > 0) clear = 0;
+        if(!best || clear > best.clear) best = {c:c, y:y, clear:clear};
+      });
+      if(best && best.clear >= need){
+        txt(best.c.x, best.y, 'C = ' + Clr.toFixed(2),
+            {anchor:best.c.anchor, size:12, weight:'700', fill:RUST,
+             fam:'"Times New Roman", serif'});
+      } else {
+        var lx = cx-14, ly = cy+DWN-14;
+        line(XP(Plr)+4, YC(Clr)+4, lx-52, ly-11, RUST, 0.9, '3 3');
+        txt(lx, ly, 'C = ' + Clr.toFixed(2),
+            {anchor:'end', size:12, weight:'700', fill:RUST, fam:'"Times New Roman", serif'});
+      }
+    })();
 
     el('quadCap').textContent = shocked
       ? 'Dashed grey is ' + areaSel.value + ' as observed in ' + st.yr +
@@ -532,7 +751,29 @@
     el('vEps').textContent   = st0.eps.toFixed(2);
     el('vBeta').textContent  = st0.beta.toFixed(1);
     el('vDelta').textContent = (st0.delta*100).toFixed(1) + '%';
+    el('axisNote').textContent = el('fixAxis').checked
+      ? 'The axis is drawn to a fixed ' + (DREF*100).toFixed(1) + ' per cent whatever the value of \u03b4, so '
+        + 'the construction curve and the stock-adjustment ray move when you change it. Rent, price '
+        + 'and the stock index do not.'
+      : 'The axis is drawn to \u03b4 itself: look at the figure under the construction axis as '
+        + 'you move the slider. The ruler and the quantity change together, so the curves stay '
+        + 'exactly where they are and \u03b4 appears to do nothing. Tick the box to hold the scale.';
+    el('cformNote').textContent = (st0.form === 'lin')
+      ? 'A straight line that starts on the price axis at the replacement cost c: nothing is built below it. The threshold is set so that \u03b2 is the elasticity at the observed point, which is why \u03b2 cannot go below 1 here (below 1 the line starts at the origin).'
+      : 'Unticked: the power function of the equations (as on slide 23). Building responds at every price above zero, and \u03b2 is its elasticity everywhere; with \u03b2 = 1 it is a straight line through the origin.';
+    el('dformNote').textContent = (st0.dform === 'lin')
+      ? 'A straight line through the observed point with elasticity \u03b5 there (it is more elastic higher up). It meets the stock axis where rent falls to zero. A shock g multiplies the stock demanded at each rent.'
+      : 'Unticked: the constant-elasticity curve of the equation (as on slide 21). Rent climbs without limit as the stock shrinks, and \u03b5 is the elasticity everywhere.';
+    el('betaHint').textContent = (st0.form === 'lin')
+      ? 'How readily building responds to price, measured at the observed point. Tilts and shifts the south-west line, equation (3).'
+      : 'How readily building responds to price. The planning regime enters here. Bends the south-west curve, equation (3).';
     el('vG').textContent     = pc(st0.gPc, 0);
+    (function(){                              // what the current g does to rent before supply can respond
+      var gg = st0.gPc ? 1 + st0.gPc/100 : 1.2, eg = st0.gPc ? st0.gPc : 20;
+      var rr = (demandRent(1, gg, st0.eps, st0.dform) - 1)*100;
+      el('gNote').textContent = (st0.gPc ? 'At \u03b5 = ' : 'For example, at \u03b5 = ') + st0.eps.toFixed(2) + ', with the stock fixed, a demand change of ' + pc(eg, 0) +
+        ' moves rent by ' + pc(rr, 0) + ' in the short run.';
+    })();
     el('vCap').textContent   = (st0.capBp>=0?'+':'') + st0.capBp + ' bp';
     el('vK').textContent     = pc(st0.kPc, 0);
 
@@ -547,7 +788,7 @@
       ['Rent, £ per year', m.R0, m.Rsr, m.Rlr, 0],
       ['Price per dwelling', m.P0, m.Psr, m.Plr, 0],
       ['Stock, index', m.S0, m.S0, m.Slr, 1],
-      ['Construction per year', m.C0, m.Csr, m.Clr, 2],
+      ['Construction per year, % of base stock', m.C0, m.Csr, m.Clr, 2],
       ['Capitalisation rate', m.st.i0*100, m.i1*100, m.i1*100, 2]
     ];
     var tb = el('tbody'); tb.innerHTML = '';
@@ -617,6 +858,9 @@
   ['eps','beta','delta','g','cap','k'].forEach(function(id){
     el(id).addEventListener('input', render);
   });
+  el('fixAxis').addEventListener('change', render);
+  el('cform').addEventListener('change', render);
+  el('dform').addEventListener('change', render);
   areaSel.addEventListener('change', function(){ fillYears(); render(); });
   yearSel.addEventListener('change', render);
 
@@ -630,6 +874,7 @@
   el('pReset').addEventListener('click', function(){
     el('g').value = 0; el('cap').value = 0; el('k').value = 0;
     el('eps').value = 0.5; el('beta').value = 2; el('delta').value = 1.5;
+    el('fixAxis').checked = false; el('cform').checked = false; el('dform').checked = false;
     render();
   });
 
