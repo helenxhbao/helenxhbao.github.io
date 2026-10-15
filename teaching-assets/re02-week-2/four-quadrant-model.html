@@ -261,11 +261,8 @@
           </div>
           <div>
             <div class="presets">
-              <button id="pRise" type="button">Yields rise 75bp</button>
               <button id="pReset" type="button" class="reset">Reset</button>
             </div>
-            
-            <p class="hint" style="margin:6px 0 0">With Cambridge 2022 and the starting values &epsilon; = 0.4, &beta; = 0.5 and &delta; = 1.5%, setting demand to &minus;20% (and the cap rate to 0) gives scenario one, as on slide 17, and the button above gives scenario two, as on slide 18.</p>
           </div>
         </div>
       </div>
@@ -862,7 +859,6 @@ function neCurve(gg){
   areaSel.addEventListener('change', function(){ fillYears(); render(); });
   yearSel.addEventListener('change', render);
 
-  el('pRise').addEventListener('click', function(){ el('g').value = 0; el('cap').value = 75; render(); });
   el('pReset').addEventListener('click', function(){
     el('g').value = 0; el('cap').value = 0; el('k').value = 0;
     el('eps').value = 0.4; el('beta').value = 0.5; el('delta').value = 1.5;
