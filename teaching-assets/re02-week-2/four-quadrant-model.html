@@ -232,6 +232,9 @@
           <p class="hint" id="cformNote"></p>
           <label class="axisflip" for="fixAxis"><input type="checkbox" id="fixAxis">
              <span>Fix the axis scale, so &#948; moves the curves</span></label>
+          <label class="axisflip" for="axVals"><input type="checkbox" id="axVals" checked>
+             <span>Show values along the axes</span></label>
+          <p class="hint">Rent and price are in pounds. The stock is an index (base year = 100) and construction is in index points of stock a year (1.5 means 1.5% of the base stock), so only changes in those two carry meaning.</p>
           <p class="hint" id="axisNote"></p>
         </div>
       </div>
@@ -628,6 +631,22 @@ function neCurve(gg){
     line(cx-LFT, cy, cx+RGT, cy, INK, 1.6);
     line(cx, cy-UP, cx, cy+DWN, INK, 1.6);
 
+    // values along the axes (switch: 'Show values along the axes'). Rent and price are in pounds; the stock is an index
+    // (base year = 100) and construction is in index points of stock a year, so only their changes carry meaning.
+    if(el('axVals').checked){
+      var nstep = function(m){ var p = Math.pow(10, Math.floor(Math.log(m)/Math.LN10)), f = m/p;
+        return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10)*p; };
+      var tk = function(max, f){ var out = [], stp = nstep(max/5); for(var v = stp; v < max*0.96; v += stp) out.push(f(v)); return out; };
+      var money = function(v){ return v >= 1e6 ? '£' + (v/1e6).toFixed(v%1e6 ? 2 : 0).replace(/0$/,'') + 'm' : v >= 1e3 ? '£' + (v/1e3).toFixed(v%1e3 ? 1 : 0).replace(/\.0$/,'') + 'k' : '£' + Math.round(v); };
+      var tick = function(x1,y1,x2,y2){ line(x1,y1,x2,y2,MUT,1); };
+      var lab = {size:10.5, fill:MUT};
+      var stp, v;
+      stp = nstep(Rmax/5);  for(v = stp; v < Rmax*0.96; v += stp){ tick(cx-4, Y(v), cx, Y(v)); txt(cx-7, Y(v)+3.5, money(v), {size:10.5, fill:MUT, anchor:'end'}); }
+      stp = nstep(Pmax/5);  for(v = stp; v < Pmax*0.96; v += stp){ tick(XP(v), cy-4, XP(v), cy); txt(XP(v), cy-8, money(v), {size:10.5, fill:MUT, anchor:'middle'}); }
+      stp = nstep(Smax/5);  for(v = stp; v < Smax*0.96; v += stp){ tick(X(v), cy-4, X(v), cy); txt(X(v), cy-8, String(Math.round(v)), {size:10.5, fill:MUT, anchor:'middle'}); }
+      stp = nstep(Cmax/5);  for(v = stp; v < Cmax*0.96; v += stp){ tick(cx, YC(v), cx+4, YC(v)); txt(cx+7, YC(v)+3.5, v.toFixed(stp < 1 ? (stp < 0.1 ? 2 : 1) : 0), {size:10.5, fill:MUT}); }
+    }
+
     // axis names and ticks
     txt(cx+RGT, cy+18, 'Stock S, index (' + st.yr + ' = 100)', {anchor:'end', size:12, fill:MUT});
     txt(cx-LFT, cy+18, 'Price P per dwelling', {size:12, fill:MUT});
@@ -837,6 +856,7 @@ function neCurve(gg){
     el(id).addEventListener('input', render);
   });
   el('fixAxis').addEventListener('change', render);
+  el('axVals').addEventListener('change', render);
   el('cform').addEventListener('change', render);
   el('dform').addEventListener('change', render);
   areaSel.addEventListener('change', function(){ fillYears(); render(); });
