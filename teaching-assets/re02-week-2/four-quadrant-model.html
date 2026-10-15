@@ -258,13 +258,11 @@
           </div>
           <div>
             <div class="presets">
-              <button id="pReal" type="button">Use this area's actual demand change</button>
               <button id="pRise" type="button">Yields rise 75bp</button>
-              <button id="pYield" type="button">Yields compress 200bp</button>
               <button id="pReset" type="button" class="reset">Reset</button>
             </div>
-            <p class="hint" id="realNote" style="margin:9px 0 0"></p>
-            <p class="hint" style="margin:6px 0 0">With Cambridge 2022 and the starting values &epsilon; = 0.4, &beta; = 0.5 and &delta; = 1.5%, the first button gives scenario one (as on slide 17) and the second gives scenario two (as on slide 18). Each button sets both shocks, so it replaces the one before.</p>
+            
+            <p class="hint" style="margin:6px 0 0">With Cambridge 2022 and the starting values &epsilon; = 0.4, &beta; = 0.5 and &delta; = 1.5%, setting demand to &minus;20% (and the cap rate to 0) gives scenario one, as on slide 17, and the button above gives scenario two, as on slide 18.</p>
           </div>
         </div>
       </div>
@@ -832,28 +830,6 @@ function neCurve(gg){
       el('cDiff').textContent = '—';
       el('vLede').textContent = 'No later rent observation for this area. Choose an earlier base year.';
     }
-
-    // ---------- real demand-change preset availability
-    var note = el('realNote'), btn = el('pReal');
-    var d = realDemandChange(a, yr);
-    if(d){
-      btn.disabled = false; btn.style.opacity = '';
-      note.textContent = 'Search demand for sales in ' + areaSel.value + ' changed by ' +
-        pc(d.pc, 0) + ' between ' + d.from + ' and ' + d.to + '.';
-    } else {
-      btn.disabled = true; btn.style.opacity = '.45';
-      note.textContent = 'No search-demand pair is available for this area near ' + yr + '.';
-    }
-  }
-
-  function realDemandChange(a, yr){
-    if(!a.dy || a.dy.length < 2) return null;
-    var from = null, fi = -1;
-    for(var i=0;i<a.dy.length;i++){ if(a.dy[i] <= yr){ from = a.dy[i]; fi = i; } }
-    if(fi < 0 || fi+1 >= a.dy.length) return null;
-    var to = a.dy[fi+1];
-    if(!a.dd[fi] || !a.dd[fi+1]) return null;
-    return { from:from, to:to, pc:(a.dd[fi+1]/a.dd[fi] - 1)*100 };
   }
 
   // ---------- wiring
@@ -866,14 +842,7 @@ function neCurve(gg){
   areaSel.addEventListener('change', function(){ fillYears(); render(); });
   yearSel.addEventListener('change', render);
 
-  el('pReal').addEventListener('click', function(){
-    var st = state(), d = realDemandChange(st.a, st.yr);
-    if(!d) return;
-    el('g').value = Math.max(-40, Math.min(120, Math.round(d.pc))); el('cap').value = 0;
-    render();
-  });
   el('pRise').addEventListener('click', function(){ el('g').value = 0; el('cap').value = 75; render(); });
-  el('pYield').addEventListener('click', function(){ el('g').value = 0; el('cap').value = -200; render(); });
   el('pReset').addEventListener('click', function(){
     el('g').value = 0; el('cap').value = 0; el('k').value = 0;
     el('eps').value = 0.4; el('beta').value = 0.5; el('delta').value = 1.5;
