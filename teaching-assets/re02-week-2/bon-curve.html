@@ -117,6 +117,7 @@
           <option value="fe">Within economies (each through time) (as on slide 5)</option></select><p class="hint" id="modeNote"></p></div>
         <div class="field"><label class="f">Samples</label>
           <label class="chk"><input type="checkbox" id="trim" checked><span>Drop the most extreme 1% at each end of the construction measure (as on slide 5)</span></label>
+          <label class="chk"><input type="checkbox" id="med" checked><span>Show the median of each twentieth of the data, ranked by income, instead of every point (as on slide 5)</span></label>
           <label class="chk"><input type="checkbox" id="colour"><span>Colour points by income group</span></label></div>
       </div>
     </div>
@@ -165,7 +166,7 @@
   var INCOMECOL = {'Low income':'#B25B3A','Lower middle income':'#A0703A','Upper middle income':'#4C7182','High income':'#1B6B58'};
   function el(i){return document.getElementById(i);}
   function opt(sel,v,t,parent){var o=document.createElement('option');o.value=v;o.textContent=t;(parent||sel).appendChild(o);return o;}
-  var st = {c:'c2', y:'y2', g:'All economies', p:'1970 to 2023', mode:'fe', trim:true, colour:false};
+  var st = {c:'c2', y:'y2', g:'All economies', p:'1970 to 2023', mode:'fe', trim:true, colour:false, med:true};
   var AS5=' (as on slide 5)';
 
   // ---- controls
@@ -185,7 +186,7 @@
   per.addEventListener('change',function(){st.p=per.value; el('cust').style.display=(st.p==='custom')?'grid':'none'; draw();});
   ['y0','y1'].forEach(function(id){el(id).addEventListener('change',draw);});
   el('agg').addEventListener('change',function(){st.mode=this.value;draw();});
-  el('trim').addEventListener('change',function(){st.trim=this.checked;draw();}); el('colour').addEventListener('change',function(){st.colour=this.checked;draw();});
+  el('trim').addEventListener('change',function(){st.trim=this.checked;draw();}); el('colour').addEventListener('change',function(){st.colour=this.checked;draw();}); el('med').addEventListener('change',function(){st.med=this.checked;draw();});
 
   // ---- maths
   function quant(a,p){var s=a.slice().sort(function(x,y){return x-y;}),i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
@@ -241,7 +242,7 @@
       b0=o2.b[0]; b1=o2.b[1]; b2=o2.b[2]; t2=b2/o2.se[2]; var sst2=0,sse2=0; y.forEach(function(v,i){sst2+=(v-mean)*(v-mean);sse2+=o2.u[i]*o2.u[i];}); r2=1-sse2/sst2; }
     var xp=-b1/(2*b2), lo=quant(xs,.1), hi=quant(xs,.9), f=function(t){return b0+b1*t+b2*t*t;};
     var peak=f(xp), amp=b2<0?peak-Math.max(f(lo),f(hi)):Math.min(f(lo),f(hi))-peak;
-    var order=pts.map(function(r,i){return i;}).sort(function(a,b){return pts[a].x-pts[b].x;}), nb=10, bins=[];
+    var order=pts.map(function(r,i){return i;}).sort(function(a,b){return pts[a].x-pts[b].x;}), nb=20, bins=[];
     for(var k=0;k<nb;k++){var s=Math.floor(k*order.length/nb), e2=Math.floor((k+1)*order.length/nb), idx=order.slice(s,e2); if(!idx.length)continue;
       bins.push({x:quant(idx.map(function(i){return pts[i].x;}),.5), c:quant(idx.map(function(i){return pts[i].c;}),.5)});}
     return {ok:true,ne:ne,n:pts.length,pts:pts,b0:b0,b1:b1,b2:b2,t2:t2,r2:r2,xp:xp,peak:peak,amp:amp,rel:amp/mean,mean:mean,lo:lo,hi:hi,bins:bins,f:f,one:one,Wd:Wd};}
@@ -259,24 +260,35 @@
     if(!F.ok){ g.fillStyle=col('--muted'); g.textAlign='center'; g.fillText('Too few economies or years for this setting (need at least 12 economies).',W/2,H/2); g.textAlign='left';
       ['sE','sPI','sPV','sH','sT'].forEach(function(i){el(i).textContent='n/a';}); ['sO','sPVs','sHs','sR'].forEach(function(i){el(i).textContent='';});
       el('legend').innerHTML=''; el('chNote').textContent=''; renderTheory(); return; }
-    var xmin=Math.log(300), xmax=Math.log(150000); if(F.pts.length){var mn=Math.min.apply(null,F.pts.map(function(r){return r.x;})),mx=Math.max.apply(null,F.pts.map(function(r){return r.x;})); xmin=Math.min(xmin,mn-0.05); xmax=Math.max(xmax,mx+0.05);}
-    var ys=F.pts.map(function(r){return r.c;}), ymax=quant(ys,.995)*1.08; var ymin=0;
-    var stp=(function(m){var p=Math.pow(10,Math.floor(Math.log(m/5)/Math.LN10)),f=m/5/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p;})(ymax); ymax=Math.ceil(ymax/stp)*stp;
+    var M=st.med&&!one, xsAll=F.pts.map(function(r){return r.x;}), cx0=quant(xsAll,.005), cx1=quant(xsAll,.995);
+    var xmin=Math.log(300), xmax=Math.log(150000);
+    if(M){ xmin=Math.log(100); xmax=Math.log(100000); F.bins.forEach(function(bb){xmin=Math.min(xmin,bb.x-0.05);xmax=Math.max(xmax,bb.x+0.05);}); }
+    else if(F.pts.length){var mn=Math.min.apply(null,xsAll),mx=Math.max.apply(null,xsAll); xmin=Math.min(xmin,mn-0.05); xmax=Math.max(xmax,mx+0.05);}
+    var nice=function(m){var p=Math.pow(10,Math.floor(Math.log(m)/Math.LN10)),f=m/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p;};
+    var ymin=0, ymax, stp;
+    if(M){ var vals=F.bins.map(function(bb){return bb.c;}); for(var k0=0;k0<=20;k0++)vals.push(F.f(cx0+(cx1-cx0)*k0/20)); if(F.b2<0)vals.push(F.peak);
+      var lo0=Math.min.apply(null,vals), hi0=Math.max.apply(null,vals), rg=Math.max(hi0-lo0,1e-9); stp=nice(rg/3); ymin=Math.floor((lo0-0.05*rg)/stp)*stp; ymax=Math.ceil((hi0+0.05*rg)/stp)*stp; if(lo0>=0&&ymin<0)ymin=0; }
+    else { var ys=F.pts.map(function(r){return r.c;}); ymax=quant(ys,.995)*1.08;
+      stp=(function(m){var p=Math.pow(10,Math.floor(Math.log(m/5)/Math.LN10)),f=m/5/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p;})(ymax); ymax=Math.ceil(ymax/stp)*stp; }
     var X=function(x){return L+(x-xmin)/(xmax-xmin)*iw;}, Y=function(v){return T+ih-(v-ymin)/(ymax-ymin)*ih;};
     g.strokeStyle=col('--grid'); g.lineWidth=1; g.fillStyle=col('--muted'); g.textAlign='right';
-    for(var v=0;v<=ymax+1e-9;v+=stp){g.beginPath();g.moveTo(L,Y(v));g.lineTo(W-R,Y(v));g.stroke(); g.fillText((stp<1?v.toFixed(1):v.toFixed(0))+(st.c==='c3'?'':'%'),L-10,Y(v));}
-    g.textAlign='center'; [300,1000,3000,10000,30000,100000].forEach(function(t){var x=X(Math.log(t)); if(x<L||x>W-R)return; g.beginPath();g.moveTo(x,T);g.lineTo(x,T+ih);g.stroke(); g.fillText(t.toLocaleString('en-GB'),x,T+ih+24);});
+    for(var v=ymin;v<=ymax+1e-9;v+=stp){g.beginPath();g.moveTo(L,Y(v));g.lineTo(W-R,Y(v));g.stroke(); g.fillText((stp<1?v.toFixed(1):v.toFixed(0))+(st.c==='c3'?'':'%'),L-10,Y(v));}
+    g.textAlign='center'; (M?[100,1000,10000,100000]:[300,1000,3000,10000,30000,100000]).forEach(function(t){var x=X(Math.log(t)); if(x<L||x>W-R)return; g.beginPath();g.moveTo(x,T);g.lineTo(x,T+ih);g.stroke(); g.fillText(t.toLocaleString('en-GB'),x,T+ih+24);});
     g.fillStyle=col('--ink'); g.fillText(YM[st.y]+' (logarithmic scale)',L+iw/2,H-24);
     g.save(); g.translate(26,T+ih/2); g.rotate(-Math.PI/2); g.fillText(CM[st.c],0,0); g.restore();
     g.strokeStyle=col('--ink'); g.lineWidth=2; g.beginPath(); g.moveTo(L,T+ih); g.lineTo(W-R,T+ih); g.moveTo(L,T); g.lineTo(L,T+ih); g.stroke();
     // points (or a path for one economy)
     if(one){ var pr=F.pts.slice().sort(function(a,b){return a.yr-b.yr;}); g.strokeStyle=col('--slate'); g.lineWidth=3; g.beginPath(); pr.forEach(function(r,i){var x=X(r.x),y=Y(r.c); if(i)g.lineTo(x,y); else g.moveTo(x,y);}); g.stroke();
       g.fillStyle=col('--slate'); g.textAlign='left'; pr.forEach(function(r,i){var x=X(r.x),y=Y(r.c); g.beginPath();g.arc(x,y,5,0,7);g.fill(); if(r.yr%10===0){g.fillStyle=col('--ink');g.fillText(r.yr,x+8,y-14);g.fillStyle=col('--slate');}}); }
+    else if(M){ g.fillStyle=col('--slate'); F.bins.forEach(function(bb){ g.beginPath(); g.arc(X(bb.x),Y(bb.c),11,0,7); g.fill(); }); }
     else { F.pts.forEach(function(r){ g.globalAlpha=(F.pts.length>3000?0.28:F.pts.length>600?0.4:0.65); g.fillStyle=st.colour?INCOMECOL[r.inc]||'#888':col('--slate'); g.beginPath(); g.arc(X(r.x),Y(r.c),(F.pts.length>3000?3:4.5),0,7); g.fill(); }); g.globalAlpha=1; }
     // fitted curve
     g.strokeStyle=col('--rust'); g.lineWidth=5; g.beginPath(); var first=true;
-    for(var i2=0;i2<=120;i2++){var xx=xmin+(xmax-xmin)*i2/120, yy=F.f(xx); if(yy<ymin||yy>ymax*1.2){first=true;continue;} if(first){g.moveTo(X(xx),Y(yy));first=false;}else g.lineTo(X(xx),Y(yy));} g.stroke();
-    if(F.b2<0&&F.xp>xmin&&F.xp<xmax){ g.setLineDash([8,6]); g.strokeStyle=col('--rust'); g.lineWidth=2; g.beginPath(); g.moveTo(X(F.xp),Y(F.peak)); g.lineTo(X(F.xp),T+ih); g.stroke(); g.setLineDash([]); g.fillStyle=col('--rust'); g.beginPath(); g.arc(X(F.xp),Y(F.peak),9,0,7); g.fill(); }
+    var ca=M?cx0:xmin, cb=M?cx1:xmax;
+    for(var i2=0;i2<=120;i2++){var xx=ca+(cb-ca)*i2/120, yy=F.f(xx); if(yy<ymin||yy>ymax*1.2){first=true;continue;} if(first){g.moveTo(X(xx),Y(yy));first=false;}else g.lineTo(X(xx),Y(yy));} g.stroke();
+    if(F.b2<0&&F.xp>xmin&&F.xp<xmax){ g.setLineDash([8,6]); g.strokeStyle=col('--rust'); g.lineWidth=2; g.beginPath(); g.moveTo(X(F.xp),Y(F.peak)); g.lineTo(X(F.xp),T+ih); g.stroke(); g.setLineDash([]); g.fillStyle=col('--rust'); g.beginPath(); g.arc(X(F.xp),Y(F.peak),9,0,7); g.fill();
+      var pu=(st.c==='c3')?' 2020 US$':(st.c==='c1'?'% of total value added':'% of GDP'); g.fillStyle=col('--ink'); g.font='30px Times New Roman, serif'; g.textAlign='right'; g.textBaseline='alphabetic';
+      g.fillText('Peak: US$'+(Math.round(Math.exp(F.xp)/100)*100).toLocaleString('en-GB')+', '+F.peak.toFixed(st.c==='c3'?0:1)+pu,X(F.xp)-22,Y(F.peak)-18); g.textAlign='left'; g.textBaseline='middle'; g.font='26px Times New Roman, serif'; }
     // fitted equation
     var sg=function(v,d){return (v<0?'\u2212':'+')+' '+Math.abs(v).toFixed(d);};
     var d1=Math.abs(F.b1)<10?2:1, d2=Math.abs(F.b2)<0.1?3:2, d0=Math.abs(F.b0)<100?2:1;
@@ -297,9 +309,10 @@
     el('sPV').textContent=(F.b2<0)?(F.peak.toFixed(st.c==='c3'?0:1)+cu):'none'; el('sPVs').textContent=(F.b2<0&&!inside)?'peak outside the middle 80% of incomes':'';
     el('sH').textContent=(F.b2<0)?(F.amp.toFixed(st.c==='c3'?0:1)+(st.c==='c3'?'':' pp')):'none'; el('sHs').textContent=(F.b2<0)?Math.round(100*F.rel)+'% of the average level':'the curve is U-shaped or flat';
     el('sT').textContent=F.t2.toFixed(1); el('sR').textContent='R squared '+F.r2.toFixed(2)+(st.mode==='fe'?' (within)':'');
-    el('legend').innerHTML=(one?'<span><i style="background:var(--slate)"></i>Economy, by year</span>':'<span><i style="background:var(--slate)"></i>'+(st.mode==='avg'?'Economy average':'Economy-year')+'</span>'+'')+'<span><i class="ln" style="background:var(--rust)"></i>Fitted quadratic</span>'+
-      (st.colour&&!one?Object.keys(INCOMECOL).map(function(k){return '<span><i style="background:'+INCOMECOL[k]+'"></i>'+k+'</span>';}).join(''):'');
-    el('chNote').innerHTML='Standard errors for the t-statistic are clustered by economy where an economy appears more than once. F is the cluster-robust Wald test that both slope terms are zero, with F(2, G \u2212 1) degrees of freedom where G is the number of economies (*** p &lt; 0.01, ** p &lt; 0.05, * p &lt; 0.1); under \u201CWithin economies\u201D R\u00B2 and F refer to the within-economy fit. The quadratic is fitted to the natural log of income.'+
+    var fitName=(st.mode==='fe'&&!one)?'Fitted curve with economy fixed effects':'Fitted quadratic';
+    el('legend').innerHTML=(one?'<span><i style="background:var(--slate)"></i>Economy, by year</span>':(M?'<span><i style="background:var(--slate)"></i>Median of each twentieth of '+(st.mode==='avg'?'economy averages':'economy-years')+', by income</span>':'<span><i style="background:var(--slate)"></i>'+(st.mode==='avg'?'Economy average':'Economy-year')+'</span>'))+'<span><i class="ln" style="background:var(--rust)"></i>'+(M?fitName:'Fitted quadratic')+'</span>'+(M&&F.b2<0?'<span><i style="background:var(--rust)"></i>Peak of the fitted curve</span>':'')+
+      (st.colour&&!one&&!M?Object.keys(INCOMECOL).map(function(kk){return '<span><i style="background:'+INCOMECOL[kk]+'"></i>'+kk+'</span>';}).join(''):'');
+    el('chNote').innerHTML=(M?'Each dot is the median of one twentieth of the observations, ranked by income, so the twenty dots show the shape of the data without the scatter around it. The curve is fitted to all the observations, not to the dots. ':'')+'Standard errors for the t-statistic are clustered by economy where an economy appears more than once. F is the cluster-robust Wald test that both slope terms are zero, with F(2, G \u2212 1) degrees of freedom where G is the number of economies (*** p &lt; 0.01, ** p &lt; 0.05, * p &lt; 0.1); under \u201CWithin economies\u201D R\u00B2 and F refer to the within-economy fit. The quadratic is fitted to the natural log of income.'+
       '<br><br><b>Peak income:</b> income per head at which the fitted curve stops rising and starts to fall (\u2212b<sub>1</sub> / 2b<sub>2</sub>, converted back from logs); none if the curve is U-shaped. <b>Peak level:</b> the fitted value of the construction measure at that income. <b>Hump height:</b> the peak minus the higher of the fitted values at the 10th and 90th percentiles of income, also shown as a percentage of the average level. <b>Curvature t-statistic:</b> the coefficient on (ln Y)\u00B2 divided by its standard error; below \u22122 means the downward bend is statistically clear, and a positive value means the curve bends upward.';
     renderTheory();
   }
