@@ -1,0 +1,44 @@
+{
+ "groups": [
+  {
+   "title": "Slides",
+   "items": [
+    {
+     "label": "Slides, full deck",
+     "href": "slides.pdf",
+     "kind": "PDF"
+    }
+   ]
+  },
+  {
+   "title": "Exercises",
+   "items": [
+    {
+     "label": "Lecture 4 Excercise",
+     "href": "resources/Lecture 4 Excercise.pdf",
+     "kind": "PDF"
+    },
+    {
+     "label": "Lecture 4 Exercises - STATA codes",
+     "href": "resources/Lecture 4 Exercises - STATA codes.do",
+     "kind": "Stata do-file"
+    }
+   ]
+  },
+  {
+   "title": "Data",
+   "items": [
+    {
+     "label": "Lectures 4-6 Exercises Data",
+     "href": "resources/Lectures 4-6 Exercises Data.xlsx",
+     "kind": "Excel workbook"
+    },
+    {
+     "label": "Lectures 4-6 examples",
+     "href": "resources/Lectures 4-6 examples.xlsx",
+     "kind": "Excel workbook"
+    }
+   ]
+  }
+ ]
+}

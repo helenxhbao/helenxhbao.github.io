@@ -1,0 +1,24 @@
+{
+ "groups": [
+  {
+   "title": "Slides",
+   "items": [
+    {
+     "label": "Slides, full deck",
+     "href": "slides.pdf",
+     "kind": "PDF"
+    }
+   ]
+  },
+  {
+   "title": "Reading",
+   "items": [
+    {
+     "label": "Week 8 reading list",
+     "href": "resources/Week 8 reading list.pdf",
+     "kind": "PDF"
+    }
+   ]
+  }
+ ]
+}

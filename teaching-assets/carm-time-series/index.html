@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Series Analysis — Cambridge Research Methods</title>
+<style>
+  :root{--paper:#F3F6F5;--ink:#15211E;--teal:#1B6B58;--mist:#DCE8E4;
+        --line:#cfdcd7;--muted:#5d6b65;--fig:"Times New Roman",Times,serif}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fig);line-height:1.5}
+  a{color:var(--teal)}
+  header{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+         padding:14px 22px 12px;border-bottom:1px solid var(--line)}
+  header h1{font-size:17px;margin:0;font-weight:700}
+  header .sub{font-size:13px;color:var(--muted)}
+  header .spacer{margin-left:auto}
+  button{font-family:inherit;font-size:13px;padding:5px 11px;border:1px solid var(--line);
+         background:#fff;color:var(--ink);cursor:pointer;border-radius:3px}
+  button:hover{border-color:var(--teal);color:var(--teal)}
+  button[aria-pressed="true"]{background:var(--mist);border-color:var(--teal)}
+  input[type="search"]{font-family:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--line);
+        border-radius:3px;background:#fff;color:var(--ink);width:190px}
+  .track{height:3px;background:var(--mist);margin:0 22px}
+  .track i{display:block;height:3px;background:var(--teal);transition:width .18s}
+  .hint{padding:9px 22px 0;font-size:12.5px;color:var(--muted)}
+  .hint kbd{font-family:inherit;font-weight:700;color:var(--ink);border:1px solid var(--line);
+            border-radius:3px;padding:0 4px;background:#fff}
+
+  .stage{display:grid;grid-template-columns:minmax(0,1fr);padding:14px 22px 8px;align-items:start}
+  .stage.with-panel{grid-template-columns:minmax(0,1fr) 360px;gap:22px}
+  @media(max-width:900px){.stage.with-panel{grid-template-columns:minmax(0,1fr)}}
+  figure{margin:0;display:flex;justify-content:center;min-width:0}
+  img#slide{max-width:100%;max-height:calc(100vh - 265px);width:auto;height:auto;
+            display:block;border:1px solid var(--line);background:#fff}
+
+  aside{border:1px solid var(--line);background:#fff;padding:13px 15px;
+        max-height:calc(100vh - 265px);overflow-y:auto}
+  aside h2{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--teal);
+           margin:0 0 8px;font-weight:700;position:sticky;top:-13px;background:#fff;padding:4px 0}
+  aside p{font-size:13.5px;margin:0 0 9px;white-space:pre-wrap}
+  aside .none{color:var(--muted);font-style:italic}
+  .hits{font-size:11.5px;color:var(--muted);margin:0 0 6px}
+  .plist{list-style:none;margin:0;padding:0}
+  .plist li{font-size:13px;padding:1px 0}
+  .plist .grp{margin:11px 0 3px;font-weight:700;color:var(--teal);font-size:11px;
+              letter-spacing:.05em;text-transform:uppercase}
+  .plist a{text-decoration:none;color:var(--ink);padding:2px 5px;border-radius:3px;
+           display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .plist a:hover{background:var(--mist)}
+  .plist a.here{background:var(--mist);font-weight:700;color:var(--teal)}
+  .plist .num{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:7px}
+  .resgrp{margin:0 0 14px}
+  .resgrp h3{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--teal);
+             margin:0 0 5px;font-weight:700}
+  .resgrp h3 a{color:var(--teal);text-decoration:none;border-bottom:1px solid var(--mist)}
+  .resgrp h3 a:hover{border-bottom-color:var(--teal)}
+  .resnote{font-size:12px;color:var(--muted);margin:0}
+  .resgrp ul{list-style:none;margin:0;padding:0}
+  .resgrp li{font-size:13px;padding:2px 0}
+  .resgrp code{font-size:12.5px;color:var(--muted)}
+
+  nav.bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 22px 20px}
+  nav.bar .count{font-variant-numeric:tabular-nums;font-size:13.5px;color:var(--muted)}
+  nav.bar .label{font-size:13.5px;flex:1 1 auto;min-width:0;overflow:hidden;
+                 text-overflow:ellipsis;white-space:nowrap}
+  .chip{display:inline-flex;align-items:center;padding:1px 8px;border-radius:11px;
+        background:var(--teal);color:#fff;font-size:11.5px;font-weight:700}
+  footer{border-top:1px solid var(--line);padding:12px 22px 30px;font-size:12.5px;color:var(--muted)}
+
+/* Lecture switcher, sits directly under the viewer's title line. */
+.lecture-nav{display:flex;align-items:baseline;gap:10px 20px;flex-wrap:wrap;
+             padding:9px 22px;border-bottom:1px solid var(--line);font-size:12.5px}
+.lecture-nav .lngroup{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.lecture-nav .lncourse{color:var(--muted);font-size:11px;letter-spacing:.06em;
+                       text-transform:uppercase;font-weight:700}
+.lecture-nav .lnitem{color:var(--ink);text-decoration:none;padding:1px 7px;border-radius:3px;
+                     border:1px solid transparent;white-space:nowrap}
+.lecture-nav a.lnitem:hover{border-color:var(--teal);color:var(--teal)}
+.lecture-nav .lnitem.here{background:var(--mist);border-color:var(--teal);
+                          color:var(--teal);font-weight:700}
+.lecture-nav .lnback{margin-left:auto;color:var(--muted);text-decoration:none;white-space:nowrap}
+.lecture-nav .lnback:hover{color:var(--teal)}
+@media(max-width:700px){.lecture-nav{gap:6px 12px}.lecture-nav .lncourse{width:100%}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Time Series Analysis</h1>
+  <span class="sub">Cambridge Research Methods &middot; Social Sciences Research Methods Centre</span>
+  <span class="spacer"></span>
+  <input type="search" id="q" placeholder="Search the slides" aria-label="Search the slides">
+  <button id="btnToc" aria-pressed="false">Contents</button>
+  <button id="btnRes" aria-pressed="false">Resources</button>
+  <button id="btnNotes" aria-pressed="false">Notes</button>
+</header>
+
+<div class="lecture-nav" id="lecture-nav"></div>
+
+<div class="track"><i id="bar"></i></div>
+
+<p class="hint">
+  Arrow keys move between slides. <kbd>C</kbd> opens the contents, <kbd>R</kbd> the Stata code, datasets and readings for that topic, <kbd>N</kbd> the notes, all beside the slide. <kbd>/</kbd> jumps to the search box, which
+  looks inside the text of all 137 slides. Every slide has its own address, so a link such as
+  <code>#78</code> opens there.
+</p>
+
+<div class="stage" id="stage">
+  <figure><img id="slide" alt=""></figure>
+  <aside id="panel" hidden>
+    <h2 id="panelTitle"></h2>
+    <div id="panelBody"></div>
+  </aside>
+</div>
+
+<nav class="bar">
+  <button id="prev">&larr; Previous</button>
+  <button id="next">Next &rarr;</button>
+  <span class="count" id="count"></span>
+  <span class="chip" id="chip"></span>
+  <span class="label" id="label"></span>
+</nav>
+
+<footer>
+  Time Series Analysis, one of the advanced statistics modules in Cambridge Research Methods.
+  Professor Helen Bao, Department of Land Economy, University of Cambridge.
+</footer>
+
+<script>
+let S = [], T = [], DS = [], i = 0, panel = null;
+const el = id => document.getElementById(id);
+const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const fromHash = () => {
+  const n = parseInt((location.hash||'').replace('#',''),10);
+  return (n>=1 && n<=S.length) ? n-1 : 0;
+};
+
+function tocHtml(){
+  const q = (el('q').value || '').trim().toLowerCase();
+  const rows = q ? S.filter(s => ((s.text||'') + ' ' + (s.label||'')).toLowerCase().includes(q)) : S;
+  const out = [];
+  if (q) out.push('<p class="hits">' + rows.length + (rows.length === 1 ? ' slide matches' : ' slides match') +
+                  ' &ldquo;' + esc(el('q').value.trim()) + '&rdquo;</p>');
+  if (!rows.length) return out.join('') + '<p class="none">Nothing matches that.</p>';
+  out.push('<ul class="plist">'); let cur = null;
+  rows.forEach(s => {
+    if (s.topic !== cur){
+      cur = s.topic;
+      out.push('<li class="grp">' + cur + ' &middot; ' + esc(s.topicname) + '</li>');
+    }
+    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+s.n+'</span>'+
+             esc(s.label || ('Slide '+s.page))+'</a></li>');
+  });
+  return out.join('') + '</ul>';
+}
+
+function resHtml(){
+  const t = T.find(x => x.key === S[i].topic) || T[0];
+  return '<div class="resgrp"><h3><a href="resources/'+encodeURIComponent(t.slidespdf)+'" ' +
+      'target="_blank" rel="noopener">Slides as PDF</a></h3>' +
+      '<p class="resnote">' + esc(t.key) + ', ' + esc(t.name) + '</p></div>' +
+    '<div class="resgrp"><h3><a href="resources/'+encodeURIComponent(t.stata)+'" ' +
+      'target="_blank" rel="noopener">Stata code and outputs</a></h3>' +
+      '</div>' +
+    '<div class="resgrp"><h3>Datasets</h3><ul>' + t.datasets.map(d =>
+      '<li><code>'+esc(d)+'</code></li>').join('') + '</ul></div>' +
+    '<div class="resgrp"><h3>Readings</h3><ul>' +
+      '<li>' + esc(t.chapter) + '</li>' +
+      '<li class="resnote">Hill, Griffiths and Lim, <i>Principles of Econometrics</i></li>' +
+    '</ul></div>';
+}
+
+function paintPanel(){
+  if (!panel) return;
+  const s = S[i];
+  if (panel === 'toc'){
+    el('panelTitle').textContent = 'Contents';
+    const body = el('panelBody');
+    if (!body.querySelector('.plist') || (body.querySelector('.hits') && !el('q').value.trim()))
+      body.innerHTML = tocHtml();
+    body.querySelectorAll('a[data-n]').forEach(a => {
+      const on = +a.dataset.n === s.n;
+      a.classList.toggle('here', on);
+      if (on) a.scrollIntoView({block:'nearest'});
+    });
+  } else if (panel === 'res'){
+    el('panelTitle').textContent = 'Resources for ' + s.topic;
+    if (el('panelBody').dataset.topic !== s.topic){
+      el('panelBody').innerHTML = resHtml();
+      el('panelBody').dataset.topic = s.topic;
+    }
+  } else {
+    el('panelTitle').textContent = 'Notes';
+    el('panelBody').innerHTML = s.notes
+      ? s.notes.split('\n').filter(Boolean).map(p => '<p>'+esc(p)+'</p>').join('')
+      : '<p class="none">No notes on this slide.</p>';
+  }
+}
+
+function showPanel(kind){
+  panel = (panel === kind) ? null : kind;
+  el('panel').hidden = !panel;
+  el('stage').classList.toggle('with-panel', !!panel);
+  el('btnToc').setAttribute('aria-pressed', String(panel === 'toc'));
+  el('btnRes').setAttribute('aria-pressed', String(panel === 'res'));
+  el('btnNotes').setAttribute('aria-pressed', String(panel === 'notes'));
+  el('panelBody').innerHTML = '';
+  delete el('panelBody').dataset.topic;
+  paintPanel();
+  try { localStorage.setItem('carm-panel', panel || ''); } catch(e) {}
+}
+
+function search(){
+  if (panel !== 'toc') showPanel('toc');
+  else { el('panelBody').innerHTML = tocHtml(); paintPanel(); }
+}
+
+function draw(){
+  const s = S[i];
+  el('slide').src = s.img;
+  el('slide').alt = s.topic + ', slide ' + s.page + ' of ' + s.pages;
+  el('count').textContent = s.n + ' / ' + S.length;
+  el('chip').textContent = s.topic + ', ' + s.page + '/' + s.pages;
+  el('label').textContent = s.label || '';
+  el('bar').style.width = (100*s.n/S.length) + '%';
+  if (window.lectureNavSetTopic) window.lectureNavSetTopic(s.topic);
+  el('prev').disabled = i===0; el('next').disabled = i===S.length-1;
+  if (location.hash !== '#'+s.n) history.replaceState(null,'','#'+s.n);
+  paintPanel();
+  const nx = S[i+1]; if (nx) new Image().src = nx.img;
+}
+function go(d){ i = Math.min(S.length-1, Math.max(0, i+d)); draw(); }
+
+fetch('slides.json').then(r => r.json()).then(d => {
+  S = d.slides; T = d.topics; DS = d.datasets;
+  i = fromHash(); draw();
+  el('panelBody').addEventListener('click', e => {
+    const a = e.target.closest('a[data-n]'); if (!a) return;
+    e.preventDefault(); i = +a.dataset.n - 1; draw();
+  });
+  try {
+    const saved = localStorage.getItem('carm-panel');
+    if (saved === 'toc' || saved === 'res' || saved === 'notes') showPanel(saved);
+  } catch(e) {}
+});
+
+el('prev').onclick = () => go(-1);
+el('next').onclick = () => go(1);
+el('btnToc').onclick = () => showPanel('toc');
+el('btnRes').onclick = () => showPanel('res');
+el('btnNotes').onclick = () => showPanel('notes');
+el('q').addEventListener('input', search);
+window.addEventListener('hashchange', () => { i = fromHash(); draw(); });
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT'){ if (e.key === 'Escape') e.target.blur(); return; }
+  if (e.key === '/'){ e.preventDefault(); el('q').focus(); return; }
+  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' '){ e.preventDefault(); go(1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); go(-1); }
+  else if (e.key === 'Home'){ i = 0; draw(); }
+  else if (e.key === 'End'){ i = S.length-1; draw(); }
+  else if (e.key === 'c' || e.key === 'C') showPanel('toc');
+  else if (e.key === 'r' || e.key === 'R') showPanel('res');
+  else if (e.key === 'n' || e.key === 'N') showPanel('notes');
+  else if (e.key === 'Escape' && panel) showPanel(panel);
+});
+</script>
+<script src="lecture-nav.js"></script>
+</body>
+</html>

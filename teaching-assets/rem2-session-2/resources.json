@@ -1,0 +1,34 @@
+{
+ "groups": [
+  {
+   "title": "Slides",
+   "items": [
+    {
+     "label": "Slides, full deck",
+     "href": "slides.pdf",
+     "kind": "PDF"
+    }
+   ]
+  },
+  {
+   "title": "Exercises",
+   "items": [
+    {
+     "label": "Lecture 2 Excercise 1",
+     "href": "resources/Lecture 2 Excercise 1.pdf",
+     "kind": "PDF"
+    },
+    {
+     "label": "Lecture 2 Excercise 2",
+     "href": "resources/Lecture 2 Excercise 2.pdf",
+     "kind": "PDF"
+    },
+    {
+     "label": "Lecture 2 Excercise 3",
+     "href": "resources/Lecture 2 Excercise 3.pdf",
+     "kind": "PDF"
+    }
+   ]
+  }
+ ]
+}
