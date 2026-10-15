@@ -151,7 +151,7 @@
   var LATEST=Math.max.apply(null,C.map(function(c){return c.y0+c.emp.length-1;}));
   function el(i){return document.getElementById(i);}
   function opt(sel,v,t,par){var o=document.createElement('option');o.value=v;o.textContent=t;(par||sel).appendChild(o);}
-  var st={sel:'c:GBR',sec:'sl',pre:'s4',met:'growth'};
+  var st={sel:'c:USA',sec:'sl',pre:'s4',met:'share'};
 
   // controls
   var sel=el('sel'), og1=document.createElement('optgroup'); og1.label='Compare the United States (as on slide 6) with a group'; sel.appendChild(og1);
@@ -272,6 +272,8 @@
       var items=r.rows.map(function(x,i){ var pr=(i===3||i===5||i===6); if(x.na||m.val(x)===null)return {label:SHORT[i],value:null,hl:pr,bold:pr}; return {label:SHORT[i],value:m.val(x),marker:m.mk(x,r),hl:pr,bold:pr};});
       bars(items,title,{unit:m.pct?'%':'k',axis:m.axis,barName:m.bar,mkName:m.line});
       note=(share&&Math.abs(r.g)<3?'Total employment changed by only '+fmt(Math.abs(r.g),1)+'% over this period, so shares of additions swing widely; net jobs are easier to read. ':'');
+      if(c.iso==='USA'){ var pw=[['2000 to mid-2006',[1999,2006,false,true]],['mid-2006 to 2019',[2006,2019,true,false]],['2020 to '+LATEST,[2019,LATEST,false,false]]].map(function(q){var rr=calc(c,{a:q[1][0],b:q[1][1],am:q[1][2],bm:q[1][3]}); return (rr&&rr.dt>0)?q[0]+', '+fmt(rr.sl.sa,1)+'%':null;}).filter(Boolean);
+        if(pw.length===3) note+='Construction, finance and real estate as a share of net job additions, as on slide 6 (the last three bars of its chart): '+pw.join('; ')+'. '; }
     } else {
       var list=C.filter(function(c){return st.sel==='rep'?REP.indexOf(c.iso)>=0:(st.sel==='all'||c.income===st.sel);});
       list=list.filter(function(c){return c.iso!=='USA';}); list.unshift(C.filter(function(c){return c.iso==='USA';})[0]);
