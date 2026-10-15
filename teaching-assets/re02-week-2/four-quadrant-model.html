@@ -205,13 +205,13 @@
         <div class="controls">
           <div>
             <div class="slab"><span class="nm">Rental elasticity of demand<span class="sym">&#949;</span></span><span class="vl" id="vEps"></span></div>
-            <input type="range" id="eps" min="0.15" max="1.5" step="0.05" value="0.5">
+            <input type="range" id="eps" min="0.15" max="1.5" step="0.05" value="0.4">
             <p class="hint" id="epsHint">How far occupiers economise on space when rent rises. Bends the north-east
                curve, equation (1).</p>
           </div>
           <div>
             <div class="slab"><span class="nm">Price elasticity of new supply<span class="sym">&#946;</span></span><span class="vl" id="vBeta"></span></div>
-            <input type="range" id="beta" min="0.2" max="5" step="0.1" value="2">
+            <input type="range" id="beta" min="0.2" max="5" step="0.1" value="0.5">
             <p class="hint" id="betaHint">How readily building responds to price. The planning regime enters here.
                Bends the south-west curve, equation (3).</p>
           </div>
@@ -259,10 +259,12 @@
           <div>
             <div class="presets">
               <button id="pReal" type="button">Use this area's actual demand change</button>
+              <button id="pRise" type="button">Yields rise 75bp</button>
               <button id="pYield" type="button">Yields compress 200bp</button>
               <button id="pReset" type="button" class="reset">Reset</button>
             </div>
             <p class="hint" id="realNote" style="margin:9px 0 0"></p>
+            <p class="hint" style="margin:6px 0 0">With Cambridge 2022 and the starting values &epsilon; = 0.4, &beta; = 0.5 and &delta; = 1.5%, the first button gives scenario one (as on slide 17) and the second gives scenario two (as on slide 18). Each button sets both shocks, so it replaces the one before.</p>
           </div>
         </div>
       </div>
@@ -867,13 +869,14 @@ function neCurve(gg){
   el('pReal').addEventListener('click', function(){
     var st = state(), d = realDemandChange(st.a, st.yr);
     if(!d) return;
-    el('g').value = Math.max(-40, Math.min(120, Math.round(d.pc)));
+    el('g').value = Math.max(-40, Math.min(120, Math.round(d.pc))); el('cap').value = 0;
     render();
   });
-  el('pYield').addEventListener('click', function(){ el('cap').value = -200; render(); });
+  el('pRise').addEventListener('click', function(){ el('g').value = 0; el('cap').value = 75; render(); });
+  el('pYield').addEventListener('click', function(){ el('g').value = 0; el('cap').value = -200; render(); });
   el('pReset').addEventListener('click', function(){
     el('g').value = 0; el('cap').value = 0; el('k').value = 0;
-    el('eps').value = 0.5; el('beta').value = 2; el('delta').value = 1.5;
+    el('eps').value = 0.4; el('beta').value = 0.5; el('delta').value = 1.5;
     el('fixAxis').checked = false; el('cform').checked = false; el('dform').checked = false;
     render();
   });
