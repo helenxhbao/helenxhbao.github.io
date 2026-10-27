@@ -136,7 +136,11 @@
 </footer>
 
 <script>
-const CALLOUTS = {};
+const CALLOUTS = {
+  16: ['Interactive page for this slide', 'Open <a href="bundling-build-and-operate.html" target="_blank" rel="noopener">Bundling Build and Operate: Hart\'s Incomplete-Contract Model</a> in a new tab and move the controls as the slide describes.'],
+  18: ['Interactive page for this slide', 'Open <a href="sharing-demand-risk.html" target="_blank" rel="noopener">Sharing Demand Risk in a Concession: Engel, Fischer and Galetovic</a> in a new tab and move the controls as the slide describes.'],
+  20: ['Interactive page for this slide', 'Open <a href="price-of-private-finance.html" target="_blank" rel="noopener">The Price of Private Finance: A Public Sector Comparator</a> in a new tab and move the controls as the slide describes.']
+};
 
 let S = [], i = 0, panel = null, R = null;
 const el = id => document.getElementById(id);
@@ -159,7 +163,7 @@ function tocHtml(){
       blk = s.block;
       out.push('<li class="grp">Block ' + blk + ' &middot; ' + esc(s.blockname || '') + '</li>');
     }
-    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+s.n+'</span>'+
+    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+(s.n-1)+'</span>'+
              esc(s.title || ('Slide '+s.n))+'</a></li>');
   });
   return out.join('') + '</ul>';

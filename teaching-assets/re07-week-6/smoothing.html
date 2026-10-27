@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Appraisal Smoothing, Volatility and Beta</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.legend i.dash{ border-radius:0; height:0; width:18px; border-top:2px dashed var(--muted); vertical-align:4px; background:none; }
+.pick{ margin-bottom:12px; }
+.src th{ text-align:left !important; } .src td{ text-align:left !important; }
+button.again{ font:inherit; font-size:13px; padding:6px 12px; border:1px solid var(--accent); background:var(--panel); color:var(--ink); border-radius:999px; cursor:pointer; margin-top:4px; }
+button.again:hover{ background:var(--line); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Smooth reported returns: what happens to risk, Sharpe ratio and beta when values lag prices?</h1>
+  <p class="lede">An asset that is not traded every day is valued by an appraiser, a model or the last transaction, and the valuation moves more slowly than the price would. Getmansky, Lo and Makarov (2004) wrote the simplest model of this: the reported return in a period is a weighted average of the true return in that period and in the few before it. The average return is unchanged. The volatility falls, the Sharpe ratio rises, the measured beta on the market shrinks towards zero, and part of the market's effect turns up in later periods. Choose how the reported series is built and watch what it does.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 6. The model is Getmansky, Lo and Makarov (2004), <i>Journal of Financial Economics</i> 74(3), 529&ndash;609, which I read as NBER Working Paper 9571 of March 2003: equations 20 to 23 on pages 19 to 20 and Proposition 1 with equations 24 to 33 on page 22 (printed pages; PDF page less three). True returns follow a one-factor model with a market beta, the reported return is the weighted average of the current and <i>k</i> lagged true returns with weights summing to one, and the three weight profiles (equal, declining by the sum of the years' digits, geometric with a decay of one half) are mine. The desmoothing divides out a first-order filter, in the way real-estate analysts desmooth appraisal series (the usual reference is Geltner; I did not read it), with the first-order autocorrelation of the reported series as the filter coefficient. It is exact when the smoothing is first-order and otherwise only approximate. The chart draws one random path from a fixed seed that the button changes; the figures in the tiles and the bars are exact population values. A teaching illustration with generic inputs, not an estimate for any asset. The model was computed twice, in Python and in this page, and the two agree on 300 random settings. The Python was also checked on a simulation of 400,000 periods against Proposition 1.</p>
+  <hr class="rule">
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. How the value is reported</p>
+        <p class="cardsub">The weights put on the current and earlier quarters' true returns</p>
+        <div class="field pick"><label class="f" for="pre">Start from</label><select id="pre"></select></div>
+        <div class="field"><label class="f" for="profile">Weights</label><select id="profile"><option value="0">Equal across the quarters</option><option value="1">Declining: more weight on the recent quarters</option><option value="2">Geometric: each quarter half the one before</option></select></div>
+        <div class="field"><label class="f" for="k">Quarters of lag <span class="val" id="kV"></span></label><input type="range" id="k" min="1" max="8" step="1" value="3"><p class="hint">The number of earlier quarters whose true returns are still being reported. A fund of exchange-traded shares would need none; a property or private equity fund several.</p></div>
+        <button type="button" class="again" id="again">Draw another path</button>
+      </div>
+      <div class="card">
+        <p class="step">2. The asset</p>
+        <p class="cardsub">Its true risk and its exposure to the market</p>
+        <div class="field"><label class="f" for="mu">True average return <span class="val" id="muV"></span></label><input type="range" id="mu" min="2" max="15" step="0.5" value="8"><p class="hint">Per year.</p></div>
+        <div class="field"><label class="f" for="sigma">True volatility <span class="val" id="sigmaV"></span></label><input type="range" id="sigma" min="6" max="30" step="1" value="16"><p class="hint">Per year, the volatility the returns would have if values followed prices.</p></div>
+        <div class="field"><label class="f" for="beta">True beta on the market <span class="val" id="betaV"></span></label><input type="range" id="beta" min="0" max="1.5" step="0.05" value="0.8"><p class="hint">The market's volatility is 16 per cent a year and the risk-free rate is 2 per cent, both fixed.</p></div>
+      </div>
+    </div>
+    <div>
+      <div class="stats">
+        <div><div class="k">Reported volatility</div><div class="v" id="s1">&mdash;</div><div class="s" id="s1s">of the true volatility</div></div>
+        <div><div class="k">Sharpe ratio, reported</div><div class="v" id="s2">&mdash;</div><div class="s" id="s2s">times the true ratio</div></div>
+        <div><div class="k">Beta on the market, reported</div><div class="v" id="s3">&mdash;</div><div class="s" id="s3s">against the true beta</div></div>
+        <div><div class="k">Volatility of five-year returns</div><div class="v" id="s4">&mdash;</div><div class="s">reported as a share of true</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2>True, reported and desmoothed quarterly returns</h2>
+        <svg id="c1" viewBox="0 0 1000 420" role="img" aria-label="Line chart of the true, reported and desmoothed quarterly returns of one simulated asset"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--clay)"></i>True return</span><span><i class="ln" style="background:var(--accent)"></i>Reported (smoothed)</span><span><i class="ln" style="background:var(--sage)"></i>Desmoothed from the reported series</span></div>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Sharpe ratio of the true, reported and desmoothed series</h2>
+        <svg id="c2" viewBox="0 0 1000 340" role="img" aria-label="Bar chart of the Sharpe ratio of the true, reported and desmoothed returns"></svg>
+        <p class="note" id="n2"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Where the market's effect on returns is reported</h2>
+        <svg id="c3" viewBox="0 0 1000 340" role="img" aria-label="Bar chart of the beta on the market in the current quarter and in each lagged quarter"></svg>
+        <p class="note" id="n3"></p>
+      </div>
+    </div>
+  </div>
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">What the model says</p>
+      <p>Suppose that the market value of a stake moves every quarter, but the reported value is a weighted average of the last few quarters' true changes. Then everything the true series contains does eventually appear, so the long-run average return is the same, and so is the volatility over a horizon much longer than the lag. What changes is the short run. Each reported change is an average of several true ones, so it is less variable, and it is correlated with the one before because the two share quarters. The first chart shows the effect: the reported series is flatter and slower than the true one.</p>
+      <p>Three consequences follow, and all of them flatter the asset. The volatility measured from reported returns is lower than the true volatility by the square root of the sum of the squared weights. The Sharpe ratio, which divides an excess return that has not changed by a volatility that has fallen, is higher by the reciprocal. And the beta on the market in the same quarter is the true beta times the weight on the current quarter, so an asset that moves one for one with the market looks, on a regression of same-quarter returns, as if it had a beta of 0.4 or less. The market's effect is not missing. It is reported later: the third chart shows that the betas on the market's lagged returns add back up to the true beta. A regression that includes lags of the market recovers it.</p>
+      <p>For unlisted infrastructure the model supplies the arithmetic behind a familiar puzzle: indices built from appraisals show volatility of a few per cent and betas near zero, which would make them the best diversifier ever found. Lambrev (2019) reports exactly that for the EDHECinfra index of unlisted infrastructure against listed infrastructure indices. The model says to treat such numbers as properties of the valuation process before treating them as properties of the asset, and it says how much to adjust them, given a guess at the lag.</p>
+      <p class="tag" style="margin-top:14px">Where the numbers and pages come from</p>
+      <table class="t src"><thead><tr><th>Item</th><th>Source</th></tr></thead><tbody>
+        <tr><td>True returns <i>R</i><sub><i>t</i></sub> = &mu; + &beta;&Lambda;<sub><i>t</i></sub> + &epsilon;<sub><i>t</i></sub>; reported return is <i>&theta;</i><sub>0</sub><i>R</i><sub><i>t</i></sub> + <i>&theta;</i><sub>1</sub><i>R</i><sub><i>t</i>&minus;1</sub> + &hellip; + <i>&theta;</i><sub><i>k</i></sub><i>R</i><sub><i>t</i>&minus;<i>k</i></sub>, each weight between zero and one and the weights summing to one (equations 20 to 23)</td><td>Getmansky, Lo and Makarov (2004), <i>Journal of Financial Economics</i> 74(3), 529&ndash;609, NBER Working Paper 9571 (March 2003), pages 19 and 20 (printed). I read the working paper, whose equations did not extract cleanly, and checked the formulas against the text of Proposition 1; the published article should be checked</td></tr>
+        <tr><td>Mean unchanged; variance multiplied by <i>c</i><sub>&sigma;</sub>&sup2; = &Sigma;<i>&theta;</i><sub><i>j</i></sub>&sup2;; Sharpe ratio multiplied by 1/<i>c</i><sub>&sigma;</sub>; contemporaneous beta <i>&theta;</i><sub>0</sub>&beta;; covariance with the market lagged <i>m</i> quarters <i>&theta;</i><sub><i>m</i></sub>&beta;; autocorrelations &Sigma;<i>&theta;</i><sub><i>j</i></sub><i>&theta;</i><sub><i>j</i>+<i>m</i></sub>/&Sigma;<i>&theta;</i><sub><i>j</i></sub>&sup2; (equations 24 to 33)</td><td>Same, Proposition 1, page 22 (printed). The paper's own words: smoothing biases the market beta towards zero or &lsquo;market neutrality&rsquo;</td></tr>
+        <tr><td>Why reported returns are smooth: infrequent trading, marks extrapolated from the last transaction, averaging of dealer quotes and, less innocently, deliberate smoothing</td><td>Same, pages 18 to 19 (printed). The paper is about hedge funds. The authors name real estate and private placements among the securities for which the intervals without trading are long</td></tr>
+        <tr><td>Listed and unlisted infrastructure compared: the EDHECinfra index with volatility 3.0%, beta 0.04 and Sharpe 5.33; listed indices with volatility 12.0 to 16.5%, betas 0.49 to 0.74 and Sharpe 0.10 to 0.69</td><td>Lambrev (2019), <i>Na&scaron;e gospodarstvo / Our Economy</i> 65(3), 23&ndash;39, Table 8, page 35. Quarterly data, 2007 to 2018 according to the text, though the abstract says 2001 to 2018. The EDHECinfra index of 2019 is not the index EDHEC publishes now</td></tr>
+        <tr><td>Weight profiles, the 20-quarter horizon for the five-year figure, the desmoothing filter, market volatility 16%, risk-free rate 2%</td><td>Mine and generic. They are not estimates for any asset</td></tr>
+      </tbody></table>
+      <p class="note">The model has one source of smoothing with known fixed weights. Real appraisal lags vary with the market, the appraiser and the date, and appraisers also respond to the news, which the model does not allow. The Sharpe ratios use the square-root-of-time scaling of the paper's per-period results.</p>
+      <p class="q">Start from the appraisal-based setting and set the true beta to 1. Report the reported beta and the sum of the betas on lagged market returns, and say what a limited partner who regressed same-quarter returns would conclude about the asset's diversification value.</p>
+      <p class="q">Switch to equal weights with a lag of eight quarters. Report the reported volatility as a share of the true figure and the volatility of five-year returns, and say for which horizon the reported risk would still be a reasonable guide.</p>
+    </div>
+  </div>
+</div>
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>/* Week 6 teaching models (JavaScript copy of models_w6.py; check_models_w6.py compares the two). */
+(function(g){
+'use strict';
+var R=g.RE07=g.RE07||{}, W=R.w6={};
+/* 1. Kaplan and Schoar (2005) PME and direct alpha */
+function benchReturns(r,shape,swing,beta,rf,T){
+  var out=[],t,s,idx;
+  for(t=1;t<=T;t++){ s=(shape===0)?0:((t<=T/2?1:-1)*(shape===1?1:-1)); idx=r+swing*s; out.push(Math.max(-0.99,rf+beta*(idx-rf))); }
+  return out;
+}
+function irr(flows){
+  function npv(i){ var s=0,t; for(t=0;t<flows.length;t++) s+=flows[t]/Math.pow(1+i,t); return s; }
+  var lo=-0.99,hi=10,flo=npv(lo),fhi=npv(hi),k,mid,fm;
+  if(flo*fhi>0) return NaN;
+  for(k=0;k<200;k++){ mid=(lo+hi)/2; fm=npv(mid); if((fm>0)===(flo>0)){lo=mid;flo=fm;} else hi=mid; }
+  return (lo+hi)/2;
+}
+function pme(m,c,s,e,r,shape,swing,beta,rf){
+  var T=e,t,calls=[],dist=[],net=[],G=[1],b=benchReturns(r,shape,swing,beta,rf,T),num=0,den=0,adj=[];
+  for(t=0;t<=T;t++){ calls.push(t<c?1:0); dist.push((t>=s&&t<=e)?m*c/(e-s+1):0); net.push(dist[t]-calls[t]); }
+  for(t=0;t<T;t++) G.push(G[t]*(1+b[t]));
+  for(t=0;t<=T;t++){ num+=dist[t]/G[t]; den+=calls[t]/G[t]; adj.push(net[t]*G[T]/G[t]); }
+  return {irr:irr(net),pme:num/den,alpha:irr(adj),calls:calls,dist:dist,G:G,bench_cagr:Math.pow(G[T],1/T)-1,net:net,b:b};
+}
+W.benchReturns=benchReturns; W.irr=irr; W.pme=pme;
+/* 2. Getmansky, Lo and Makarov (2004) smoothing */
+function theta(profile,k){
+  var w=[],j,s=0;
+  for(j=0;j<=k;j++) w.push(profile===0?1:(profile===1?(k+1-j):Math.pow(0.5,j)));
+  for(j=0;j<=k;j++) s+=w[j];
+  return w.map(function(x){return x/s;});
+}
+function smoothStats(th,beta,nLong){
+  nLong=nLong||20; var k=th.length-1,c2=0,j,m,t,rho=[],rho1,psi=[],d2=0,w=[],lw=0;
+  th.forEach(function(x){c2+=x*x;});
+  for(m=0;m<=k;m++){ if(m===0){rho.push(0);continue;} var a=0; for(j=0;j<k+1-m;j++) a+=th[j]*th[j+m]; rho.push(a/c2); }
+  rho1=k>=1?rho[1]:0;
+  for(j=0;j<k+2;j++){ var p=((j<=k?th[j]:0)-rho1*(j>=1?th[j-1]:0))/(1-rho1); psi.push(p); d2+=p*p; }
+  for(j=0;j<nLong+k;j++) w.push(0);
+  for(t=0;t<nLong;t++) for(j=0;j<=k;j++) w[t+j]+=th[j];
+  w.forEach(function(x){lw+=x*x;});
+  return {c2:c2,vol_ratio:Math.sqrt(c2),sharpe_factor:1/Math.sqrt(c2),beta0:th[0]*beta,lag_betas:th.map(function(x){return x*beta;}),rho:rho,rho1:rho1,
+          desm_vol_ratio:Math.sqrt(d2),desm_sharpe_factor:1/Math.sqrt(d2),psi:psi,long_ratio:Math.sqrt(lw/nLong)};
+}
+function mulberry32(seed){ var a=seed|0; return function(){ a=a+0x6D2B79F5|0; var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function normals(seed,n){ var u=mulberry32(seed), out=[], a, b, rr; while(out.length<n){ a=u(); b=u(); if(a<1e-12) a=1e-12; rr=Math.sqrt(-2*Math.log(a)); out.push(rr*Math.cos(2*Math.PI*b)); out.push(rr*Math.sin(2*Math.PI*b)); } return out.slice(0,n); }
+function simPath(mu,sigma,beta,sigmaM,th,seed,n){
+  var k=th.length-1,mq=mu/4,sq=sigma/2,smq=sigmaM/2,ie=Math.sqrt(Math.max(0,sq*sq-beta*beta*smq*smq)),N=n+k+1,z=normals(seed,2*N),Rr=[],i,j,rho1=smoothStats(th,beta).rho1,rep=[],des=[],s;
+  for(i=0;i<N;i++) Rr.push(mq+beta*smq*z[i]+ie*z[N+i]);
+  for(i=k+1;i<N;i++){ s=0; for(j=0;j<=k;j++) s+=th[j]*Rr[i-j]; rep.push(s); }
+  for(i=0;i<rep.length;i++) des.push(i>=1?(rep[i]-rho1*rep[i-1])/(1-rho1):rep[0]);
+  return {true:Rr.slice(k+1),reported:rep,desmoothed:des};
+}
+W.theta=theta; W.smoothStats=smoothStats; W.normals=normals; W.simPath=simPath;
+/* 3. Discount rate and value */
+function valueMultiple(w,g,N){
+  if(N===null||N===undefined) return w<=g?Infinity:1/(w-g);
+  if(Math.abs(w-g)<1e-12) return N/(1+w);
+  return (1-Math.pow((1+g)/(1+w),N))/(w-g);
+}
+function disc(rf,erp,betaC,gearC,betaD,gear,kd,extra,g,N){
+  var ba=betaC*(1-gearC)+betaD*gearC, be=ba+(ba-betaD)*gear/(1-gear), ke=rf+be*erp+extra, w=(1-gear)*ke+gear*kd;
+  return {beta_a:ba,beta_e:be,ke:ke,wacc:w,value:valueMultiple(w,g,N),value_perp:valueMultiple(w,g,null),beta_part:be*erp};
+}
+W.valueMultiple=valueMultiple; W.disc=disc;
+})(window);
+</script>
+<script>/* Small SVG chart helpers for the Week 6 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+(function(g){
+'use strict';
+var R=g.RE07;
+function axisY(s,y,L,Rr,lo,hi,n,fmtf){R.niceTicks(lo,hi,n).forEach(function(t){s.push('<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+Rr+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+(fmtf?fmtf(t):t)+'</text>');});}
+/* bars: [{label, value, color, note}] ; one bar per category */
+function bars(el,items,o){
+  o=o||{}; var W=1000,H=o.h||380,L=80,Rr=W-30,T=30,B=70,lo=Math.min(0,o.lo!==undefined?o.lo:Math.min.apply(null,items.map(function(d){return d.value;}))*1.15),
+      hi=o.hi!==undefined?o.hi:Math.max.apply(null,items.map(function(d){return d.value;}))*1.18, y=R.lin(lo,hi,H-B,T), s=[], n=items.length, bw=(Rr-L)/n;
+  axisY(s,y,L,Rr,lo,hi,5,o.fmt);
+  s.push('<line class="axis" x1="'+L+'" y1="'+y(0)+'" x2="'+Rr+'" y2="'+y(0)+'"/>');
+  items.forEach(function(d,k){var x0=L+k*bw+bw*0.2,w=bw*0.6,y0=y(Math.max(d.value,0)),y1=y(Math.min(d.value,0));
+    s.push('<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+Math.max(1,y1-y0)+'" fill="'+d.color+'"/>');
+    s.push('<text x="'+(x0+w/2)+'" y="'+(d.value>=0?y0-8:y1+20)+'" text-anchor="middle" font-size="18" font-weight="700">'+(o.fmt?o.fmt(d.value):R.fmt(d.value,1))+'</text>');
+    s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+26)+'" text-anchor="middle" font-size="16">'+d.label+'</text>');
+    if(d.sub) s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+46)+'" text-anchor="middle" font-size="14">'+d.sub+'</text>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+}
+/* lines: series [{pts:[[x,y]], color, width, dash, label}] */
+function lines(el,series,o){
+  var W=1000,H=o.h||420,L=80,Rr=W-30,T=26,B=60,xs=[],ys=[]; series.forEach(function(se){se.pts.forEach(function(p){xs.push(p[0]);ys.push(p[1]);});});
+  var x0=o.x0!==undefined?o.x0:Math.min.apply(null,xs),x1=o.x1!==undefined?o.x1:Math.max.apply(null,xs),y0=o.y0!==undefined?o.y0:Math.min.apply(null,ys),y1=o.y1!==undefined?o.y1:Math.max.apply(null,ys);
+  var x=R.lin(x0,x1,L,Rr),y=R.lin(y0,y1,H-B,T),s=[];
+  axisY(s,y,L,Rr,y0,y1,6,o.fy);
+  R.niceTicks(x0,x1,8).forEach(function(t){s.push('<text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+(o.fx?o.fx(t):t)+'</text>');});
+  s.push('<text class="mut" x="'+Rr+'" y="'+(H-8)+'" text-anchor="end" font-size="16">'+(o.xl||'')+'</text>');
+  (o.bands||[]).forEach(function(b){s.push('<rect x="'+x(b[0])+'" y="'+T+'" width="'+(x(b[1])-x(b[0]))+'" height="'+(H-B-T)+'" fill="'+b[2]+'" opacity="0.5"/>');if(b[3])s.push('<text class="mut" x="'+((x(b[0])+x(b[1]))/2)+'" y="'+(T+18)+'" text-anchor="middle" font-size="15">'+b[3]+'</text>');});
+  (o.hlines||[]).forEach(function(h){s.push('<line x1="'+L+'" y1="'+y(h[0])+'" x2="'+Rr+'" y2="'+y(h[0])+'" stroke="'+(h[2]||'var(--muted)')+'" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(Rr-4)+'" y="'+(y(h[0])-6)+'" text-anchor="end" font-size="15">'+h[1]+'</text>');});
+  (o.vlines||[]).forEach(function(v){s.push('<line x1="'+x(v[0])+'" y1="'+T+'" x2="'+x(v[0])+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(x(v[0])+6)+'" y="'+(H-B-8)+'" font-size="15">'+v[1]+'</text>');});
+  series.forEach(function(se){var d='';se.pts.forEach(function(p,k){d+=(k?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1);});
+    s.push('<path d="'+d+'" fill="none" stroke="'+se.color+'" stroke-width="'+(se.width||3.5)+'"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' stroke-linejoin="round"/>');});
+  (o.dots||[]).forEach(function(p){s.push('<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="6" fill="'+p[2]+'" stroke="var(--panel)" stroke-width="2"/>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+  return {x:x,y:y};
+}
+R.ch={bars:bars,lines:lines};
+})(window);
+</script>
+<script>
+(function(){
+var R=RE07, W=R.w6, $=function(id){return document.getElementById(id);}, fmt=R.fmt, RF=0.02, SM=0.16, NQ=40;
+var PRE=[{t:'Appraisal-based: four quarters, declining weights',profile:1,k:3,mu:8,sigma:16,beta:0.8},
+  {t:'Lightly smoothed: two quarters, declining weights',profile:1,k:1,mu:8,sigma:16,beta:0.8},
+  {t:'Heavily smoothed: nine quarters, equal weights',profile:0,k:8,mu:8,sigma:16,beta:0.8},
+  {t:'My own settings (use the sliders)',profile:null}];
+PRE.forEach(function(p,i){var o=document.createElement('option');o.value=i;o.textContent=p.t;$('pre').appendChild(o);}); $('pre').value=0;
+var S={profile:1,k:3,mu:8,sigma:16,beta:0.8}, seed=11, KEYS=['k','mu','sigma','beta']; $('profile').value=S.profile;
+function draw(){
+  $('kV').textContent=S.k+(S.k===1?' quarter':' quarters'); $('muV').textContent=fmt(S.mu,1)+'%'; $('sigmaV').textContent=fmt(S.sigma,0)+'%'; $('betaV').textContent=fmt(S.beta,2);
+  var th=W.theta(S.profile,S.k), st=W.smoothStats(th,S.beta), mu=S.mu/100, sg=S.sigma/100;
+  var sr=(mu-RF)/sg;
+  $('s1').textContent=fmt(st.vol_ratio*100,0)+'%'; $('s1s').textContent='of the true volatility: '+fmt(sg*st.vol_ratio*100,1)+'% against '+fmt(S.sigma,1)+'% a year';
+  $('s2').textContent=fmt(sr*st.sharpe_factor,2); $('s2s').textContent=fmt(st.sharpe_factor,2)+' times the true ratio of '+fmt(sr,2);
+  $('s3').textContent=fmt(st.beta0,2); $('s3s').textContent='against a true beta of '+fmt(S.beta,2);
+  $('s4').textContent=fmt(st.long_ratio*100,0)+'%';
+  var p=W.simPath(mu,sg,S.beta,SM,th,seed,NQ), mk=function(a){return a.map(function(v,i){return [i+1,v*100];});};
+  var lo=Math.floor(Math.min.apply(null,p.true.concat(p.reported,p.desmoothed))*100/5)*5, hi=Math.ceil(Math.max.apply(null,p.true.concat(p.reported,p.desmoothed))*100/5)*5;
+  R.ch.lines($('c1'),[{pts:mk(p.true),color:'var(--clay)',width:2.5},{pts:mk(p.desmoothed),color:'var(--sage)',width:2.2,dash:'6 4'},{pts:mk(p.reported),color:'var(--accent)',width:3.5}],{x0:1,x1:NQ,y0:lo,y1:hi,xl:'Quarter',fy:function(t){return Math.round(t);},fx:function(t){return Math.round(t);},hlines:[[0,'zero']]});
+  var sdv=function(a){return R.sd(a);}, a=sdv(p.true), b=sdv(p.reported);
+  $('n1').textContent='One random path of '+NQ+' quarterly returns, in per cent. The reported series has a standard deviation of '+fmt(b*100,1)+' against '+fmt(a*100,1)+' for the true one on this draw, and moves after the true series does. Desmoothing with the first-order autocorrelation of the reported series ('+fmt(st.rho1,2)+') gives '+fmt(sdv(p.desmoothed)*100,1)+', '+(S.profile===2?'close to the true figure because the smoothing is geometric':'which overshoots when the smoothing is not geometric')+'. Population figures are in the tiles.';
+  var items=[{label:'True',value:sr,color:'var(--clay)'},{label:'Reported',value:sr*st.sharpe_factor,color:'var(--accent)'},{label:'Desmoothed',value:sr*st.desm_sharpe_factor,color:'var(--sage)'}];
+  R.ch.bars($('c2'),items,{fmt:function(v){return fmt(v,2);},lo:0,h:340});
+  $('n2').textContent='With an average return of '+fmt(S.mu,1)+' per cent, a risk-free rate of 2 per cent and a true volatility of '+fmt(S.sigma,0)+' per cent, the true Sharpe ratio is '+fmt(sr,2)+'. Smoothing raises it to '+fmt(sr*st.sharpe_factor,2)+' without any change in what the asset earns. The first-order desmoothing gives '+fmt(sr*st.desm_sharpe_factor,2)+(S.profile===2?', close to the true figure because the smoothing is geometric.':', which is below the true figure because a first-order filter over-corrects smoothing that is not geometric.');
+  var it3=st.lag_betas.map(function(v,j){return {label:j===0?'Same quarter':'Lag '+j,value:v,color:j===0?'var(--accent)':'var(--slate)'};});
+  R.ch.bars($('c3'),it3,{fmt:function(v){return fmt(v,2);},lo:0,h:340});
+  $('n3').textContent='The beta on the market in the same quarter is '+fmt(st.beta0,2)+' against a true beta of '+fmt(S.beta,2)+'. The remaining '+fmt(S.beta-st.beta0,2)+' is spread over the lagged quarters, in the proportions of the weights, and the lagged betas add up to the true '+fmt(S.beta,2)+'.';
+}
+function setPreset(i){var p=PRE[i]; if(p.profile!==null){S.profile=p.profile;S.k=p.k;S.mu=p.mu;S.sigma=p.sigma;S.beta=p.beta; KEYS.forEach(function(x){$(x).value=S[x];}); $('profile').value=S.profile;}}
+$('pre').addEventListener('change',function(e){setPreset(+e.target.value);draw();});
+KEYS.forEach(function(k){$(k).addEventListener('input',function(e){S[k]=+e.target.value;$('pre').value=PRE.length-1;draw();});});
+$('profile').addEventListener('change',function(e){S.profile=+e.target.value;$('pre').value=PRE.length-1;draw();});
+$('again').addEventListener('click',function(){seed=Math.floor(Math.random()*1e6)+1;draw();});
+draw();
+})();
+</script>
+</body>
+</html>

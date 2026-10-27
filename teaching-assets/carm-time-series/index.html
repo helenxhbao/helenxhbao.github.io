@@ -149,7 +149,7 @@ function tocHtml(){
       cur = s.topic;
       out.push('<li class="grp">' + cur + ' &middot; ' + esc(s.topicname) + '</li>');
     }
-    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+s.n+'</span>'+
+    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+(s.n-1)+'</span>'+
              esc(s.label || ('Slide '+s.page))+'</a></li>');
   });
   return out.join('') + '</ul>';

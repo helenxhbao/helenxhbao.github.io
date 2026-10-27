@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sizing Debt on a Cover Ratio</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.legend i.dash{ border-radius:0; height:0; width:18px; border-top:2px dashed var(--muted); vertical-align:4px; background:none; }
+.pick{ margin-bottom:12px; }
+.src th{ text-align:left !important; } .src td{ text-align:left !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Sizing debt on a cover ratio: how much room does the lender leave?</h1>
+  <p class="lede">Project lenders do not size a loan against the value of the assets. They size it against the cash the project is expected to make: the loan is set so that expected cash available for debt service covers the instalment by a margin, the base-case cover. What the margin buys depends on how far and how persistently cash flow wanders from the base case. The EDHEC Infrastructure Institute documents that wandering for more than 200 projects. Set the margin and the volatility and see the chance that cover drops below one, the point at which the project cannot pay.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 4. The idea of tracking the debt service cover ratio as a stochastic process, and the evidence that realised cover is approximately lognormal, serially correlated, and less volatile for contracted than merchant projects, is from the EDHEC Infrastructure Institute-Singapore (2016), Cash Flow Dynamics of Private Infrastructure Project Debt. The process on this page is my simplification: one Gaussian autoregressive shock to the log of cover around the base case, with the probability of ever falling below a level computed on a grid. It is a teaching illustration with generic inputs, not an estimate for any project. It was computed twice, in Python and in this page, and the two agree; the Python was also checked against a simulation of one million paths.</p>
+  <hr class="rule">
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. The loan</p>
+        <p class="cardsub">Level instalments, sized as expected cash flow over the base-case cover</p>
+        <div class="field pick"><label class="f" for="pre">Start from</label><select id="pre"></select></div>
+        <div class="field"><label class="f" for="k">Base-case cover <span class="val" id="kV"></span></label><input type="range" id="k" min="1.05" max="2.5" step="0.01" value="1.3">
+          <p class="hint">Expected cash available for debt service divided by the debt service due.</p></div>
+        <div class="field"><label class="f" for="T">Years of repayment <span class="val" id="TV"></span></label><input type="range" id="T" min="8" max="25" step="1" value="15"></div>
+        <div class="field"><label class="f" for="rd">Interest rate on the loan <span class="val" id="rdV"></span></label><input type="range" id="rd" min="2" max="9" step="0.01" value="6"></div>
+      </div>
+      <div class="card">
+        <p class="step">2. The cash flow</p>
+        <p class="cardsub">How far and how persistently cover moves from the base case</p>
+        <div class="field"><label class="f" for="sg">Volatility of the log of cover <span class="val" id="sgV"></span></label><input type="range" id="sg" min="2" max="35" step="1" value="10">
+          <p class="hint">The standard deviation of the log of cover around the base case, in per cent.</p></div>
+        <div class="field"><label class="f" for="rho">Persistence from one year to the next <span class="val" id="rhoV"></span></label><input type="range" id="rho" min="0" max="90" step="1" value="60"></div>
+        <div class="field"><label class="f" for="p">Probability of breach the lender will accept <span class="val" id="pV"></span></label><input type="range" id="p" min="1" max="20" step="1" value="5"></div>
+      </div>
+    </div>
+    <div>
+      <div class="stats">
+        <div><div class="k">Cover falls below 1.0</div><div class="v" id="s1">&mdash;</div><div class="s">at some point in the loan's life</div></div>
+        <div><div class="k">Cover falls below 1.15</div><div class="v" id="s2">&mdash;</div><div class="s">an example lock-up level</div></div>
+        <div><div class="k">Debt per 100 of cash flow</div><div class="v" id="s3">&mdash;</div><div class="s">expected annual cash flow, at your cover</div></div>
+        <div><div class="k">Cover the lender would need</div><div class="v" id="s4">&mdash;</div><div class="s" id="s4s">for the breach probability you accept</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2>Cover over the life of the loan</h2>
+        <svg id="c1" viewBox="0 0 1000 400" role="img" aria-label="Line chart of the median and the fifth and ninety-fifth percentiles of the cover ratio over the loan's life"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--accent)"></i>Base case</span><span><i class="ln" style="background:var(--slate)"></i>5th and 95th percentiles</span><span><i class="dash"></i>Thresholds</span></div>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Breach probability against the margin</h2>
+        <svg id="c2" viewBox="0 0 1000 400" role="img" aria-label="Line chart of the probability of cover falling below one against base-case cover for three volatilities"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--sage)"></i>Half your volatility</span><span><i class="ln" style="background:var(--accent)"></i>Your volatility</span><span><i class="ln" style="background:var(--clay)"></i>Double (up to 35 per cent)</span><span><i class="dash"></i>Probability you accept</span></div>
+        <p class="note" id="n2"></p>
+      </div>
+    </div>
+  </div>
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">What the model says</p>
+      <p>The debt service cover ratio is cash available for debt service divided by the debt service due. When it falls below one the project cannot pay out of its own cash, which the EDHEC study treats as an unambiguous definition of a hard default, and covenants typically bite earlier at a level such as 1.15, locking up distributions to equity. The lender sets the base-case cover so that these thresholds are unlikely to be reached. How unlikely depends on two features of the cash flow, its volatility and its persistence. Persistence cuts two ways. With the overall volatility held fixed, a more persistent process has fewer independent draws over the life of the loan, so the chance of ever reaching a breach from the base case is lower, but a dip, once it comes, lasts longer, which is what gives lenders and sponsors less time to cure it.</p>
+      <p>The page shows the trade the sponsor faces. A higher cover means a smaller loan, because the same expected cash flow supports less debt, and a lower cover means a larger loan and a higher chance of breach. A contracted project, whose cash flow is largely fixed, can run on a thin margin, while a merchant project needs a thick one, which is why leverage and cover go together in project finance. The distance of the base case from the breach level, measured in standard deviations, is the quantity EDHEC links to the Merton distance to default, and it is the link to the guarantee model on the third page.</p>
+      <p class="tag" style="margin-top:14px">Where the numbers and pages come from</p>
+      <table class="t src"><thead><tr><th>Item</th><th>Source</th></tr></thead><tbody>
+        <tr><td>Cover is cash flow available for debt service over debt service; a project is in default when cover falls below 1; covenants set technical default levels at 1:x</td><td>EDHEC Infrastructure Institute-Singapore (2016), Cash Flow Dynamics of Private Infrastructure Project Debt, pages 6 and 18 (printed page equals PDF page)</td></tr>
+        <tr><td>Realised cover can be fitted to a lognormal up to the 90th (contracted) and 85th (merchant) quantiles; the pooled log-standard deviation is 0.289 for contracted and 0.316 for merchant projects, from more than 200 projects over 15 years</td><td>Same, Table 4, page 32, and pages 8 and 9. These dispersions pool differences between projects and between years, so they overstate the volatility of one project around its base case; the page starts at 10 per cent for that reason</td></tr>
+        <tr><td>Realised cover is serially correlated (Durbin&ndash;Watson 0.857 on the residuals of a regression of log cover); contracted projects have lower mean and volatility than merchant projects</td><td>Same, Table 9 and conclusions, page 37. The first-order correlation of about 0.57 is my arithmetic from the approximation DW &asymp; 2(1 &minus; &rho;) and applies to regression residuals, not to cover itself; the page starts at 0.6</td></tr>
+        <tr><td>Projects with little market risk are financed with a flat base case and senior leverage of around 90 per cent; probabilities of lock-up (cover below 1.15) and soft default (1.10) as well as hard default are tracked</td><td>Same, pages 8 and 15</td></tr>
+        <tr><td>Distance to default from cover, the link to Merton</td><td>Same, equation 1.2, page 19</td></tr>
+        <tr><td>Hyperion project debt: cover of 1.12 and a yield of 6.58 per cent; the preset keeps those two numbers and sets the volatility (3 per cent) so that a thin cover is consistent with a small breach probability, which is my assumption: cash flow is a lease payment from the tenant, so most of the risk is the tenant's credit and the lease's renewal</td><td>Van Nieuwerburgh (2026), NBER Working Paper 35865, pages 9 and 10 (printed page equals PDF page less two)</td></tr>
+        <tr><td>Cumulative default of 4.3 per cent by year 10 for rated infrastructure debt originated 1995 to 2023, and for unrated project finance loans originated 1983 to 2021</td><td>World Bank Group and Global Infrastructure Hub, Infrastructure Monitor 2024, financial performance chapter, page 22 (printed page equals PDF page). A breach of cover is not a default, because lenders waive and restructure, so this is a reference point for the order of magnitude only</td></tr>
+        <tr><td>The process, the grid, the minimum cover and the debt capacity</td><td>Mine. ln(cover<sub>t</sub>) = ln(base case) + <i>x<sub>t</sub></i>, with <i>x<sub>t</sub></i> = &rho; <i>x<sub>t&minus;1</sub></i> + <i>e<sub>t</sub></i>, <i>e<sub>t</sub></i> normal with variance &sigma;&sup2;(1 &minus; &rho;&sup2;), and <i>x</i><sub>0</sub> = 0. The probability that cover first falls below a level within the loan's life is computed on a grid of 61 cells whose edge is the barrier. Debt is (expected cash flow / cover) times the annuity factor at the loan rate</td></tr>
+      </tbody></table>
+      <p class="note">One shock drives the whole path, with no separate construction phase, no reserve accounts, no refinancing and no change of regime between a risky and a safe state, which the EDHEC model has. A fall below 1.0 is a breach and not a loss: what lenders recover after a default is a separate question (an ultimate recovery of 84 per cent on unrated infrastructure project finance loans originated from 1983 to 2021, World Bank Group and Global Infrastructure Hub, Infrastructure Monitor 2024, page 18). If the volatility of each year's shock were held fixed instead of the overall volatility, higher persistence would raise the long-run dispersion, and the effect on the breach probability would reverse.</p>
+      <p class="q">With the generic settings, raise persistence from 60 to 90 per cent. Report what happens to the breach probability and to the cover the lender would need, and explain why the probability falls even though a bad year now lasts longer.</p>
+      <p class="q">Compare the availability-based and merchant presets at the same loan rate. Report the debt each supports per 100 of expected cash flow, and say who bears the difference in risk when the merchant project is given the larger loan.</p>
+    </div>
+  </div>
+</div>
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>/* Week 4 teaching models (JavaScript copy of models_w4.py; check_models_w4.py compares the two). */
+(function(g){
+'use strict';
+var R=g.RE07=g.RE07||{}, W=R.w4={};
+function erf(x){
+  if(x<0) return -erf(-x);
+  if(x>6) return 1;
+  var term=x, s=x, n=0;
+  for(;;){ n++; term=term*2*x*x/(2*n+1); s+=term; if(term<1e-18*s||n>400) break; }
+  return 2/Math.sqrt(Math.PI)*Math.exp(-x*x)*s;
+}
+function ncdf(x){ return 0.5*(1+erf(x/Math.SQRT2)); }
+W.ncdf=ncdf;
+/* 1. Leland (1994) */
+function lelandLambda(r,delta,sigma){ var m=r-delta-0.5*sigma*sigma; return (m+Math.sqrt(m*m+2*sigma*sigma*r))/(sigma*sigma); }
+function lelandK(r,delta,sigma,tau){ var lam=lelandLambda(r,delta,sigma); return lam*(1-tau)/(r*(1+lam)); }
+function lelandClaims(V,C,r,delta,sigma,tau,alpha){
+  var lam=lelandLambda(r,delta,sigma), VB=lelandK(r,delta,sigma,tau)*C, P=VB>=V?1:Math.pow(VB/V,lam);
+  var D=C/r*(1-P)+(1-alpha)*VB*P, TB=tau*C/r*(1-P), BC=alpha*VB*P, v=V+TB-BC, E=v-D, yld=D>0?C/D:NaN;
+  return {lam:lam,VB:VB,P:P,D:D,E:E,TB:TB,BC:BC,v:v,lev:D/v,yld:yld,spread:yld-r,gain:v/V-1};
+}
+function lelandOpt(V,r,delta,sigma,tau,alpha){
+  var lam=lelandLambda(r,delta,sigma), k=lelandK(r,delta,sigma,tau), Ps=tau/((1+lam)*(tau+alpha*r*k)), C=(V/k)*Math.pow(Ps,1/lam);
+  var o=lelandClaims(V,C,r,delta,sigma,tau,alpha); o.C=C; return o;
+}
+function lelandCurve(V,r,delta,sigma,tau,alpha,n){
+  n=n||81; var k=lelandK(r,delta,sigma,tau), cmax=V/k, pts=[], i, C, c;
+  for(i=0;i<n;i++){ C=cmax*i/(n-1)*0.999; c=lelandClaims(V,C,r,delta,sigma,tau,alpha); pts.push([c.lev,c.v,c.spread,C]); }
+  return pts;
+}
+W.lelandClaims=lelandClaims; W.lelandOpt=lelandOpt; W.lelandCurve=lelandCurve; W.lelandLambda=lelandLambda; W.lelandK=lelandK;
+/* 2. Cover ratio dynamics */
+function firstPassage(rho,sigma,k,level,T,N,span){
+  N=N||61; span=span||4; var b=Math.log(level/k), h=2*span*sigma/N, se=sigma*Math.sqrt(1-rho*rho), top=span*sigma, a0, M, i, j, t, e=[], mids=[], c, prev, alive=[], cum=[], rows=[], cc, r, nw, a, ri, s, out;
+  a0=b>=-top?b:b+Math.floor((-top-b)/h)*h;
+  if(a0>=top){ out=[]; for(t=0;t<T;t++) out.push(1); return out; }
+  M=Math.ceil((top-a0)/h);
+  for(j=0;j<=M;j++) e.push(a0+j*h);
+  for(j=0;j<M;j++) mids.push((e[j]+e[j+1])/2);
+  c=[]; for(j=1;j<M;j++) c.push(ncdf(e[j]/se)); c.push(1);
+  prev=ncdf(e[0]/se);
+  for(j=0;j<M;j++){ alive.push(c[j]-prev); prev=c[j]; }
+  s=0; for(j=0;j<M;j++) s+=alive[j]; cum.push(1-s);
+  for(i=0;i<M;i++){
+    cc=[]; for(j=1;j<M;j++) cc.push(ncdf((e[j]-rho*mids[i])/se)); cc.push(1);
+    prev=ncdf((e[0]-rho*mids[i])/se); r=[];
+    for(j=0;j<M;j++){ r.push(cc[j]-prev); prev=cc[j]; }
+    rows.push(r);
+  }
+  for(t=1;t<T;t++){
+    nw=new Array(M).fill(0);
+    for(i=0;i<M;i++){ a=alive[i]; if(a===0) continue; ri=rows[i]; for(j=0;j<M;j++) nw[j]+=a*ri[j]; }
+    alive=nw; s=0; for(j=0;j<M;j++) s+=alive[j]; cum.push(1-s);
+  }
+  return cum;
+}
+function annuity(r,T){ return r===0?T:(1-Math.pow(1+r,-T))/r; }
+function debtCapacity(k,T,rd,cfads){ cfads=cfads===undefined?100:cfads; return cfads/k*annuity(rd,T); }
+function minCover(rho,sigma,T,p,level,lo,hi){
+  level=level===undefined?1:level; lo=lo===undefined?1:lo; hi=hi===undefined?6:hi; var it,mid;
+  for(it=0;it<30;it++){ mid=(lo+hi)/2; if(firstPassage(rho,sigma,mid,level,T)[T-1]>p) lo=mid; else hi=mid; }
+  return (lo+hi)/2;
+}
+function coverFan(k,rho,sigma,T){
+  var z=1.6448536269514722,out=[],t,s; for(t=1;t<=T;t++){ s=sigma*Math.sqrt(1-Math.pow(rho,2*t)); out.push([t,k*Math.exp(-z*s),k,k*Math.exp(z*s)]); } return out;
+}
+W.firstPassage=firstPassage; W.annuity=annuity; W.debtCapacity=debtCapacity; W.minCover=minCover; W.coverFan=coverFan;
+/* 3. Merton (1977) */
+function bsPut(V,K,r,sigma,T){
+  if(K<=0) return 0; var st=sigma*Math.sqrt(T), d1=(Math.log(V/K)+(r+0.5*sigma*sigma)*T)/st, d2=d1-st;
+  return K*Math.exp(-r*T)*ncdf(-d2)-V*ncdf(-d1);
+}
+function merton(V,D,r,sigma,T,cover,mu){
+  cover=cover===undefined?1:cover;
+  var pf=bsPut(V,D,r,sigma,T), pl=cover<1?bsPut(V,(1-cover)*D,r,sigma,T):0, cost=pf-pl, rf=D*Math.exp(-r*T), risky=rf-pf, gu=risky+cost;
+  var y0=-Math.log(risky/D)/T, y1=-Math.log(gu/D)/T, st=sigma*Math.sqrt(T), d2=(Math.log(V/D)+(r-0.5*sigma*sigma)*T)/st;
+  var o={put:pf,cost:cost,risky:risky,guaranteed:gu,y_unguar:y0,y_guar:y1,spread:y0-r,spread_left:y1-r,pd_q:ncdf(-d2),cost_pct:cost/D};
+  if(mu!==undefined&&mu!==null){
+    var ep=function(K){ if(K<=0) return 0; var d2p=(Math.log(V/K)+(mu-0.5*sigma*sigma)*T)/st, d1p=d2p+st; return K*ncdf(-d2p)-V*Math.exp(mu*T)*ncdf(-d1p); };
+    var pay=ep(D)-(cover<1?ep((1-cover)*D):0);
+    o.expected_cost=pay*Math.exp(-r*T); o.pd_p=ncdf(-((Math.log(V/D)+(mu-0.5*sigma*sigma)*T)/st));
+  }
+  return o;
+}
+function mertonPayoff(Vt,D,cover){ cover=cover===undefined?1:cover; return Math.min(Math.max(D-Vt,0),cover*D); }
+W.bsPut=bsPut; W.merton=merton; W.mertonPayoff=mertonPayoff;
+})(window);
+</script>
+<script>/* Small SVG chart helpers for the Week 4 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+(function(g){
+'use strict';
+var R=g.RE07;
+function axisY(s,y,L,Rr,lo,hi,n,fmtf){R.niceTicks(lo,hi,n).forEach(function(t){s.push('<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+Rr+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+(fmtf?fmtf(t):t)+'</text>');});}
+/* bars: [{label, value, color, note}] ; one bar per category */
+function bars(el,items,o){
+  o=o||{}; var W=1000,H=o.h||380,L=80,Rr=W-30,T=30,B=70,lo=Math.min(0,o.lo!==undefined?o.lo:Math.min.apply(null,items.map(function(d){return d.value;}))*1.15),
+      hi=o.hi!==undefined?o.hi:Math.max.apply(null,items.map(function(d){return d.value;}))*1.18, y=R.lin(lo,hi,H-B,T), s=[], n=items.length, bw=(Rr-L)/n;
+  axisY(s,y,L,Rr,lo,hi,5,o.fmt);
+  s.push('<line class="axis" x1="'+L+'" y1="'+y(0)+'" x2="'+Rr+'" y2="'+y(0)+'"/>');
+  items.forEach(function(d,k){var x0=L+k*bw+bw*0.2,w=bw*0.6,y0=y(Math.max(d.value,0)),y1=y(Math.min(d.value,0));
+    s.push('<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+Math.max(1,y1-y0)+'" fill="'+d.color+'"/>');
+    s.push('<text x="'+(x0+w/2)+'" y="'+(d.value>=0?y0-8:y1+20)+'" text-anchor="middle" font-size="18" font-weight="700">'+(o.fmt?o.fmt(d.value):R.fmt(d.value,1))+'</text>');
+    s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+26)+'" text-anchor="middle" font-size="16">'+d.label+'</text>');
+    if(d.sub) s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+46)+'" text-anchor="middle" font-size="14">'+d.sub+'</text>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+}
+/* lines: series [{pts:[[x,y]], color, width, dash, label}] */
+function lines(el,series,o){
+  var W=1000,H=o.h||420,L=80,Rr=W-30,T=26,B=60,xs=[],ys=[]; series.forEach(function(se){se.pts.forEach(function(p){xs.push(p[0]);ys.push(p[1]);});});
+  var x0=o.x0!==undefined?o.x0:Math.min.apply(null,xs),x1=o.x1!==undefined?o.x1:Math.max.apply(null,xs),y0=o.y0!==undefined?o.y0:Math.min.apply(null,ys),y1=o.y1!==undefined?o.y1:Math.max.apply(null,ys);
+  var x=R.lin(x0,x1,L,Rr),y=R.lin(y0,y1,H-B,T),s=[];
+  axisY(s,y,L,Rr,y0,y1,6,o.fy);
+  R.niceTicks(x0,x1,8).forEach(function(t){s.push('<text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+(o.fx?o.fx(t):t)+'</text>');});
+  s.push('<text class="mut" x="'+Rr+'" y="'+(H-8)+'" text-anchor="end" font-size="16">'+(o.xl||'')+'</text>');
+  (o.bands||[]).forEach(function(b){s.push('<rect x="'+x(b[0])+'" y="'+T+'" width="'+(x(b[1])-x(b[0]))+'" height="'+(H-B-T)+'" fill="'+b[2]+'" opacity="0.5"/>');if(b[3])s.push('<text class="mut" x="'+((x(b[0])+x(b[1]))/2)+'" y="'+(T+18)+'" text-anchor="middle" font-size="15">'+b[3]+'</text>');});
+  (o.hlines||[]).forEach(function(h){s.push('<line x1="'+L+'" y1="'+y(h[0])+'" x2="'+Rr+'" y2="'+y(h[0])+'" stroke="'+(h[2]||'var(--muted)')+'" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(Rr-4)+'" y="'+(y(h[0])-6)+'" text-anchor="end" font-size="15">'+h[1]+'</text>');});
+  (o.vlines||[]).forEach(function(v){s.push('<line x1="'+x(v[0])+'" y1="'+T+'" x2="'+x(v[0])+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(x(v[0])+6)+'" y="'+(H-B-8)+'" font-size="15">'+v[1]+'</text>');});
+  series.forEach(function(se){var d='';se.pts.forEach(function(p,k){d+=(k?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1);});
+    s.push('<path d="'+d+'" fill="none" stroke="'+se.color+'" stroke-width="'+(se.width||3.5)+'"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' stroke-linejoin="round"/>');});
+  (o.dots||[]).forEach(function(p){s.push('<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="6" fill="'+p[2]+'" stroke="var(--panel)" stroke-width="2"/>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+  return {x:x,y:y};
+}
+R.ch={bars:bars,lines:lines};
+})(window);
+</script>
+<script>
+(function(){
+var R=RE07, W=R.w4, $=function(id){return document.getElementById(id);}, fmt=R.fmt;
+var PRE=[{k:'gen',t:'A generic project: cover 1.30, volatility 10%, 15 years',k_:1.3,sg:10,rho:60,T:15,rd:6,p:5},
+  {k:'ava',t:'An availability-based project: low volatility (5%), cover 1.20',k_:1.2,sg:5,rho:60,T:15,rd:6,p:5},
+  {k:'mer',t:'A merchant project: high volatility (20%), cover 1.60',k_:1.6,sg:20,rho:60,T:15,rd:6,p:5},
+  {k:'edh',t:'Pooled EDHEC dispersion (29%, an upper bound), cover 1.50',k_:1.5,sg:29,rho:60,T:15,rd:6,p:5},
+  {k:'hyp',t:'Hyperion as reported (cover 1.12, yield 6.58%); volatility 3% is illustrative, 20 years',k_:1.12,sg:3,rho:60,T:20,rd:6.58,p:5},
+  {k:'cus',t:'My own settings (use the sliders)',k_:null}];
+PRE.forEach(function(p){var o=document.createElement('option');o.value=p.k;o.textContent=p.t;$('pre').appendChild(o);}); $('pre').value='gen';
+var S={k:1.3,sg:10,rho:60,T:15,rd:6,p:5};
+function fp(k,level,sg){return W.firstPassage(S.rho/100,(sg===undefined?S.sg:sg)/100,k,level,S.T);}
+function draw(){
+  $('kV').textContent=fmt(S.k,2); $('TV').textContent=S.T+' years'; $('rdV').textContent=fmt(S.rd,2)+'%'; $('sgV').textContent=S.sg+'%'; $('rhoV').textContent=S.rho+'%'; $('pV').textContent=S.p+'%';
+  var b=fp(S.k,1.0)[S.T-1], l=fp(S.k,1.15)[S.T-1], cap=W.debtCapacity(S.k,S.T,S.rd/100), need=W.minCover(S.rho/100,S.sg/100,S.T,S.p/100), capN=W.debtCapacity(need,S.T,S.rd/100);
+  $('s1').textContent=fmt(b*100,1)+'%'; $('s2').textContent=fmt(l*100,1)+'%'; $('s3').textContent=fmt(cap,0); $('s4').textContent=fmt(need,2); $('s4s').textContent='for a breach probability of '+S.p+'%; it supports debt of '+fmt(capN,0)+' per 100';
+  var fan=W.coverFan(S.k,S.rho/100,S.sg/100,S.T), lo=fan.map(function(f){return [f[0],f[1]];}), md=fan.map(function(f){return [f[0],f[2]];}), hi=fan.map(function(f){return [f[0],f[3]];});
+  var ymax=Math.ceil(Math.max.apply(null,hi.map(function(p){return p[1];}))*10)/10+0.1, ymin=Math.floor(Math.min(0.9,Math.min.apply(null,lo.map(function(p){return p[1];})))*10)/10;
+  R.ch.lines($('c1'),[{pts:lo,color:'var(--slate)',width:2.5},{pts:hi,color:'var(--slate)',width:2.5},{pts:md,color:'var(--accent)',width:4}],{x0:1,x1:S.T,y0:ymin,y1:ymax,xl:'Year of the loan',fy:function(t){return fmt(t,2);},fx:function(t){return Math.round(t);},hlines:[[1.0,'cover 1.0: cannot pay','var(--muted)'],[1.15,'lock-up 1.15','var(--muted)']]});
+  $('n1').textContent='Expected cash flow covers the instalment '+fmt(S.k,2)+' times. With '+S.sg+' per cent volatility and '+S.rho+' per cent persistence, by year '+S.T+' the fifth percentile of cover is '+fmt(fan[S.T-1][1],2)+' and the ninety-fifth is '+fmt(fan[S.T-1][3],2)+'. The chance that cover falls below 1.0 at some point is '+fmt(b*100,1)+' per cent.';
+  var ks=[],k; for(k=1.0;k<=2.501;k+=0.1) ks.push(Math.round(k*100)/100);
+  function curve(sg){return ks.map(function(kk){return [kk,fp(kk,1.0,sg)[S.T-1]*100];});}
+  var half=Math.max(2,S.sg/2), dbl=Math.min(35,S.sg*2);
+  R.ch.lines($('c2'),[{pts:curve(half),color:'var(--sage)',width:2.5},{pts:curve(dbl),color:'var(--clay)',width:2.5},{pts:curve(S.sg),color:'var(--accent)',width:4}],{x0:1,x1:2.5,y0:0,y1:100,xl:'Base-case cover',fy:function(t){return Math.round(t);},fx:function(t){return fmt(t,1);},hlines:[[S.p,S.p+'%','var(--muted)']],dots:[[S.k,b*100,'var(--ink)']]});
+  $('n2').textContent='To keep the breach probability at '+S.p+' per cent the lender needs a cover of '+fmt(need,2)+', against '+fmt(W.minCover(S.rho/100,half/100,S.T,S.p/100),2)+' at half your volatility and '+fmt(W.minCover(S.rho/100,dbl/100,S.T,S.p/100),2)+' at '+fmt(dbl,0)+' per cent. The extra cover is borne by the sponsor as a smaller loan: '+fmt(capN,0)+' against '+fmt(W.debtCapacity(W.minCover(S.rho/100,half/100,S.T,S.p/100),S.T,S.rd/100),0)+' per 100 of expected annual cash flow.';
+}
+function setPreset(k){var p=PRE.filter(function(x){return x.k===k;})[0]; if(p.k_!==null){S.k=p.k_;S.sg=p.sg;S.rho=p.rho;S.T=p.T;S.rd=p.rd;S.p=p.p;['k','sg','rho','T','rd','p'].forEach(function(x){$(x).value=S[x];});}}
+$('pre').addEventListener('change',function(e){setPreset(e.target.value);draw();});
+['k','sg','rho','T','rd','p'].forEach(function(k){$(k).addEventListener('input',function(e){S[k]=+e.target.value;$('pre').value='cus';draw();});});
+draw();
+})();
+</script>
+</body>
+</html>

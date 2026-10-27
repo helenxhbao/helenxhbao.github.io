@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sharing Demand Risk in a Concession: Engel, Fischer and Galetovic</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.legend i.dash{ border-radius:0; height:0; width:18px; border-top:2px dashed var(--muted); vertical-align:4px; background:none; }
+.pick{ margin-bottom:12px; }
+.src th{ text-align:left !important; } .src td{ text-align:left !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Sharing demand risk in a concession</h1>
+  <p class="lede">A toll road earns whatever the traffic allows, and nobody knows the traffic. A concessionaire who bears all of that risk will demand a high price for doing so; a government that bears all of it must raise taxes, which are costly too. Engel, Fischer and Galetovic (2013) derive the contract that shares the risk at least cost: a minimum revenue guarantee, a revenue cap, and a concession term that flexes in between. Set the inputs and see the contract.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 2. The structure and the characterisation are from Engel, Fischer and Galetovic (2013), Journal of the European Economic Association 11(1), 83&ndash;111, here in the NBER working paper version 13284, pages 2 to 6, 12 to 16 and 41. The parametrisation (exponential utility, demand uniform over a range) is mine, chosen so that the participation constraint can be solved, and the numbers are a teaching illustration. The model was computed in Python and in this page, and the two agree.</p>
+  <hr class="rule">
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. The project</p>
+        <p class="cardsub">Money in &pound; million, present values at the date of award</p>
+        <div class="field"><label class="f" for="I">Upfront investment, <i>I</i> <span class="val" id="IV"></span></label><input type="range" id="I" min="60" max="140" step="1" value="100"></div>
+        <div class="field"><label class="f" for="a">Lowest present value of user fees, <i>v</i><sub>min</sub> <span class="val" id="aV"></span></label><input type="range" id="a" min="30" max="110" step="1" value="70"></div>
+        <div class="field"><label class="f" for="b">Highest present value of user fees, <i>v</i><sub>max</sub> <span class="val" id="bV"></span></label><input type="range" id="b" min="120" max="260" step="1" value="170">
+          <p class="hint">Demand is the present value of the fees the road would earn if run indefinitely, equally likely anywhere in this range. The project is an &ldquo;intermediate&rdquo; one when <i>I</i> lies inside the range.</p></div>
+      </div>
+      <div class="card">
+        <p class="step">2. The parties</p>
+        <p class="cardsub">Who dislikes risk, and what it costs to move money through the budget</p>
+        <div class="field"><label class="f" for="rho">Concessionaire&rsquo;s risk aversion, &rho; <span class="val" id="rhoV"></span></label><input type="range" id="rho" min="0.002" max="0.04" step="0.001" value="0.01">
+          <p class="hint">Exponential utility, <i>u</i>(<i>x</i>) = &minus;e<sup>&minus;&rho;<i>x</i></sup>/&rho;, with <i>x</i> in &pound; million. Higher means the firm needs more insurance.</p></div>
+        <div class="field"><label class="f" for="zeta">Waste in subsidy financing, &zeta; <span class="val" id="zetaV"></span></label><input type="range" id="zeta" min="0.01" max="0.8" step="0.01" value="0.25">
+          <p class="hint">A pound paid as subsidy does the work of only 1/(1+&zeta;) pounds paid from user fees.</p></div>
+        <div class="field"><label class="f" for="lam">Cost of public funds, &lambda; <span class="val" id="lamV"></span></label><input type="range" id="lam" min="0" max="0.6" step="0.01" value="0.3">
+          <p class="hint">A pound raised in tax costs society 1+&lambda; pounds.</p></div>
+      </div>
+    </div>
+    <div>
+      <div class="stats">
+        <div><div class="k">Revenue guarantee, <i>m</i></div><div class="v" id="sm">&mdash;</div><div class="s">&pound;m, present value</div></div>
+        <div><div class="k">Revenue cap, <i>M</i></div><div class="v" id="sM">&mdash;</div><div class="s">&pound;m, present value</div></div>
+        <div><div class="k">Expected subsidy</div><div class="v" id="sS">&mdash;</div><div class="s">&pound;m</div></div>
+        <div><div class="k">Expected state share</div><div class="v" id="sG">&mdash;</div><div class="s">&pound;m of fees above the cap</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2>What the concessionaire receives in each state of demand</h2>
+        <svg id="c1" viewBox="0 0 1000 420" role="img" aria-label="Line chart of the concessionaire's total receipts against the state of demand for three contracts"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--accent)"></i>Optimal contract: guarantee and cap</span><span><i class="ln" style="background:var(--sage)"></i>Pure concession: user fees only</span><span><i class="ln" style="background:var(--slate)"></i>Conventional provision: government pays <i>I</i></span></div>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Expected cost to society</h2>
+        <svg id="c2" viewBox="0 0 1000 340" role="img" aria-label="Bar chart of expected social cost of three contracts"></svg>
+        <p class="note" id="n2"></p>
+      </div>
+    </div>
+  </div>
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">What the model says</p>
+      <p>The government prefers to pay the concessionaire from user fees, because a pound of subsidy costs more than a pound of fees (&zeta; &gt; 0). The firm, however, dislikes risk, so it wants insurance against low demand, and the only way to give it is a subsidy. The optimal contract splits the states of demand into three. In low states (<i>v</i> &lt; <i>m</i>) the concession runs indefinitely and the government tops receipts up to the guarantee <i>m</i>. In intermediate states the concession also runs indefinitely and no subsidy is paid. In high states (<i>v</i> &gt; <i>M</i>) the concession ends as soon as the firm has collected <i>M</i> in present value, and the government takes the rest (Proposition 2, NBER working paper page 15). The gap between the cap and the guarantee is set by how much the firm dislikes risk and how wasteful subsidies are: with exponential utility, <i>M</i> &minus; <i>m</i> = ln(1+&zeta;)/&rho;.</p>
+      <p>Two conclusions matter for the module. First, a PPP does not relieve a strained budget: savings on the investment now are given back as user fees forgone later (pages 2 to 3, and Table 1 on page 41). Second, the contract that fits the risk is a long way from the guarantees and revenue-sharing clauses seen in practice, which the authors say bear no relation to the optimum (page 6).</p>
+      <p class="tag" style="margin-top:14px">Where the numbers and pages come from</p>
+      <table class="t src"><thead><tr><th>Item</th><th>Source</th></tr></thead><tbody>
+        <tr><td>Planner&rsquo;s programme with inefficient subsidies: minimise &int; {(1+&lambda;&minus;&alpha;)<i>R</i>(<i>v</i>) + [(1+&lambda;)(1+&zeta;)&minus;&alpha;]<i>S</i>(<i>v</i>)} <i>f</i>(<i>v</i>)d<i>v</i>, subject to the firm&rsquo;s participation constraint</td><td>Engel, Fischer and Galetovic (2013), NBER Working Paper 13284, equations (6a) to (6d), pages 12 to 13. This page sets &alpha; = 0</td></tr>
+        <tr><td>Three demand states, the guarantee <i>m</i> and the cap <i>M</i>, and the first-order conditions u&prime;(<i>m</i>&minus;<i>I</i>) = (1+&zeta;&#772;)u&prime;(<i>M</i>&minus;<i>I</i>)</td><td>Figure 1 on page 13, the three demand states on pages 14 to 15, and Proposition 2 on page 15</td></tr>
+        <tr><td>PPPs do not release public funds; the intertemporal budget is unchanged</td><td>Introduction, pages 2 to 3 of the working paper, and Table 1 on page 41</td></tr>
+        <tr><td>Observed guarantees and revenue sharing differ from the optimum</td><td>Introduction, page 6</td></tr>
+        <tr><td>Exponential utility, uniform demand, the solution for <i>m</i> and the three comparison contracts</td><td>Mine. The firm&rsquo;s zero-profit condition E[u(<i>T</i>(<i>v</i>)&minus;<i>I</i>)] = u(0) is solved for <i>m</i> by bisection, with <i>T</i>(<i>v</i>) = min{max{<i>v</i>, <i>m</i>}, <i>M</i>}. Social cost is (1+&lambda;)E[min(<i>v</i>,<i>M</i>)] + (1+&lambda;)(1+&zeta;)E[subsidy]. Conventional provision pays <i>I</i> from the budget in every state</td></tr>
+      </tbody></table>
+      <p class="note">Page numbers refer to the NBER working paper. The pure concession leaves the firm with a positive expected certainty-equivalent profit at these inputs; a competitive auction would bid that away, so its cost here is an upper bound. Moral hazard, which the paper treats in a later section, is left out.</p>
+      <p class="q">Raise &rho; from 0.01 to 0.03. Explain why the gap between the cap and the guarantee narrows, and what happens to the state&rsquo;s expected share of fees.</p>
+      <p class="q">Raise &zeta; to 0.8. Which contract does the optimum approach, and what does that say about a government whose subsidies are poorly administered?</p>
+    </div>
+  </div>
+</div>
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>/* Week 2 teaching models (JavaScript copy of models_w2.py; check_models.py compares the two). */
+(function(g){
+'use strict';
+var R=g.RE07=g.RE07||{};
+/* Hart (2003): bundling a build contract with an operating contract. */
+function hart(psi,beta,gamma,delta,bC,sC){
+  var W=function(i,e){return 2*(psi+beta)*Math.sqrt(i)-i+(gamma-delta)*e-e*e-e;};
+  var iFb=Math.pow(psi+beta,2), eFb=Math.max(0,(gamma-delta-1)/2);
+  var fb=[iFb,eFb,W(iFb,eFb)];
+  var conv=bC?fb:[0,0,W(0,0)];
+  var iP=psi*psi, eP=sC?0:Math.max(0,gamma-1);
+  var ppp=[iP,eP,W(iP,eP)];
+  return {fb:fb,conv:conv,ppp:ppp};
+}
+/* Engel, Fischer and Galetovic (2013): optimal minimum revenue guarantee m and revenue cap M. */
+function intExp(lo,hi,rho,I){ if(hi<=lo) return 0; return (Math.exp(-rho*(lo-I))-Math.exp(-rho*(hi-I)))/rho; }
+function expectExpNet(m,M,a,b,rho,I){
+  var w=b-a, low=Math.max(0,Math.min(m,b)-a)/w, high=Math.max(0,b-Math.max(M,a))/w;
+  var midLo=Math.max(a,m), midHi=Math.min(b,M), mid=intExp(midLo,midHi,rho,I)/w;
+  return low*Math.exp(-rho*(m-I))+high*Math.exp(-rho*(M-I))+mid;
+}
+function efgOutcomes(m,M,I,a,b,rho,zeta,lam){
+  var w=b-a, S, Rv, G, top;
+  top=Math.min(m,b); S=(top<=a)?0:(Math.pow(m-a,2)-Math.pow(m-top,2))/(2*w);
+  if(M<=a){Rv=M;} else {top=Math.min(M,b); Rv=((top*top-a*a)/2)/w + M*Math.max(0,b-M)/w;}
+  if(M>=b){G=0;} else {var lo=Math.max(M,a); G=(Math.pow(b-M,2)-Math.pow(lo-M,2))/(2*w);}
+  return {subsidy:S,revenue:Rv,take:G,cost:(1+lam)*Rv+(1+lam)*(1+zeta)*S,ce:0};
+}
+function efg(I,a,b,rho,zeta,lam){
+  var delta=Math.log(1+zeta)/rho;
+  var f=function(m){return expectExpNet(m,m+delta,a,b,rho,I)-1;};
+  var lo=-2000, hi=4000, mid, k;
+  for(k=0;k<200;k++){mid=(lo+hi)/2; if(f(mid)>0) lo=mid; else hi=mid;}
+  var m=(lo+hi)/2, M=m+delta, o=efgOutcomes(m,M,I,a,b,rho,zeta,lam);
+  o.m=m; o.M=M; return o;
+}
+function efgPure(I,a,b,rho,lam){ var E=intExp(a,b,rho,I)/(b-a); return {ce:-Math.log(E)/rho,cost:(1+lam)*(a+b)/2}; }
+function efgConv(I,zeta,lam){ return {cost:(1+lam)*(1+zeta)*I}; }
+/* Private finance against a public sector comparator. */
+function pmt(r,n,pv){ return r===0?pv/n:pv*r/(1-Math.pow(1+r,-n)); }
+function af(r,n){ return r===0?n:(1-Math.pow(1+r,-n))/r; }
+function pfi(capex,n,gilt,spread,feePct,adminPct,opexPct){
+  var O=capex*opexPct/100, pubFin=pmt(gilt,n,capex), rP=gilt+spread;
+  var privFin=pmt(rP,n,capex*(1+feePct/100))*(1+adminPct/100), a=af(gilt,n), prem=privFin-pubFin;
+  return {O:O,pub_fin:pubFin,priv_fin:privFin,prem_year:prem,prem_pv:prem*a,pub_total_fin:pubFin*n,priv_total_fin:privFin*n,
+          uplift:privFin/pubFin-1,breakeven:O>0?prem/O:NaN,pub_pv:(pubFin+O)*a};
+}
+R.w2={hart:hart,efg:efg,efgPure:efgPure,efgConv:efgConv,pmt:pmt,af:af,pfi:pfi};
+})(typeof window!=='undefined'?window:globalThis);
+</script>
+<script>/* Small SVG chart helpers for the Week 2 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+(function(g){
+'use strict';
+var R=g.RE07;
+function axisY(s,y,L,Rr,lo,hi,n,fmtf){R.niceTicks(lo,hi,n).forEach(function(t){s.push('<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+Rr+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+(fmtf?fmtf(t):t)+'</text>');});}
+/* bars: [{label, value, color, note}] ; one bar per category */
+function bars(el,items,o){
+  o=o||{}; var W=1000,H=o.h||380,L=80,Rr=W-30,T=30,B=70,lo=Math.min(0,o.lo!==undefined?o.lo:Math.min.apply(null,items.map(function(d){return d.value;}))*1.15),
+      hi=o.hi!==undefined?o.hi:Math.max.apply(null,items.map(function(d){return d.value;}))*1.18, y=R.lin(lo,hi,H-B,T), s=[], n=items.length, bw=(Rr-L)/n;
+  axisY(s,y,L,Rr,lo,hi,5,o.fmt);
+  s.push('<line class="axis" x1="'+L+'" y1="'+y(0)+'" x2="'+Rr+'" y2="'+y(0)+'"/>');
+  items.forEach(function(d,k){var x0=L+k*bw+bw*0.2,w=bw*0.6,y0=y(Math.max(d.value,0)),y1=y(Math.min(d.value,0));
+    s.push('<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+Math.max(1,y1-y0)+'" fill="'+d.color+'"/>');
+    s.push('<text x="'+(x0+w/2)+'" y="'+(d.value>=0?y0-8:y1+20)+'" text-anchor="middle" font-size="18" font-weight="700">'+(o.fmt?o.fmt(d.value):R.fmt(d.value,1))+'</text>');
+    s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+26)+'" text-anchor="middle" font-size="16">'+d.label+'</text>');
+    if(d.sub) s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+46)+'" text-anchor="middle" font-size="14">'+d.sub+'</text>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+}
+/* lines: series [{pts:[[x,y]], color, width, dash, label}] */
+function lines(el,series,o){
+  var W=1000,H=o.h||420,L=80,Rr=W-30,T=26,B=60,xs=[],ys=[]; series.forEach(function(se){se.pts.forEach(function(p){xs.push(p[0]);ys.push(p[1]);});});
+  var x0=o.x0!==undefined?o.x0:Math.min.apply(null,xs),x1=o.x1!==undefined?o.x1:Math.max.apply(null,xs),y0=o.y0!==undefined?o.y0:Math.min.apply(null,ys),y1=o.y1!==undefined?o.y1:Math.max.apply(null,ys);
+  var x=R.lin(x0,x1,L,Rr),y=R.lin(y0,y1,H-B,T),s=[];
+  axisY(s,y,L,Rr,y0,y1,6,o.fy);
+  R.niceTicks(x0,x1,8).forEach(function(t){s.push('<text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+(o.fx?o.fx(t):t)+'</text>');});
+  s.push('<text class="mut" x="'+Rr+'" y="'+(H-8)+'" text-anchor="end" font-size="16">'+(o.xl||'')+'</text>');
+  (o.bands||[]).forEach(function(b){s.push('<rect x="'+x(b[0])+'" y="'+T+'" width="'+(x(b[1])-x(b[0]))+'" height="'+(H-B-T)+'" fill="'+b[2]+'" opacity="0.5"/>');if(b[3])s.push('<text class="mut" x="'+((x(b[0])+x(b[1]))/2)+'" y="'+(T+18)+'" text-anchor="middle" font-size="15">'+b[3]+'</text>');});
+  (o.vlines||[]).forEach(function(v){s.push('<line x1="'+x(v[0])+'" y1="'+T+'" x2="'+x(v[0])+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(x(v[0])+6)+'" y="'+(H-B-8)+'" font-size="15">'+v[1]+'</text>');});
+  series.forEach(function(se){var d='';se.pts.forEach(function(p,k){d+=(k?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1);});
+    s.push('<path d="'+d+'" fill="none" stroke="'+se.color+'" stroke-width="'+(se.width||3.5)+'"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' stroke-linejoin="round"/>');});
+  (o.dots||[]).forEach(function(p){s.push('<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="6" fill="'+p[2]+'" stroke="var(--panel)" stroke-width="2"/>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+  return {x:x,y:y};
+}
+R.ch={bars:bars,lines:lines};
+})(window);
+</script>
+<script>
+(function(){
+var R=RE07, $=function(id){return document.getElementById(id);}, fmt=R.fmt;
+var S={I:100,a:70,b:170,rho:0.01,zeta:0.25,lam:0.3};
+function draw(){
+  if(S.b<=S.a+10){S.b=S.a+10;$('b').value=S.b;}
+  ['I','a','b'].forEach(function(k){$(k+'V').textContent=fmt(S[k],0);}); $('rhoV').textContent=fmt(S.rho,3); $('zetaV').textContent=fmt(S.zeta,2); $('lamV').textContent=fmt(S.lam,2);
+  var o=R.w2.efg(S.I,S.a,S.b,S.rho,S.zeta,S.lam), pu=R.w2.efgPure(S.I,S.a,S.b,S.rho,S.lam), cv=R.w2.efgConv(S.I,S.zeta,S.lam);
+  $('sm').textContent=fmt(o.m,1); $('sM').textContent=fmt(o.M,1); $('sS').textContent=fmt(o.subsidy,1); $('sG').textContent=fmt(o.take,1);
+  var n=60,opt=[],pur=[],con=[];
+  for(var k=0;k<=n;k++){var v=S.a+(S.b-S.a)*k/n; opt.push([v,Math.min(Math.max(v,o.m),o.M)]); pur.push([v,v]); con.push([v,S.I]);}
+  var lo=Math.min(S.a,o.m,S.I)*0.97, hi=S.b*1.03;
+  R.ch.lines($('c1'),[{pts:pur,color:'var(--sage)',width:2.5},{pts:con,color:'var(--slate)',width:2.5,dash:'8 5'},{pts:opt,color:'var(--accent)',width:4}],
+    {x0:S.a,x1:S.b,y0:lo,y1:hi,xl:'State of demand: present value of fees, £m',fy:function(t){return Math.round(t);},fx:function(t){return Math.round(t);},
+     bands:[[S.a,Math.max(S.a,Math.min(o.m,S.b)),'var(--sand)','subsidy'],[Math.min(Math.max(o.M,S.a),S.b),S.b,'var(--grid)','state takes the excess']],
+     vlines:[[S.I,'I = '+Math.round(S.I)]]});
+  $('n1').textContent='The firm is paid the guarantee of '+fmt(o.m,1)+' in states below it, keeps its fees between '+fmt(o.m,1)+' and '+fmt(o.M,1)+', and is capped at '+fmt(o.M,1)+' above that. The width of the band is '+fmt(o.M-o.m,1)+'. In expectation the state pays '+fmt(o.subsidy,1)+' in subsidy and receives '+fmt(o.take,1)+' of fees above the cap.';
+  R.ch.bars($('c2'),[{label:'Conventional',sub:'government pays I',value:cv.cost,color:'var(--slate)'},{label:'Pure concession',sub:'user fees only',value:pu.cost,color:'var(--sage)'},{label:'Optimal contract',sub:'guarantee and cap',value:o.cost,color:'var(--accent)'}],{lo:0,fmt:function(v){return fmt(v,1);},h:340});
+  $('n2').textContent='Expected cost to society, £m. The optimal contract costs '+fmt(o.cost,1)+', against '+fmt(cv.cost,1)+' for conventional provision and '+fmt(pu.cost,1)+' for a pure concession, which also leaves the firm an expected certainty-equivalent profit of '+fmt(pu.ce,1)+' that a competitive auction would remove.';
+}
+[['I','I'],['a','a'],['b','b'],['rho','rho'],['zeta','zeta'],['lam','lam']].forEach(function(p){$(p[0]).addEventListener('input',function(e){S[p[1]]=+e.target.value;draw();});});
+draw();
+})();
+</script>
+</body>
+</html>

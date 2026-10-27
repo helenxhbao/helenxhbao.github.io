@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Do Large Transport Projects Pay? A Portfolio View of the Chinese Evidence</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.src th{ text-align:left !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Do large transport projects pay?</h1>
+  <p class="lede">Ansar, Flyvbjerg, Budzier and Lunn (2016) collected the outcomes of 95 road and rail projects built in China between 1984 and 2008. Planners expected each to return about 1.4 to 1.5 times its cost.
+     Costs ran over in three projects in four, and traffic fell short in two in three. This page draws portfolios of projects from the distributions the paper reports, and shows that a single project can turn out almost any way
+     while a portfolio of dozens behaves in a predictable and disappointing way.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 1. Source: Ansar, A., Flyvbjerg, B., Budzier, A. and Lunn, D. (2016), &ldquo;Does infrastructure investment lead to economic growth or economic fragility?
+     Evidence from China&rdquo;, <i>Oxford Review of Economic Policy</i> 32(3), 360&ndash;390. The paper&rsquo;s project-level data are not published, so the page does not use them. It uses the paper&rsquo;s published summary
+     statistics (Table 3 and the text of section V) as the parameters of the draws, and assumes that cost and benefit outcomes are independent. It is an illustration of what those statistics imply and not a re-analysis of the data.</p>
+  <hr class="rule">
+
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. The plan</p>
+        <p class="cardsub">What planners promised at appraisal</p>
+        <div class="field"><label class="f" for="b0">Benefit-cost ratio at appraisal <span class="val" id="b0V">1.45</span></label><input type="range" id="b0" min="1" max="3" step="0.05" value="1.45">
+          <p class="hint">The paper reports typical appraisal ratios of 1.4 to 1.5 for transport projects in China. A ratio of 1 is break-even.</p></div>
+      </div>
+      <div class="card">
+        <p class="step">2. What happens</p>
+        <p class="cardsub">Switch the paper&rsquo;s two findings on and off</p>
+        <div class="field">
+          <label class="chk"><input type="checkbox" id="cOver" checked><span>Cost overruns as in the paper: on average +30.6 per cent, standard deviation 46.9</span></label>
+          <label class="chk"><input type="checkbox" id="cShort" checked><span>Traffic outcomes as in the paper: 64.7 per cent of projects fall short by 41.2 per cent on average, the rest exceed forecast by 61.4 per cent</span></label></div>
+      </div>
+      <div class="card">
+        <p class="step">3. The portfolio</p>
+        <div class="field"><label class="f" for="nn">Projects in the portfolio <span class="val" id="nnV">95</span></label><input type="range" id="nn" min="1" max="300" value="95"></div>
+        <div class="field"><button type="button" class="go" id="draw">Draw a portfolio</button><button type="button" class="alt" id="many">Draw 1,000 portfolios</button></div>
+        <p class="hint">Each project costs the same at appraisal. A project pays if its benefits at least equal its actual costs.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="stats">
+        <div><div class="k">Projects that pay</div><div class="v" id="sPay">&mdash;</div><div class="s" id="sPayN"></div></div>
+        <div><div class="k">Median outcome</div><div class="v" id="sMed">&mdash;</div><div class="s">benefit-cost ratio</div></div>
+        <div><div class="k">Whole portfolio</div><div class="v" id="sPort">&mdash;</div><div class="s">total benefits over total costs</div></div>
+        <div><div class="k">Needed at appraisal</div><div class="v" id="sNeed">&mdash;</div><div class="s">for the median project to break even</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2 id="t1">Outcome of each project in the portfolio</h2>
+        <svg id="c1" viewBox="0 0 1000 420" role="img" aria-label="Bar chart of ex post benefit-cost ratios, sorted"></svg>
+        <div class="legend"><span><i class="sq" style="background:var(--accent)"></i>Below 1, destroys value</span>
+          <span><i class="sq" style="background:var(--clay);opacity:.55"></i>Between 1 and the appraisal ratio</span>
+          <span><i class="sq" style="background:var(--sage)"></i>At or above the appraisal ratio</span></div>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>How the outcomes divide</h2>
+        <svg id="c2" viewBox="0 0 1000 250" role="img" aria-label="Stacked bars of the three outcome groups"></svg>
+        <p class="note" id="n2"></p>
+      </div>
+      <div class="card chartcard">
+        <h2 id="t3">Share of projects that pay, across many portfolios</h2>
+        <svg id="c3" viewBox="0 0 1000 300" role="img" aria-label="Histogram of the share of projects that pay"></svg>
+        <p class="note" id="n3">Press &ldquo;Draw 1,000 portfolios&rdquo; to see how much the result varies from one portfolio to the next.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">The parameters, and where they come from</p>
+      <table class="t src"><thead><tr><th>Quantity</th><th>Value used</th><th>Where the paper gives it</th></tr></thead><tbody>
+        <tr><td>Cost outturn relative to estimate</td><td>Mean +30.6 per cent, standard deviation 46.9, drawn from a lognormal distribution with those moments</td><td>Table 3, all 95 projects (road 27.5, rail 41.5)</td></tr>
+        <tr><td>Share of projects with a traffic shortfall</td><td>64.7 per cent</td><td>Section V, 156 projects with traffic data</td></tr>
+        <tr><td>Size of the shortfall</td><td>Mean 41.2 per cent, standard deviation 23.1, normal, truncated at zero and 99 per cent</td><td>Section V</td></tr>
+        <tr><td>Size of the surplus in the other projects</td><td>Mean 61.4 per cent, standard deviation 53.7, normal, truncated at zero</td><td>Section V</td></tr>
+        <tr><td>Appraisal benefit-cost ratio</td><td>1.45 by default</td><td>&ldquo;The typical BCR for transport projects was 1.4 to 1.5&rdquo;</td></tr>
+        <tr><td>Result to compare with</td><td>55 per cent below 1.0, 17 per cent between 1.0 and 1.4, 28 per cent above 1.4 (65 projects with both cost and benefit data)</td><td>Section VI and Figure 6</td></tr>
+      </tbody></table>
+      <p class="note" id="check"></p>
+      <ul>
+        <li>The paper&rsquo;s own project-level data would show how cost and benefit outcomes move together. Here they are independent, and the close match to the published shares suggests that the assumption does little harm.</li>
+        <li>A project that falls short does not always fail. A project with a high appraisal ratio and a modest overrun still pays, which is why the shares move so much with the first slider.</li>
+        <li>The last statistic is a reference class adjustment. It is the appraisal ratio at which the median project would break even once the paper&rsquo;s average pattern of overruns and shortfalls is applied, and it is the kind of figure a group project should compute for a real project.</li>
+      </ul>
+      <p class="q">State what you would need to believe about your own project&rsquo;s planners for the paper&rsquo;s outcomes not to apply to it, and say what evidence would support that belief.</p>
+    </div>
+  </div>
+</div>
+
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>
+(function(){
+var R=RE07, fmt=R.fmt, $=function(id){return document.getElementById(id);};
+var S={b0:1.45,N:95,over:true,short:true,seed:7,draw:null};
+var qs=/[?&]seed=(\d+)/.exec(location.search); if(qs) S.seed=+qs[1];
+var CM=1.306, CS=0.469, sig2=Math.log(1+(CS/CM)*(CS/CM)), mu=Math.log(CM)-sig2/2, sg=Math.sqrt(sig2);
+function project(rng){
+  var cost=S.over?Math.exp(mu+sg*rng.n()):1, ben=1;
+  if(S.short){ if(rng.u()<0.647){ben=1-Math.min(0.99,Math.max(0,0.412+0.231*rng.n()));} else {ben=1+Math.max(0,0.614+0.537*rng.n());} }
+  return S.b0*ben/cost;}
+function portfolio(N,rng){var v=[],b=0,c=0;for(var i=0;i<N;i++){var cost=S.over?Math.exp(mu+sg*rng.n()):1,ben=1;
+  if(S.short){ if(rng.u()<0.647){ben=1-Math.min(0.99,Math.max(0,0.412+0.231*rng.n()));} else {ben=1+Math.max(0,0.614+0.537*rng.n());} }
+  v.push(S.b0*ben/cost); b+=S.b0*ben; c+=cost;} return {v:v,port:b/c};}
+function shares(v,b0){var a=0,m=0,h=0;v.forEach(function(x){if(x<1)a++;else if(x<b0)m++;else h++;});var n=v.length;return [a/n,m/n,h/n];}
+var big=null;
+function bigSample(){var rng=R.RNG(99),p=portfolio(40000,rng); big={v:p.v,sh:shares(p.v,S.b0),med:R.pct(p.v,.5),port:p.port};}
+function colour(x){return x<1?'var(--accent)':(x<S.b0?'var(--clay)':'var(--sage)');}
+function drawBars(){
+  var d=S.draw,v=d.v.slice().sort(function(a,b){return a-b;}),n=v.length,W=1000,H=420,L=64,Rr=20,Tt=20,B=44, ymax=Math.max(3,S.b0*1.6), x=R.lin(0,n,L,W-Rr), y=R.lin(0,ymax,H-B,Tt), s='';
+  R.niceTicks(0,ymax,6).forEach(function(t){s+='<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+(W-Rr)+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+fmt(t,1)+'</text>';});
+  var bw=Math.max(1,(W-Rr-L)/n-(n>150?0.2:1.2));
+  v.forEach(function(b,i){var h=Math.min(ymax,b); s+='<rect x="'+x(i)+'" y="'+y(h)+'" width="'+bw+'" height="'+(H-B-y(h))+'" fill="'+colour(b)+'" opacity="'+(b>=1&&b<S.b0?.6:1)+'"/>';});
+  s+='<line x1="'+L+'" y1="'+y(1)+'" x2="'+(W-Rr)+'" y2="'+y(1)+'" stroke="var(--ink)" stroke-width="2"/><text x="'+(L+6)+'" y="'+(y(1)-7)+'" font-size="16">Break-even, 1.0</text>';
+  s+='<line x1="'+L+'" y1="'+y(S.b0)+'" x2="'+(W-Rr)+'" y2="'+y(S.b0)+'" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="7 5"/><text x="'+(L+6)+'" y="'+(y(S.b0)-7)+'" font-size="16">Promised at appraisal, '+fmt(S.b0,2)+'</text>';
+  s+='<text x="'+(W-Rr)+'" y="'+(H-10)+'" text-anchor="end" font-size="16" class="mut">Projects, ranked from the worst outcome to the best (values above '+fmt(ymax,1)+' are cut off)</text>';
+  $('c1').innerHTML=s;
+  var sh=shares(v,S.b0); $('sPay').textContent=Math.round((sh[1]+sh[2])*100)+'%'; $('sPayN').textContent=Math.round(sh[0]*n)+' of '+n+' do not pay';
+  $('sMed').textContent=fmt(R.pct(v,.5),2); $('sPort').textContent=fmt(d.port,2);
+  $('t1').textContent='Outcome of each of '+n+' projects';
+  $('n1').textContent=n===1?'One project. It could have landed anywhere on the chart.':'Bars show the benefit-cost ratio each project actually delivered, from the least to the most successful.';
+}
+function drawStack(){
+  var d=S.draw,own=shares(d.v,S.b0),rows=[['This portfolio ('+d.v.length+' projects)',own],['40,000 simulated projects',big.sh]];
+  if(Math.abs(S.b0-1.45)<0.11&&S.over&&S.short) rows.push(['Ansar et al., Figure 6 (65 projects)',[0.55,0.17,0.28]]);
+  var W=1000,L=300,Rr=30,rowH=62,H=40+rows.length*rowH, x=R.lin(0,1,L,W-Rr), s='';
+  rows.forEach(function(r,i){var y0=20+i*rowH, xx=L; s+='<text x="'+(L-12)+'" y="'+(y0+27)+'" text-anchor="end" font-size="17">'+R.esc(r[0])+'</text>';
+    var cols=['var(--accent)','var(--clay)','var(--sage)'],ops=[1,.55,1];
+    r[1].forEach(function(f,k){var w=f*(W-Rr-L); s+='<rect x="'+xx+'" y="'+y0+'" width="'+w+'" height="40" fill="'+cols[k]+'" opacity="'+ops[k]+'"/>';
+      if(w>46) s+='<text x="'+(xx+w/2)+'" y="'+(y0+27)+'" text-anchor="middle" font-size="17" style="fill:#fff;font-weight:700">'+Math.round(f*100)+'%</text>'; xx+=w;});});
+  $('c2').setAttribute('viewBox','0 0 1000 '+H); $('c2').innerHTML=s;
+  $('n2').textContent='Dark: benefit-cost ratio below 1. Tan: at least 1 but below the appraisal ratio. Green: at or above the appraisal ratio. The comparison with the paper is shown when the appraisal ratio is close to 1.45 and both findings are switched on.';
+}
+function drawMany(v){
+  var svg=$('c3'); if(!v){svg.innerHTML='<text x="500" y="150" text-anchor="middle" font-size="18" class="mut">Not yet drawn</text>';return;}
+  var W=1000,H=300,L=40,Rr=30,Tt=24,B=52, nb=25, x=R.lin(0,1,L,W-Rr), cnt=new Array(nb).fill(0);
+  v.forEach(function(p){var k=Math.min(nb-1,Math.floor(p*nb)); cnt[k]++;});
+  var mx=Math.max.apply(null,cnt),y=R.lin(0,mx*1.12,H-B,Tt),s='<line class="axis" x1="'+L+'" y1="'+(H-B)+'" x2="'+(W-Rr)+'" y2="'+(H-B)+'"/>';
+  [0,.25,.5,.75,1].forEach(function(t){s+='<line class="axis" x1="'+x(t)+'" y1="'+(H-B)+'" x2="'+x(t)+'" y2="'+(H-B+6)+'"/><text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+Math.round(t*100)+'%</text>';});
+  cnt.forEach(function(c,k){if(!c)return; s+='<rect x="'+(x(k/nb)+1)+'" y="'+y(c)+'" width="'+(x(1/nb)-x(0)-2)+'" height="'+(H-B-y(c))+'" fill="var(--clay)" opacity=".85"/>';});
+  s+='<line x1="'+x(0.5)+'" y1="'+Tt+'" x2="'+x(0.5)+'" y2="'+(H-B)+'" class="axis" stroke-dasharray="4 4"/>';
+  s+='<text x="'+(W-Rr)+'" y="'+(H-8)+'" text-anchor="end" font-size="16" class="mut">Share of projects in the portfolio that pay</text>';
+  svg.innerHTML=s;
+  $('t3').textContent='Share of projects that pay, across 1,000 portfolios of '+S.N;
+  $('n3').textContent='Mean '+Math.round(R.mean(v)*100)+' per cent, and 90 per cent of portfolios fall between '+Math.round(R.pct(v,.05)*100)+' and '+Math.round(R.pct(v,.95)*100)+' per cent. The dashed line marks one project in two.';
+}
+function updateNeed(){var rr=R.RNG(5),r=[];var b0=S.b0;S.b0=1;for(var i=0;i<20000;i++)r.push(project(rr));S.b0=b0; var med=R.pct(r,.5); $('sNeed').textContent=fmt(1/med,2);}
+function recompute(){
+  $('b0V').textContent=fmt(S.b0,2); $('nnV').textContent=S.N; bigSample(); updateNeed();
+  var rng=R.RNG(S.seed); S.draw=portfolio(S.N,rng); drawBars(); drawStack(); drawMany(null);
+  var sh=big.sh; $('check').innerHTML='With the paper&rsquo;s parameters and an appraisal ratio of '+fmt(S.b0,2)+', 40,000 simulated projects give '+Math.round(sh[0]*100)+' per cent below 1.0, '+Math.round(sh[1]*100)+' per cent between 1.0 and the forecast and '+Math.round(sh[2]*100)+' per cent at or above it. The paper reports 55, 17 and 28 per cent for 65 projects (at appraisal ratios of 1.4 to 1.5).';
+}
+$('b0').addEventListener('input',function(){S.b0=+$('b0').value;recompute();});
+$('nn').addEventListener('input',function(){S.N=+$('nn').value;recompute();});
+$('cOver').addEventListener('change',function(){S.over=$('cOver').checked;recompute();});
+$('cShort').addEventListener('change',function(){S.short=$('cShort').checked;recompute();});
+$('draw').addEventListener('click',function(){S.seed=(S.seed*1664525+1013904223)>>>0;var rng=R.RNG(S.seed);S.draw=portfolio(S.N,rng);drawBars();drawStack();});
+$('many').addEventListener('click',function(){var rng=R.RNG((S.seed+17)>>>0),v=[];for(var i=0;i<1000;i++){var p=portfolio(S.N,rng).v,n=0;p.forEach(function(x){if(x>=1)n++;});v.push(n/p.length);}drawMany(v);});
+recompute();
+})();
+</script>
+</body>
+</html>

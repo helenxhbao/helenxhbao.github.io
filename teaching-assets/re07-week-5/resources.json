@@ -9,6 +9,26 @@
      "kind": "PDF"
     }
    ]
+  },
+  {
+   "title": "Interactive pages",
+   "items": [
+    {
+     "label": "Search, Dealers and the Bid-Ask Spread",
+     "href": "dealer-spread.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Skill, Size and Fees in Fund Management",
+     "href": "fund-rents.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Certification, Liability and Competition",
+     "href": "certification.html",
+     "kind": "web page"
+    }
+   ]
   }
  ]
 }

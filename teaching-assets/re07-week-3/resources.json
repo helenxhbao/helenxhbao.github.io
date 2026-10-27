@@ -9,6 +9,26 @@
      "kind": "PDF"
     }
    ]
+  },
+  {
+   "title": "Interactive pages",
+   "items": [
+    {
+     "label": "The Cash Flows of a Closed-End Fund: The Yale Model",
+     "href": "fund-cash-flows.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Fees and Carried Interest as Claims on a Fund",
+     "href": "fees-and-carry.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Assets against Liabilities: Surplus Optimisation",
+     "href": "assets-and-liabilities.html",
+     "kind": "web page"
+    }
+   ]
   }
  ]
 }

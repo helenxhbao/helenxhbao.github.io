@@ -9,6 +9,26 @@
      "kind": "PDF"
     }
    ]
+  },
+  {
+   "title": "Interactive pages",
+   "items": [
+    {
+     "label": "Debt, Tax Shields and Default Costs",
+     "href": "capital-structure.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Sizing Debt on a Cover Ratio",
+     "href": "debt-sizing.html",
+     "kind": "web page"
+    },
+    {
+     "label": "A Loan Guarantee as an Option",
+     "href": "loan-guarantee.html",
+     "kind": "web page"
+    }
+   ]
   }
  ]
 }

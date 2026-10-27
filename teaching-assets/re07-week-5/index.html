@@ -136,7 +136,11 @@
 </footer>
 
 <script>
-const CALLOUTS = {};
+const CALLOUTS = {
+  12: ['Interactive page for this slide', 'Open <a href="dealer-spread.html" target="_blank" rel="noopener">Search, Dealers and the Bid-Ask Spread</a> in a new tab and move the controls as the slide describes.'],
+  14: ['Interactive page for this slide', 'Open <a href="fund-rents.html" target="_blank" rel="noopener">Skill, Size and Fees in Fund Management</a> in a new tab and move the controls as the slide describes.'],
+  17: ['Interactive page for this slide', 'Open <a href="certification.html" target="_blank" rel="noopener">Certification, Liability and Competition</a> in a new tab and move the controls as the slide describes.']
+};
 
 let S = [], i = 0, panel = null, R = null;
 const el = id => document.getElementById(id);
@@ -159,7 +163,7 @@ function tocHtml(){
       blk = s.block;
       out.push('<li class="grp">Block ' + blk + ' &middot; ' + esc(s.blockname || '') + '</li>');
     }
-    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+s.n+'</span>'+
+    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+(s.n-1)+'</span>'+
              esc(s.title || ('Slide '+s.n))+'</a></li>');
   });
   return out.join('') + '</ul>';

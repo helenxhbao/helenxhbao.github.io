@@ -136,7 +136,12 @@
 </footer>
 
 <script>
-const CALLOUTS = {};
+const CALLOUTS = {
+  11: ['Interactive page for this slide', 'Open <a href="identification-ladder.html" target="_blank" rel="noopener">Why Estimates of the Return to Infrastructure Fall as the Evidence Improves</a> in a new tab and move the controls as the slide describes.'],
+  13: ['Interactive page for this slide', 'Open <a href="one-country-or-eighty-eight.html" target="_blank" rel="noopener">One Country or Eighty-Eight: Estimating the Return to Infrastructure</a> in a new tab and move the controls as the slide describes.'],
+  15: ['Interactive page for this slide', 'Open <a href="do-projects-pay.html" target="_blank" rel="noopener">Do Large Transport Projects Pay? A Portfolio View of the Chinese Evidence</a> in a new tab and move the controls as the slide describes.'],
+  31: ['Interactive page for this slide', 'Open <a href="fee-drag.html" target="_blank" rel="noopener">A Worked Example of Fee Drag: Holding Infrastructure Directly or Through a Fund</a> in a new tab and move the controls as the slide describes.']
+};
 
 let S = [], i = 0, panel = null, R = null;
 const el = id => document.getElementById(id);
@@ -159,7 +164,7 @@ function tocHtml(){
       blk = s.block;
       out.push('<li class="grp">Block ' + blk + ' &middot; ' + esc(s.blockname || '') + '</li>');
     }
-    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+s.n+'</span>'+
+    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+(s.n-1)+'</span>'+
              esc(s.title || ('Slide '+s.n))+'</a></li>');
   });
   return out.join('') + '</ul>';

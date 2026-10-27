@@ -9,6 +9,26 @@
      "kind": "PDF"
     }
    ]
+  },
+  {
+   "title": "Interactive pages",
+   "items": [
+    {
+     "label": "The Public Market Equivalent and Direct Alpha",
+     "href": "pme.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Appraisal Smoothing, Volatility and Beta",
+     "href": "smoothing.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Discount Rates and the Value of a Long-Lived Asset",
+     "href": "discount.html",
+     "kind": "web page"
+    }
+   ]
   }
  ]
 }

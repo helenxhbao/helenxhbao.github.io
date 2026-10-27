@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Payoff to Resilience</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.legend i.dash{ border-radius:0; height:0; width:18px; border-top:2px dashed var(--muted); vertical-align:4px; background:none; }
+.pick{ margin-bottom:12px; }
+.src th{ text-align:left !important; } .src td{ text-align:left !important; }
+table.w td, table.w th{ text-align:center !important; }
+table.w td:first-child, table.w th:first-child{ text-align:left !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>The payoff to resilience</h1>
+  <p class="lede">A resilience measure pays for itself by the losses it prevents, and most of those losses come from events that are rare. The value of the measure therefore depends on three things that are hard to know: how large the loss from a rare event is, how fast the frequency of such events is rising, and how the distant benefits are discounted. This page builds the simplest version of that calculation. A curve links the return period of an event to its loss, a protection standard removes the losses below it, and the avoided losses are discounted and compared with the cost. Use it to find the standard at which the net benefit is greatest, and to see how much the answer moves when the climate or the discount rate does.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 7. The loss curve, the protection rule and the cost curve are mine and are chosen to be as simple as the argument allows. Hazard, exposure and vulnerability follow the framework of the World Resources Institute&rsquo;s Aqueduct 4.0 (Kuzma and others), and the sense of scale comes from the World Bank&rsquo;s <i>Lifelines</i> (Hallegatte, Rentschler and Rozenberg, 2019). Every input is illustrative. It was computed twice, in Python and in this page, and the two agree.</p>
+  <hr class="rule">
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. The hazard and the loss</p>
+        <p class="cardsub">Loss from an event of a given return period</p>
+        <div class="field pick"><label class="f" for="pre">Start from</label><select id="pre"></select></div>
+        <div class="field"><label class="f" for="L">Loss from a one-in-100-year event, millions <span class="val" id="LV"></span></label><input type="range" id="L" min="20" max="500" step="10" value="100"></div>
+        <div class="field"><label class="f" for="s">Steepness of the loss curve <span class="val" id="sV"></span></label><input type="range" id="s" min="0.2" max="0.9" step="0.05" value="0.5">
+          <p class="hint">Loss from an event with a return period of <i>T</i> years is the 100-year loss times (<i>T</i>/100) to the power of this number. A high value means the rare events are far worse than the common ones.</p></div>
+        <div class="field"><label class="f" for="gam">Rise in the frequency of events, a year <span class="val" id="gamV"></span></label><input type="range" id="gam" min="0" max="3" step="0.25" value="0.5">
+          <p class="hint">Events of every size become this share more frequent each year, so after 40 years at 0.5 per cent they are 20 per cent more frequent.</p></div>
+        <div class="field"><label class="f" for="ex">Growth in the value exposed, a year <span class="val" id="exV"></span></label><input type="range" id="ex" min="0" max="3" step="0.25" value="1"></div>
+      </div>
+      <div class="card">
+        <p class="step">2. The measure</p>
+        <p class="cardsub">Protects against every event up to its standard</p>
+        <div class="field"><label class="f" for="rp">Protection standard, one in <span class="val" id="rpV"></span></label><input type="range" id="rp" min="0.7" max="2.7" step="0.05" value="1.7"></div>
+        <div class="field"><label class="f" for="c">Cost of a one-in-20-year standard, millions <span class="val" id="cV"></span></label><input type="range" id="c" min="10" max="200" step="5" value="60"></div>
+        <div class="field"><label class="f" for="k">How fast cost rises with the standard <span class="val" id="kV"></span></label><input type="range" id="k" min="0.2" max="1.2" step="0.05" value="0.6">
+          <p class="hint">Cost is the one-in-20 cost times (standard/20) to this power. At 1 the cost doubles each time the standard doubles.</p></div>
+        <div class="field"><label class="f" for="m">Upkeep, share of cost each year <span class="val" id="mV"></span></label><input type="range" id="m" min="0" max="4" step="0.25" value="1.5"></div>
+        <div class="field"><label class="f" for="T">Years of benefit <span class="val" id="TV"></span></label><input type="range" id="T" min="20" max="125" step="5" value="60"></div>
+      </div>
+      <div class="card">
+        <p class="step">3. The discount rate</p>
+        <p class="cardsub">The regimes of the previous page</p>
+        <div class="field pick"><label class="f" for="reg">Regime</label><select id="reg"></select></div>
+        <div class="field"><label class="f" for="flat">Flat rate <span class="val" id="flatV"></span></label><input type="range" id="flat" min="0.5" max="8" step="0.25" value="3.5"></div>
+        <div class="field"><label class="f" for="gm">Uncertain rate, mean <span class="val" id="gmV"></span></label><input type="range" id="gm" min="1" max="6" step="0.25" value="3"></div>
+        <div class="field"><label class="f" for="gs">Uncertain rate, standard deviation <span class="val" id="gsV"></span></label><input type="range" id="gs" min="0.5" max="4" step="0.25" value="2"></div>
+      </div>
+    </div>
+    <div>
+      <div class="stats">
+        <div><div class="k">Expected annual loss</div><div class="v" id="s1">&mdash;</div><div class="s">millions, today, without the measure</div></div>
+        <div><div class="k">Loss avoided</div><div class="v" id="s2">&mdash;</div><div class="s">millions a year, today</div></div>
+        <div><div class="k">Benefit-cost ratio</div><div class="v" id="s3">&mdash;</div><div class="s">present value of benefits over costs</div></div>
+        <div><div class="k">Benefit after year 30</div><div class="v" id="s4">&mdash;</div><div class="s">share of the present value of benefits</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2>The loss from an event, by how rare it is</h2>
+        <svg id="c1" viewBox="0 0 1000 420" role="img" aria-label="Line chart of the loss from an event against its return period, with the protected range shaded"></svg>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Net benefit at each standard of protection</h2>
+        <svg id="c2" viewBox="0 0 1000 400" role="img" aria-label="Line chart of the net present value of the measure against the protection standard"></svg>
+        <p class="note" id="n2"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>The same measure under each discount regime</h2>
+        <svg id="c3" viewBox="0 0 1000 400" role="img" aria-label="Bar chart of the benefit-cost ratio of the chosen measure under six discount regimes"></svg>
+        <p class="note" id="n3"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>What the benefit is made of</h2>
+        <svg id="c4" viewBox="0 0 1000 400" role="img" aria-label="Line chart of the avoided loss in each year with and without the drift in frequency and exposure"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--accent)"></i>Avoided loss each year</span><span><i class="dash"></i>Without the drift in frequency and exposure</span></div>
+        <p class="note" id="n4"></p>
+      </div>
+    </div>
+  </div>
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">What the model says</p>
+      <p>Let <i>p</i> be the probability in a year of an event at least as bad as a given one, so an event with return period <i>T</i> has <i>p</i> = 1/<i>T</i>. The loss curve is <i>L</i>(<i>T</i>) = <i>L</i><sub>100</sub>(<i>T</i>/100)<sup><i>s</i></sup>. The expected annual loss is the area under the loss against the probability, which has a closed form because the curve is a power. Events more frequent than one in two years and rarer than one in a thousand years are left out. A measure with a standard of <i>R</i> years removes the losses of every event with a return period up to <i>R</i>, so the loss it avoids is the part of the area to the right of 1/<i>R</i>. Events beyond the standard are unchanged, and the shaded area in the first chart is what it protects.</p>
+      <p>In Aqueduct&rsquo;s terms the loss at a given return period is the product of the hazard, the value exposed and the vulnerability of what is exposed, and the page folds the last two into the loss itself (Kuzma and others, Aqueduct 4.0). Climate change enters as a rise in the frequency of events of every size and growth enters as a rise in the value exposed, so the avoided loss in year <i>t</i> is today&rsquo;s avoided loss times (1 + &gamma;<i>t</i>)(1 + <i>e</i>)<sup><i>t</i></sup>. The present value of benefits discounts these at the chosen regime and the present value of costs is the capital cost plus a share of it each year.</p>
+      <p>Three results are worth reading off. The net benefit rises and then falls with the standard, because the first increments of protection remove frequent small losses cheaply and the later ones remove rare large losses at a cost that rises faster than the loss avoided. The discount regime matters most where the benefit arrives late, so the fourth statistic above, the share of the benefit that falls after year 30, is a guide to how much the answer depends on the schedule. The drift in frequency and exposure raises the benefit and also postpones it, so that it counts for more at low discount rates. The Lifelines study finds benefit-cost ratios for resilient infrastructure above 1 in 96 per cent of its 3,000 scenarios and above 6 in 25 per cent, and that climate change doubles the median ratio (page 12 of the overview). Those are results from a global study with its own assumptions. They are a reference for the range, not a test of this page.</p>
+      <p class="tag" style="margin-top:14px">Where the numbers and pages come from</p>
+      <table class="t src"><thead><tr><th>Item</th><th>Source</th></tr></thead><tbody>
+        <tr><td>Risk as hazard times exposure times vulnerability, in the UN Office for Disaster Risk Reduction terminology</td><td>Kuzma, Bierkens, Lakshman, Luo, Saccoccia, Sutanudjaja and Van Beek, <i>Aqueduct 4.0: Updated decision-relevant global water risk indicators</i>, World Resources Institute Technical Note, August 2023, the terminology on page 10 and the risk element R = H &times; E &times; V on the card for baseline water stress, page 11</td></tr>
+        <tr><td>Resilience adds 3 per cent to infrastructure investment needs; net benefit of $4.2 trillion, a $4 benefit for each dollar</td><td>Hallegatte, Rentschler and Rozenberg (2019), <i>Lifelines: The Resilient Infrastructure Opportunity</i>, World Bank, Overview, page vii. The booklet is the pre-publication overview; check the final book before quoting</td></tr>
+        <tr><td>Benefit-cost ratio above 1 in 96 per cent of 3,000 scenarios, above 2 in 77 per cent, above 6 in 25 per cent; climate change doubles the median ratio</td><td>Same, Overview, page 12</td></tr>
+        <tr><td>Loss curve <i>L</i>(<i>T</i>) = <i>L</i><sub>100</sub>(<i>T</i>/100)<sup><i>s</i></sup>, expected annual loss as the integral of the loss over annual exceedance probability</td><td>Mine. A power-law curve is a convenience; real curves come from hazard and damage models</td></tr>
+        <tr><td>Protection removes the losses of events up to its standard; cost = cost of a one-in-20 standard times (standard/20)<sup><i>&kappa;</i></sup></td><td>Mine</td></tr>
+        <tr><td>Drift: avoided loss in year <i>t</i> = avoided loss today &times; (1 + &gamma;<i>t</i>)(1 + <i>e</i>)<sup><i>t</i></sup></td><td>Mine</td></tr>
+        <tr><td>Discount regimes</td><td>As the discounting page: HM Treasury, <i>Green Book supplementary guidance</i> (February 2026) and Freeman and Groom (30 June 2026), an independent review that is not Treasury policy; the uncertain rate is derived from the gamma distribution</td></tr>
+      </tbody></table>
+      <p class="note">The curve has no uncertainty about its own shape, no interaction between events and no failure of the measure beyond its standard. The result is a ceiling on what a real appraisal would find. The benefit counts avoided losses only and leaves out any benefit the measure delivers in ordinary years.</p>
+      <p class="q">Switch to the heavy-tail start. Report the standard at which the net benefit is greatest and compare it with the generic start. Say which of the three changes, the steeper curve, the faster drift or the discount regime, accounts for most of the difference.</p>
+      <p class="q">Keep the generic start and move the regime from the Green Book to the review&rsquo;s social insurance schedule. Report the change in the benefit-cost ratio and in the best standard, and say what an appraiser would have to show to use that schedule.</p>
+    </div>
+  </div>
+</div>
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>/* Week 7 teaching models (JavaScript copy of models_w7.py; check_models_w7.py compares the two). */
+(function(g){
+'use strict';
+var R=g.RE07=g.RE07||{};
+var W=R.w7={};
+function dot(a,b){var s=0,i;for(i=0;i<a.length;i++)s+=a[i]*b[i];return s;}
+function matvec(A,x){return A.map(function(r){return dot(r,x);});}
+function solve(A,b){
+  var n=b.length,m=A.map(function(r,i){return r.slice().concat([b[i]]);}),i,j,q,p,f,x=[],t,s;
+  for(i=0;i<n;i++){
+    p=i; for(q=i+1;q<n;q++) if(Math.abs(m[q][i])>Math.abs(m[p][i])) p=q;
+    t=m[i]; m[i]=m[p]; m[p]=t;
+    for(q=i+1;q<n;q++){f=m[q][i]/m[i][i]; for(j=i;j<=n;j++) m[q][j]-=f*m[i][j];}
+  }
+  for(i=n-1;i>=0;i--){s=m[i][n]; for(j=i+1;j<n;j++) s-=m[i][j]*x[j]; x[i]=s/m[i][i];}
+  return x;
+}
+/* 1. Pastor, Stambaugh and Taylor (2021) */
+W.pst=function(w,vol,rho,gRaw,a,dH,omega,rf){
+  var n=3,i,j,cov=[],gm=dot(w,gRaw),gg=gRaw.map(function(x){return x-gm;}),sw,sigM2,muM,beta,dBar=omega*dH,alpha,mu,sigG,q,out={};
+  for(i=0;i<n;i++){cov.push([]); for(j=0;j<n;j++) cov[i].push((i===j?1:rho)*vol[i]*vol[j]);}
+  sw=matvec(cov,w); sigM2=dot(w,sw); muM=a*sigM2; beta=sw.map(function(x){return x/sigM2;});
+  alpha=gg.map(function(x){return -(dBar/a)*x;}); mu=beta.map(function(b,k){return muM*b+alpha[k];});
+  sigG=solve(cov,gg); q=dot(gg,sigG);
+  out={g:gg,cov:cov,sig_m2:sigM2,mu_m:muM,beta:beta,d_bar:dBar,alpha:alpha,mu:mu,q:q};
+  [['h',dH],['0',0]].forEach(function(kd){
+    var delta=kd[1]-dBar,x=w.map(function(wi,k){return wi+delta/(a*a)*sigG[k];}),sx=matvec(cov,x);
+    out['x_'+kd[0]]=x; out['cash_'+kd[0]]=1-x.reduce(function(s,v){return s+v;},0);
+    out['er_'+kd[0]]=dot(x,mu); out['var_'+kd[0]]=dot(x,sx);
+    out['er_closed_'+kd[0]]=muM-delta*dBar*q/Math.pow(a,3); out['var_closed_'+kd[0]]=sigM2+delta*delta*q/Math.pow(a,4);
+  });
+  out.uplift=mu.map(function(m,k){return (rf+muM*beta[k])/(rf+m)-1;});
+  return out;
+};
+W.pstGiveup=function(dH,omega,q,a){return [dH*dH*omega*(1-omega)*q/Math.pow(a,3), dH*dH*omega*omega*q/Math.pow(a,3)];};
+/* 2. discount regimes */
+var INF=1e9;
+W.BANDS={gb:[[30,0.035],[75,0.030],[INF,0.025]],
+  gb0:[[30,0.0300],[75,0.0257],[125,0.0214],[200,0.0171],[300,0.0129],[INF,0.0086]],
+  rev:[[30,0.030],[75,0.025],[INF,0.0225]],
+  rev_si:[[30,0.015],[75,0.010],[INF,0.0075]]};
+function bandRate(reg,t){var b=W.BANDS[reg],i; for(i=0;i<b.length;i++) if(t<=b[i][0]) return b[i][1]; return b[b.length-1][1];}
+W.bandRate=bandRate;
+W.discountFactors=function(reg,T,flat,gmean,gsd){
+  var out=[],run=1,t,k,theta;
+  for(t=1;t<=T;t++){
+    if(reg==='flat') out.push(Math.pow(1+flat,-t));
+    else if(reg==='gamma'){k=gmean*gmean/(gsd*gsd); theta=gsd*gsd/gmean; out.push(Math.pow(1+theta*t,-k));}
+    else {run/=1+bandRate(reg,t); out.push(run);}
+  }
+  return out;
+};
+W.forwardRate=function(reg,t,flat,gmean,gsd){
+  if(reg==='flat') return flat;
+  if(reg==='gamma') return gmean/(1+gsd*gsd*t/gmean);
+  return bandRate(reg,t);
+};
+/* 3. expected annual loss and protection */
+W.PMAX=0.5; W.TMAX=1000;
+W.ealIntegral=function(L100,s,pLo,pHi){return L100*Math.pow(100,-s)*(Math.pow(pHi,1-s)-Math.pow(pLo,1-s))/(1-s);};
+W.lossModel=function(L100,s,rp,cRef,kappa,maint,gamma,expo,T,D){
+  var eal=W.ealIntegral(L100,s,1/W.TMAX,W.PMAX),av0=W.ealIntegral(L100,s,1/rp,W.PMAX),cost=cRef*Math.pow(rp/20,kappa),pvb=0,pvc=0,pvb30=0,av=[],t,at;
+  for(t=1;t<=T;t++){
+    at=av0*(1+gamma*t)*Math.pow(1+expo,t); av.push(at); pvb+=at*D[t-1]; pvc+=maint*cost*D[t-1]; if(t<=30) pvb30+=at*D[t-1];
+  }
+  pvc+=cost;
+  return {eal:eal,avoided0:av0,cost:cost,pvb:pvb,pvc:pvc,bcr:pvb/pvc,npv:pvb-pvc,share_after30:pvb>0?1-pvb30/pvb:0,avoided:av,residual:eal-av0};
+};
+W.STD_GRID=[]; (function(){var k; for(k=0;k<40;k++) W.STD_GRID.push(5*Math.pow(100,k/39));})();
+W.npvByStandard=function(L100,s,cRef,kappa,maint,gamma,expo,T,D){
+  return W.STD_GRID.map(function(rp){return [rp,W.lossModel(L100,s,rp,cRef,kappa,maint,gamma,expo,T,D).npv];});
+};
+})(typeof window!=='undefined'?window:globalThis);
+</script>
+<script>/* Small SVG chart helpers for the Week 7 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+(function(g){
+'use strict';
+var R=g.RE07;
+function axisY(s,y,L,Rr,lo,hi,n,fmtf){R.niceTicks(lo,hi,n).forEach(function(t){s.push('<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+Rr+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+(fmtf?fmtf(t):t)+'</text>');});}
+/* bars: [{label, value, color, note}] ; one bar per category */
+function bars(el,items,o){
+  o=o||{}; var W=1000,H=o.h||380,L=80,Rr=W-30,T=30,B=70,lo=Math.min(0,o.lo!==undefined?o.lo:Math.min.apply(null,items.map(function(d){return d.value;}))*1.15),
+      hi=o.hi!==undefined?o.hi:Math.max.apply(null,items.map(function(d){return d.value;}))*1.18, y=R.lin(lo,hi,H-B,T), s=[], n=items.length, bw=(Rr-L)/n;
+  axisY(s,y,L,Rr,lo,hi,5,o.fmt);
+  s.push('<line class="axis" x1="'+L+'" y1="'+y(0)+'" x2="'+Rr+'" y2="'+y(0)+'"/>');
+  items.forEach(function(d,k){var x0=L+k*bw+bw*0.2,w=bw*0.6,y0=y(Math.max(d.value,0)),y1=y(Math.min(d.value,0));
+    s.push('<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+Math.max(1,y1-y0)+'" fill="'+d.color+'"/>');
+    s.push('<text x="'+(x0+w/2)+'" y="'+(d.value>=0?y0-8:y1+20)+'" text-anchor="middle" font-size="18" font-weight="700">'+(o.fmt?o.fmt(d.value):R.fmt(d.value,1))+'</text>');
+    s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+26)+'" text-anchor="middle" font-size="16">'+d.label+'</text>');
+    if(d.sub) s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+46)+'" text-anchor="middle" font-size="14">'+d.sub+'</text>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+}
+/* lines: series [{pts:[[x,y]], color, width, dash, label}] */
+function lines(el,series,o){
+  var W=1000,H=o.h||420,L=80,Rr=W-30,T=26,B=60,xs=[],ys=[]; series.forEach(function(se){se.pts.forEach(function(p){xs.push(p[0]);ys.push(p[1]);});});
+  var x0=o.x0!==undefined?o.x0:Math.min.apply(null,xs),x1=o.x1!==undefined?o.x1:Math.max.apply(null,xs),y0=o.y0!==undefined?o.y0:Math.min.apply(null,ys),y1=o.y1!==undefined?o.y1:Math.max.apply(null,ys);
+  var x=R.lin(x0,x1,L,Rr),y=R.lin(y0,y1,H-B,T),s=[];
+  axisY(s,y,L,Rr,y0,y1,6,o.fy);
+  (o.xt||R.niceTicks(x0,x1,8)).forEach(function(t){s.push('<text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+(o.fx?o.fx(t):t)+'</text>');});
+  s.push('<text class="mut" x="'+Rr+'" y="'+(H-8)+'" text-anchor="end" font-size="16">'+(o.xl||'')+'</text>');
+  (o.bands||[]).forEach(function(b){s.push('<rect x="'+x(b[0])+'" y="'+T+'" width="'+(x(b[1])-x(b[0]))+'" height="'+(H-B-T)+'" fill="'+b[2]+'" opacity="0.5"/>');if(b[3])s.push('<text class="mut" x="'+((x(b[0])+x(b[1]))/2)+'" y="'+(T+18)+'" text-anchor="middle" font-size="15">'+b[3]+'</text>');});
+  (o.vlines||[]).forEach(function(v){s.push('<line x1="'+x(v[0])+'" y1="'+T+'" x2="'+x(v[0])+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(x(v[0])+6)+'" y="'+(H-B-8)+'" font-size="15">'+v[1]+'</text>');});
+  series.forEach(function(se){var d='';se.pts.forEach(function(p,k){d+=(k?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1);});
+    s.push('<path d="'+d+'" fill="none" stroke="'+se.color+'" stroke-width="'+(se.width||3.5)+'"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' stroke-linejoin="round"/>');});
+  (o.dots||[]).forEach(function(p){s.push('<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="6" fill="'+p[2]+'" stroke="var(--panel)" stroke-width="2"/>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+  return {x:x,y:y};
+}
+/* gbars: categories [labels], series [{name,color,vals}] */
+function gbars(el,cats,series,o){
+  o=o||{}; var W=1000,H=o.h||380,L=80,Rr=W-30,T=30,B=70,all=[],k,j;
+  series.forEach(function(se){se.vals.forEach(function(v){all.push(v);});});
+  var lo=Math.min(0,Math.min.apply(null,all)*1.2),hi=Math.max(0,Math.max.apply(null,all)*1.2); if(hi-lo<1e-9){hi=1;}
+  var y=R.lin(lo,hi,H-B,T),s=[],n=cats.length,gw=(Rr-L)/n,bw=gw*0.7/series.length;
+  axisY(s,y,L,Rr,lo,hi,5,o.fmt);
+  s.push('<line class="axis" x1="'+L+'" y1="'+y(0)+'" x2="'+Rr+'" y2="'+y(0)+'"/>');
+  cats.forEach(function(c,k){
+    series.forEach(function(se,j){var v=se.vals[k],x0=L+k*gw+gw*0.15+j*bw,y0=y(Math.max(v,0)),y1=y(Math.min(v,0));
+      s.push('<rect x="'+x0+'" y="'+y0+'" width="'+(bw*0.92)+'" height="'+Math.max(1,y1-y0)+'" fill="'+se.color+'"/>');
+      s.push('<text x="'+(x0+bw*0.46)+'" y="'+(v>=0?y0-7:y1+19)+'" text-anchor="middle" font-size="16" font-weight="700">'+(o.fmt?o.fmt(v):R.fmt(v,1))+'</text>');});
+    s.push('<text class="mut" x="'+(L+k*gw+gw/2)+'" y="'+(H-B+26)+'" text-anchor="middle" font-size="16">'+c+'</text>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+}
+R.ch={bars:bars,lines:lines,gbars:gbars};
+})(window);
+</script>
+<script>
+(function(){
+var R=RE07, W=R.w7, $=function(id){return document.getElementById(id);}, fmt=R.fmt, L10=function(v){return Math.log(v)/Math.LN10;};
+var REG=[{k:'gb',t:'Green Book, February 2026: 3.5, 3.0, 2.5 per cent',s:'Green Book',c:'var(--accent)'},
+  {k:'gb0',t:'Green Book sensitivity without pure time preference',s:'Green Book, no time preference',c:'var(--clay)'},
+  {k:'rev',t:'June 2026 independent review, standard: 3.0, 2.5, 2.25 per cent',s:'Review, standard',c:'var(--slate)'},
+  {k:'rev_si',t:'June 2026 independent review, social insurance: 1.5, 1.0, 0.75 per cent',s:'Review, social insurance',c:'var(--sage)'},
+  {k:'flat',t:'A flat rate (your slider)',s:'Flat rate',c:'var(--muted)'},
+  {k:'gamma',t:'An uncertain rate, gamma distributed (your mean and spread)',s:'Uncertain rate',c:'var(--ink)'}];
+REG.forEach(function(p){var o=document.createElement('option');o.value=p.k;o.textContent=p.t;$('reg').appendChild(o);}); $('reg').value='gb';
+var PRE=[{k:'gen',t:'A generic illustration: a protection scheme with a moderate tail',L:100,s:0.5,gam:0.005,ex:0.01,rp:50,c:60,kp:0.6,m:0.015,T:60,reg:'gb'},
+  {k:'hvy',t:'Heavy tail and fast drift: rare events are far worse and more frequent',L:200,s:0.8,gam:0.02,ex:0.01,rp:50,c:60,kp:0.6,m:0.015,T:60,reg:'gb'},
+  {k:'cnv',t:'The conventional case: no drift, a flat 3.5 per cent',L:100,s:0.5,gam:0,ex:0,rp:50,c:60,kp:0.6,m:0.015,T:60,reg:'flat'},
+  {k:'cus',t:'My own inputs (use the sliders)'}];
+PRE.forEach(function(p){var o=document.createElement('option');o.value=p.k;o.textContent=p.t;$('pre').appendChild(o);}); $('pre').value='gen';
+var S={L:100,s:0.5,gam:0.005,ex:0.01,rp:50,c:60,k:0.6,m:0.015,T:60,reg:'gb',flat:0.035,gm:0.03,gs:0.02};
+var XT=[2,5,10,20,50,100,200,500,1000].map(L10), FXL=function(t){return Math.round(Math.pow(10,t));};
+function df(k,T){return W.discountFactors(k,T,S.flat,S.gm,S.gs);}
+function run(rp,D){return W.lossModel(S.L,S.s,rp,S.c,S.k,S.m,S.gam,S.ex,S.T,D);}
+function draw(){
+  var i,D=df(S.reg,S.T),r=run(S.rp,D);
+  $('LV').textContent=fmt(S.L,0); $('sV').textContent=fmt(S.s,2); $('gamV').textContent=fmt(S.gam*100,2)+'%'; $('exV').textContent=fmt(S.ex*100,2)+'%'; $('rpV').textContent=fmt(S.rp,0)+' years';
+  $('cV').textContent=fmt(S.c,0); $('kV').textContent=fmt(S.k,2); $('mV').textContent=fmt(S.m*100,2)+'%'; $('TV').textContent=S.T+' years';
+  $('flatV').textContent=fmt(S.flat*100,2)+'%'; $('gmV').textContent=fmt(S.gm*100,2)+'%'; $('gsV').textContent=fmt(S.gs*100,2)+'%';
+  $('s1').textContent=fmt(r.eal,1); $('s2').textContent=fmt(r.avoided0,1); $('s3').textContent=fmt(r.bcr,2); $('s4').textContent=fmt(r.share_after30*100,0)+'%';
+  var pts=[],k,T;
+  for(k=0;k<=60;k++){T=Math.pow(10,L10(2)+(3-L10(2))*k/60); pts.push([L10(T),S.L*Math.pow(T/100,S.s)]);}
+  var ymax=S.L*Math.pow(10,S.s)*1.05;
+  R.ch.lines($('c1'),[{pts:pts,color:'var(--accent)',width:4}],{x0:L10(2),x1:3,y0:0,y1:ymax,xt:XT,fx:FXL,fy:function(t){return fmt(t,0);},xl:'Return period of the event, years (logarithmic scale)',bands:[[L10(2),L10(S.rp),'var(--sand)','protected']],vlines:[[L10(S.rp),'standard, one in '+fmt(S.rp,0)]]});
+  $('n1').textContent='The one-in-'+fmt(S.rp,0)+'-year event costs '+fmt(S.L*Math.pow(S.rp/100,S.s),0)+' million and the one-in-1,000-year event '+fmt(S.L*Math.pow(10,S.s),0)+' million. The expected annual loss without the measure is '+fmt(r.eal,1)+' million a year, of which the measure removes '+fmt(r.avoided0,1)+' and leaves '+fmt(r.residual,1)+' from events beyond its standard.';
+  var g=W.npvByStandard(S.L,S.s,S.c,S.k,S.m,S.gam,S.ex,S.T,D),best=g[0],gp=g.map(function(a){if(a[1]>best[1])best=a;return [L10(a[0]),a[1]];}),lo=Math.min.apply(null,gp.map(function(a){return a[1];})),hi=Math.max.apply(null,gp.map(function(a){return a[1];}));
+  var pad=(hi-lo)*0.08+1,y0=Math.min(lo,0)-pad*0.2,y1=Math.max(hi,0)+pad;
+  R.ch.lines($('c2'),[{pts:gp,color:'var(--accent)',width:3.5}],{x0:L10(5),x1:L10(500),y0:y0,y1:y1,xt:[5,10,20,50,100,200,500].map(L10),fx:FXL,fy:function(t){return fmt(t,0);},xl:'Protection standard, one in this many years (logarithmic scale)',
+    dots:[[L10(S.rp),r.npv,'var(--ink)'],[L10(best[0]),best[1],'var(--sage)']],vlines:[]});
+  $('n2').textContent='Net present value, in millions, against the standard. At your standard of one in '+fmt(S.rp,0)+' it is '+fmt(r.npv,0)+'. The best of the 40 standards tried is about one in '+fmt(best[0],0)+', where it is '+fmt(best[1],0)+' (green dot).'+(best[1]<=0?' At these inputs no standard pays for itself.':'');
+  var bc=REG.map(function(x){return run(S.rp,df(x.k,S.T)).bcr;});
+  R.ch.bars($('c3'),REG.map(function(x,j){return {label:x.s.split(',')[0],sub:x.s.indexOf(',')>0?x.s.split(',')[1].trim():'',value:bc[j],color:x.c};}),{fmt:function(v){return fmt(v,2);}});
+  var bx=Math.max.apply(null,bc),bn=Math.min.apply(null,bc);
+  $('n3').textContent='Benefit-cost ratio of the measure at your standard under each regime. It runs from '+fmt(bn,2)+' to '+fmt(bx,2)+(bn<1&&bx>1?', so the verdict depends on the regime.':bn>=1?', so the measure passes under every regime.':', so the measure fails under every regime.');
+  var base=[],drift=[],a0=r.avoided0;
+  for(i=1;i<=S.T;i++){base.push([i,a0]);drift.push([i,r.avoided[i-1]]);}
+  R.ch.lines($('c4'),[{pts:base,color:'var(--muted)',width:2.5,dash:'8 6'},{pts:drift,color:'var(--accent)',width:3.5}],{x0:0,x1:S.T,y0:0,y1:Math.max(a0,r.avoided[S.T-1])*1.1,xl:'Years from today',fy:function(t){return fmt(t,0);},fx:function(t){return t;}});
+  $('n4').textContent='Avoided loss each year, in millions. It starts at '+fmt(r.avoided[0],1)+' and reaches '+fmt(r.avoided[S.T-1],1)+' in year '+S.T+'. With no drift it would stay at '+fmt(a0,1)+'.';
+}
+function setPreset(k){var p=PRE.filter(function(x){return x.k===k;})[0]; if(p.L===undefined) return;
+  S.L=p.L;S.s=p.s;S.gam=p.gam;S.ex=p.ex;S.rp=p.rp;S.c=p.c;S.k=p.kp;S.m=p.m;S.T=p.T;S.reg=p.reg; $('reg').value=S.reg;
+  $('L').value=S.L;$('s').value=S.s;$('gam').value=S.gam*100;$('ex').value=S.ex*100;$('rp').value=L10(S.rp);$('c').value=S.c;$('k').value=S.k;$('m').value=S.m*100;$('T').value=S.T;}
+$('pre').addEventListener('change',function(e){setPreset(e.target.value);draw();});
+$('reg').addEventListener('change',function(e){S.reg=e.target.value;$('pre').value='cus';draw();});
+var pending=null;
+[['L',1],['s',1],['gam',100],['ex',100],['c',1],['k',1],['m',100],['T',1],['flat',100],['gm',100],['gs',100]].forEach(function(kv){var k=kv[0],d=kv[1];$(k).addEventListener('input',function(e){S[k]=+e.target.value/d;$('pre').value='cus';if(pending)cancelAnimationFrame(pending);pending=requestAnimationFrame(draw);});});
+$('rp').addEventListener('input',function(e){S.rp=Math.round(Math.pow(10,+e.target.value));$('pre').value='cus';if(pending)cancelAnimationFrame(pending);pending=requestAnimationFrame(draw);});
+draw();
+})();
+</script>
+</body>
+</html>

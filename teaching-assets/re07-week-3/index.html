@@ -136,7 +136,11 @@
 </footer>
 
 <script>
-const CALLOUTS = {};
+const CALLOUTS = {
+  10: ['Interactive page for this slide', 'Open <a href="fund-cash-flows.html" target="_blank" rel="noopener">The Cash Flows of a Closed-End Fund: The Yale Model</a> in a new tab and move the controls as the slide describes.'],
+  12: ['Interactive page for this slide', 'Open <a href="fees-and-carry.html" target="_blank" rel="noopener">Fees and Carried Interest as Claims on a Fund</a> in a new tab and move the controls as the slide describes.'],
+  14: ['Interactive page for this slide', 'Open <a href="assets-and-liabilities.html" target="_blank" rel="noopener">Assets against Liabilities: Surplus Optimisation</a> in a new tab and move the controls as the slide describes.']
+};
 
 let S = [], i = 0, panel = null, R = null;
 const el = id => document.getElementById(id);
@@ -159,7 +163,7 @@ function tocHtml(){
       blk = s.block;
       out.push('<li class="grp">Block ' + blk + ' &middot; ' + esc(s.blockname || '') + '</li>');
     }
-    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+s.n+'</span>'+
+    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+(s.n-1)+'</span>'+
              esc(s.title || ('Slide '+s.n))+'</a></li>');
   });
   return out.join('') + '</ul>';

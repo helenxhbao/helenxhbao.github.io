@@ -159,7 +159,7 @@ function tocHtml(){
       blk = s.block;
       out.push('<li class="grp">Block ' + blk + ' &middot; ' + esc(s.blockname || '') + '</li>');
     }
-    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+s.n+'</span>'+
+    out.push('<li><a href="#'+s.n+'" data-n="'+s.n+'"><span class="num">'+(s.n-1)+'</span>'+
              esc(s.title || ('Slide '+s.n))+'</a></li>');
   });
   return out.join('') + '</ul>';

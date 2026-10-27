@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Debt, Tax Shields and Default Costs</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.legend i.dash{ border-radius:0; height:0; width:18px; border-top:2px dashed var(--muted); vertical-align:4px; background:none; }
+.pick{ margin-bottom:12px; }
+.src th{ text-align:left !important; } .src td{ text-align:left !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Debt, tax shields and default costs: how much should a project borrow?</h1>
+  <p class="lede">Debt is cheaper than equity partly because interest is tax deductible, and every extra unit of debt raises the chance that the project defaults and loses value to lawyers, delay and fire sales. Leland (1994) puts the two together in a model where the equity holders decide when to stop paying, and finds the amount of debt that maximises the value of the whole firm. Set the asset's risk and the cost of failure and see how much debt it carries, at what spread, and why a low-risk asset can borrow more.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 4. The model is Leland (1994), Journal of Finance 49(4), 1213&ndash;1252. The full text was not retrievable, so the closed forms below were derived from the model's stated assumptions and checked against a finite-difference solution of the equity equation, against smooth pasting at the default boundary and against a grid search for the best coupon. It is a teaching illustration with generic inputs, not an estimate for any project. It was computed twice, in Python and in this page, and the two agree.</p>
+  <hr class="rule">
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. The asset</p>
+        <p class="cardsub">Value 100 today, paying out a share of its value each year</p>
+        <div class="field pick"><label class="f" for="pre">Start from</label><select id="pre"></select></div>
+        <div class="field"><label class="f" for="sg">Volatility of the asset's value <span class="val" id="sgV"></span></label><input type="range" id="sg" min="5" max="40" step="1" value="15"></div>
+        <div class="field"><label class="f" for="dl">Payout rate (cash yield on asset value) <span class="val" id="dlV"></span></label><input type="range" id="dl" min="2" max="12" step="0.25" value="6">
+          <p class="hint">The payout is what leaves the asset each year as cash. A higher payout means slower growth of value.</p></div>
+      </div>
+      <div class="card">
+        <p class="step">2. Taxes and default</p>
+        <p class="cardsub">What debt gains and what failure costs</p>
+        <div class="field"><label class="f" for="tau">Tax rate on interest deducted <span class="val" id="tauV"></span></label><input type="range" id="tau" min="5" max="40" step="1" value="25"></div>
+        <div class="field"><label class="f" for="al">Share of assets lost in default <span class="val" id="alV"></span></label><input type="range" id="al" min="0" max="60" step="1" value="30">
+          <p class="hint">Lawyers, delay and forced sales. Step-in rights and a sale of the whole project as a going concern lower it.</p></div>
+        <div class="field"><label class="f" for="r">Risk-free rate <span class="val" id="rV"></span></label><input type="range" id="r" min="1" max="8" step="0.25" value="4"></div>
+      </div>
+    </div>
+    <div>
+      <div class="stats">
+        <div><div class="k">Best coupon</div><div class="v" id="s1">&mdash;</div><div class="s">a year, per 100 of asset value</div></div>
+        <div><div class="k">Debt in firm value</div><div class="v" id="s2">&mdash;</div><div class="s">leverage at the best coupon</div></div>
+        <div><div class="k">Credit spread</div><div class="v" id="s3">&mdash;</div><div class="s">basis points over the risk-free rate</div></div>
+        <div><div class="k">Value added by debt</div><div class="v" id="s4">&mdash;</div><div class="s">firm value against an all-equity firm</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2>Firm value as debt rises</h2>
+        <svg id="c1" viewBox="0 0 1000 400" role="img" aria-label="Line chart of firm value against leverage"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--accent)"></i>Firm value: assets plus tax shield less default costs</span><span><i class="dash"></i>All-equity value, 100</span></div>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>The riskier the asset, the less it borrows</h2>
+        <svg id="c2" viewBox="0 0 1000 400" role="img" aria-label="Line chart of the best leverage against asset volatility for three default costs"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--sage)"></i>10 per cent of assets lost in default</span><span><i class="ln" style="background:var(--slate)"></i>30 per cent</span><span><i class="ln" style="background:var(--clay)"></i>50 per cent</span></div>
+        <p class="note" id="n2"></p>
+      </div>
+    </div>
+  </div>
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">What the model says</p>
+      <p>The asset's value drifts and shakes. The firm borrows against it with a permanent coupon, deducts the interest from tax while it pays, and stops paying when the equity is worth more dead than alive. Equity holders choose that moment, so the default boundary falls as the coupon falls and rises with the coupon. A higher coupon buys more tax shield but moves the boundary closer to today's value and so raises the present value of the default cost. The best coupon balances the two, and the page reports what the firm looks like there.</p>
+      <p>Two things move the answer most. Risk makes the boundary easier to hit, so less debt is worth carrying, and the cost of failure scales the penalty. Project finance structures work on the second. A special purpose vehicle with step-in rights, a single asset and contracted revenue is meant to make failure cheap and cash flow predictable, which together are what the model needs for high leverage. The model's leverage at generic settings is below the 90 per cent the EDHEC Infrastructure Institute reports for projects with little market risk, and the gap is a prompt to ask which input a real case would change.</p>
+      <p class="tag" style="margin-top:14px">Where the numbers and pages come from</p>
+      <table class="t src"><thead><tr><th>Item</th><th>Source</th></tr></thead><tbody>
+        <tr><td>Perpetual debt, a tax shield while solvent, a bankruptcy cost and an endogenous default boundary give closed-form values of debt and equity, and an optimal capital structure</td><td>Leland (1994), Journal of Finance 49(4), 1213&ndash;1252. Only the abstract was read; the full text is behind JSTOR</td></tr>
+        <tr><td>Projects with little market risk are financed with a flat base-case cover and a senior leverage of around 90 per cent; more highly leveraged projects show lower realised cover volatility, as Esty (2003) argued</td><td>EDHEC Infrastructure Institute-Singapore (2016), Cash Flow Dynamics of Private Infrastructure Project Debt, pages 8 and 9 (printed page equals PDF page)</td></tr>
+        <tr><td>Hyperion project debt rated A+ by Standard and Poor's, at about 90 per cent of asset value, with cover of 1.12</td><td>Van Nieuwerburgh (2026), NBER Working Paper 35865, pages 8 and 9 (printed page equals PDF page less two)</td></tr>
+        <tr><td>Values and the best coupon in closed form</td><td>Mine, from the model's assumptions. With <i>V</i> the asset value, <i>r</i> the risk-free rate, &delta; the payout rate, &sigma; the volatility, &tau; the tax rate and &alpha; the loss in default, let &lambda; be the positive root of &frac12;&sigma;&sup2;&lambda;&sup2; + (&frac12;&sigma;&sup2; &minus; r + &delta;)&lambda; &minus; r = 0. The boundary is <i>V<sub>B</sub></i> = <i>kC</i> with <i>k</i> = &lambda;(1 &minus; &tau;)/[<i>r</i>(1 + &lambda;)], the probability weight of default is <i>P</i> = (<i>V<sub>B</sub></i>/<i>V</i>)<sup>&lambda;</sup>, debt is <i>D</i> = (<i>C</i>/<i>r</i>)(1 &minus; <i>P</i>) + (1 &minus; &alpha;)<i>V<sub>B</sub>P</i>, and firm value is <i>v</i> = <i>V</i> + (&tau;<i>C</i>/<i>r</i>)(1 &minus; <i>P</i>) &minus; &alpha;<i>V<sub>B</sub>P</i>. The best coupon has <i>P</i>* = &tau;/[(1 + &lambda;)(&tau; + &alpha;<i>rk</i>)] and <i>C</i>* = (<i>V</i>/<i>k</i>)<i>P</i>*<sup>1/&lambda;</sup></td></tr>
+      </tbody></table>
+      <p class="note">The model has one asset, permanent debt and no distinction between senior and junior claims, and it takes tax and default costs as the only frictions. Real project debt is amortising, and its cost is also driven by covenants, reserve accounts and the tenant's or regulator's credit. The numbers on this page are not calibrated and should be read as comparisons, not predictions.</p>
+      <p class="q">Start from the generic asset and set volatility to 8 per cent, then to 30 per cent. Report the leverage and the spread each time, and say what a lender would need to see in a project's contracts to accept the lower figure.</p>
+      <p class="q">Hold volatility at 10 per cent and move the loss in default from 50 per cent to 10 per cent. Which features of a project finance structure would you point to in arguing that the lower figure applies?</p>
+    </div>
+  </div>
+</div>
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>/* Week 4 teaching models (JavaScript copy of models_w4.py; check_models_w4.py compares the two). */
+(function(g){
+'use strict';
+var R=g.RE07=g.RE07||{}, W=R.w4={};
+function erf(x){
+  if(x<0) return -erf(-x);
+  if(x>6) return 1;
+  var term=x, s=x, n=0;
+  for(;;){ n++; term=term*2*x*x/(2*n+1); s+=term; if(term<1e-18*s||n>400) break; }
+  return 2/Math.sqrt(Math.PI)*Math.exp(-x*x)*s;
+}
+function ncdf(x){ return 0.5*(1+erf(x/Math.SQRT2)); }
+W.ncdf=ncdf;
+/* 1. Leland (1994) */
+function lelandLambda(r,delta,sigma){ var m=r-delta-0.5*sigma*sigma; return (m+Math.sqrt(m*m+2*sigma*sigma*r))/(sigma*sigma); }
+function lelandK(r,delta,sigma,tau){ var lam=lelandLambda(r,delta,sigma); return lam*(1-tau)/(r*(1+lam)); }
+function lelandClaims(V,C,r,delta,sigma,tau,alpha){
+  var lam=lelandLambda(r,delta,sigma), VB=lelandK(r,delta,sigma,tau)*C, P=VB>=V?1:Math.pow(VB/V,lam);
+  var D=C/r*(1-P)+(1-alpha)*VB*P, TB=tau*C/r*(1-P), BC=alpha*VB*P, v=V+TB-BC, E=v-D, yld=D>0?C/D:NaN;
+  return {lam:lam,VB:VB,P:P,D:D,E:E,TB:TB,BC:BC,v:v,lev:D/v,yld:yld,spread:yld-r,gain:v/V-1};
+}
+function lelandOpt(V,r,delta,sigma,tau,alpha){
+  var lam=lelandLambda(r,delta,sigma), k=lelandK(r,delta,sigma,tau), Ps=tau/((1+lam)*(tau+alpha*r*k)), C=(V/k)*Math.pow(Ps,1/lam);
+  var o=lelandClaims(V,C,r,delta,sigma,tau,alpha); o.C=C; return o;
+}
+function lelandCurve(V,r,delta,sigma,tau,alpha,n){
+  n=n||81; var k=lelandK(r,delta,sigma,tau), cmax=V/k, pts=[], i, C, c;
+  for(i=0;i<n;i++){ C=cmax*i/(n-1)*0.999; c=lelandClaims(V,C,r,delta,sigma,tau,alpha); pts.push([c.lev,c.v,c.spread,C]); }
+  return pts;
+}
+W.lelandClaims=lelandClaims; W.lelandOpt=lelandOpt; W.lelandCurve=lelandCurve; W.lelandLambda=lelandLambda; W.lelandK=lelandK;
+/* 2. Cover ratio dynamics */
+function firstPassage(rho,sigma,k,level,T,N,span){
+  N=N||61; span=span||4; var b=Math.log(level/k), h=2*span*sigma/N, se=sigma*Math.sqrt(1-rho*rho), top=span*sigma, a0, M, i, j, t, e=[], mids=[], c, prev, alive=[], cum=[], rows=[], cc, r, nw, a, ri, s, out;
+  a0=b>=-top?b:b+Math.floor((-top-b)/h)*h;
+  if(a0>=top){ out=[]; for(t=0;t<T;t++) out.push(1); return out; }
+  M=Math.ceil((top-a0)/h);
+  for(j=0;j<=M;j++) e.push(a0+j*h);
+  for(j=0;j<M;j++) mids.push((e[j]+e[j+1])/2);
+  c=[]; for(j=1;j<M;j++) c.push(ncdf(e[j]/se)); c.push(1);
+  prev=ncdf(e[0]/se);
+  for(j=0;j<M;j++){ alive.push(c[j]-prev); prev=c[j]; }
+  s=0; for(j=0;j<M;j++) s+=alive[j]; cum.push(1-s);
+  for(i=0;i<M;i++){
+    cc=[]; for(j=1;j<M;j++) cc.push(ncdf((e[j]-rho*mids[i])/se)); cc.push(1);
+    prev=ncdf((e[0]-rho*mids[i])/se); r=[];
+    for(j=0;j<M;j++){ r.push(cc[j]-prev); prev=cc[j]; }
+    rows.push(r);
+  }
+  for(t=1;t<T;t++){
+    nw=new Array(M).fill(0);
+    for(i=0;i<M;i++){ a=alive[i]; if(a===0) continue; ri=rows[i]; for(j=0;j<M;j++) nw[j]+=a*ri[j]; }
+    alive=nw; s=0; for(j=0;j<M;j++) s+=alive[j]; cum.push(1-s);
+  }
+  return cum;
+}
+function annuity(r,T){ return r===0?T:(1-Math.pow(1+r,-T))/r; }
+function debtCapacity(k,T,rd,cfads){ cfads=cfads===undefined?100:cfads; return cfads/k*annuity(rd,T); }
+function minCover(rho,sigma,T,p,level,lo,hi){
+  level=level===undefined?1:level; lo=lo===undefined?1:lo; hi=hi===undefined?6:hi; var it,mid;
+  for(it=0;it<30;it++){ mid=(lo+hi)/2; if(firstPassage(rho,sigma,mid,level,T)[T-1]>p) lo=mid; else hi=mid; }
+  return (lo+hi)/2;
+}
+function coverFan(k,rho,sigma,T){
+  var z=1.6448536269514722,out=[],t,s; for(t=1;t<=T;t++){ s=sigma*Math.sqrt(1-Math.pow(rho,2*t)); out.push([t,k*Math.exp(-z*s),k,k*Math.exp(z*s)]); } return out;
+}
+W.firstPassage=firstPassage; W.annuity=annuity; W.debtCapacity=debtCapacity; W.minCover=minCover; W.coverFan=coverFan;
+/* 3. Merton (1977) */
+function bsPut(V,K,r,sigma,T){
+  if(K<=0) return 0; var st=sigma*Math.sqrt(T), d1=(Math.log(V/K)+(r+0.5*sigma*sigma)*T)/st, d2=d1-st;
+  return K*Math.exp(-r*T)*ncdf(-d2)-V*ncdf(-d1);
+}
+function merton(V,D,r,sigma,T,cover,mu){
+  cover=cover===undefined?1:cover;
+  var pf=bsPut(V,D,r,sigma,T), pl=cover<1?bsPut(V,(1-cover)*D,r,sigma,T):0, cost=pf-pl, rf=D*Math.exp(-r*T), risky=rf-pf, gu=risky+cost;
+  var y0=-Math.log(risky/D)/T, y1=-Math.log(gu/D)/T, st=sigma*Math.sqrt(T), d2=(Math.log(V/D)+(r-0.5*sigma*sigma)*T)/st;
+  var o={put:pf,cost:cost,risky:risky,guaranteed:gu,y_unguar:y0,y_guar:y1,spread:y0-r,spread_left:y1-r,pd_q:ncdf(-d2),cost_pct:cost/D};
+  if(mu!==undefined&&mu!==null){
+    var ep=function(K){ if(K<=0) return 0; var d2p=(Math.log(V/K)+(mu-0.5*sigma*sigma)*T)/st, d1p=d2p+st; return K*ncdf(-d2p)-V*Math.exp(mu*T)*ncdf(-d1p); };
+    var pay=ep(D)-(cover<1?ep((1-cover)*D):0);
+    o.expected_cost=pay*Math.exp(-r*T); o.pd_p=ncdf(-((Math.log(V/D)+(mu-0.5*sigma*sigma)*T)/st));
+  }
+  return o;
+}
+function mertonPayoff(Vt,D,cover){ cover=cover===undefined?1:cover; return Math.min(Math.max(D-Vt,0),cover*D); }
+W.bsPut=bsPut; W.merton=merton; W.mertonPayoff=mertonPayoff;
+})(window);
+</script>
+<script>/* Small SVG chart helpers for the Week 4 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+(function(g){
+'use strict';
+var R=g.RE07;
+function axisY(s,y,L,Rr,lo,hi,n,fmtf){R.niceTicks(lo,hi,n).forEach(function(t){s.push('<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+Rr+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+(fmtf?fmtf(t):t)+'</text>');});}
+/* bars: [{label, value, color, note}] ; one bar per category */
+function bars(el,items,o){
+  o=o||{}; var W=1000,H=o.h||380,L=80,Rr=W-30,T=30,B=70,lo=Math.min(0,o.lo!==undefined?o.lo:Math.min.apply(null,items.map(function(d){return d.value;}))*1.15),
+      hi=o.hi!==undefined?o.hi:Math.max.apply(null,items.map(function(d){return d.value;}))*1.18, y=R.lin(lo,hi,H-B,T), s=[], n=items.length, bw=(Rr-L)/n;
+  axisY(s,y,L,Rr,lo,hi,5,o.fmt);
+  s.push('<line class="axis" x1="'+L+'" y1="'+y(0)+'" x2="'+Rr+'" y2="'+y(0)+'"/>');
+  items.forEach(function(d,k){var x0=L+k*bw+bw*0.2,w=bw*0.6,y0=y(Math.max(d.value,0)),y1=y(Math.min(d.value,0));
+    s.push('<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+Math.max(1,y1-y0)+'" fill="'+d.color+'"/>');
+    s.push('<text x="'+(x0+w/2)+'" y="'+(d.value>=0?y0-8:y1+20)+'" text-anchor="middle" font-size="18" font-weight="700">'+(o.fmt?o.fmt(d.value):R.fmt(d.value,1))+'</text>');
+    s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+26)+'" text-anchor="middle" font-size="16">'+d.label+'</text>');
+    if(d.sub) s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+46)+'" text-anchor="middle" font-size="14">'+d.sub+'</text>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+}
+/* lines: series [{pts:[[x,y]], color, width, dash, label}] */
+function lines(el,series,o){
+  var W=1000,H=o.h||420,L=80,Rr=W-30,T=26,B=60,xs=[],ys=[]; series.forEach(function(se){se.pts.forEach(function(p){xs.push(p[0]);ys.push(p[1]);});});
+  var x0=o.x0!==undefined?o.x0:Math.min.apply(null,xs),x1=o.x1!==undefined?o.x1:Math.max.apply(null,xs),y0=o.y0!==undefined?o.y0:Math.min.apply(null,ys),y1=o.y1!==undefined?o.y1:Math.max.apply(null,ys);
+  var x=R.lin(x0,x1,L,Rr),y=R.lin(y0,y1,H-B,T),s=[];
+  axisY(s,y,L,Rr,y0,y1,6,o.fy);
+  R.niceTicks(x0,x1,8).forEach(function(t){s.push('<text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+(o.fx?o.fx(t):t)+'</text>');});
+  s.push('<text class="mut" x="'+Rr+'" y="'+(H-8)+'" text-anchor="end" font-size="16">'+(o.xl||'')+'</text>');
+  (o.bands||[]).forEach(function(b){s.push('<rect x="'+x(b[0])+'" y="'+T+'" width="'+(x(b[1])-x(b[0]))+'" height="'+(H-B-T)+'" fill="'+b[2]+'" opacity="0.5"/>');if(b[3])s.push('<text class="mut" x="'+((x(b[0])+x(b[1]))/2)+'" y="'+(T+18)+'" text-anchor="middle" font-size="15">'+b[3]+'</text>');});
+  (o.hlines||[]).forEach(function(h){s.push('<line x1="'+L+'" y1="'+y(h[0])+'" x2="'+Rr+'" y2="'+y(h[0])+'" stroke="'+(h[2]||'var(--muted)')+'" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(Rr-4)+'" y="'+(y(h[0])-6)+'" text-anchor="end" font-size="15">'+h[1]+'</text>');});
+  (o.vlines||[]).forEach(function(v){s.push('<line x1="'+x(v[0])+'" y1="'+T+'" x2="'+x(v[0])+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(x(v[0])+6)+'" y="'+(H-B-8)+'" font-size="15">'+v[1]+'</text>');});
+  series.forEach(function(se){var d='';se.pts.forEach(function(p,k){d+=(k?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1);});
+    s.push('<path d="'+d+'" fill="none" stroke="'+se.color+'" stroke-width="'+(se.width||3.5)+'"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' stroke-linejoin="round"/>');});
+  (o.dots||[]).forEach(function(p){s.push('<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="6" fill="'+p[2]+'" stroke="var(--panel)" stroke-width="2"/>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+  return {x:x,y:y};
+}
+R.ch={bars:bars,lines:lines};
+})(window);
+</script>
+<script>
+(function(){
+var R=RE07, W=R.w4, $=function(id){return document.getElementById(id);}, fmt=R.fmt;
+var PRE=[{k:'gen',t:'A generic infrastructure asset: 15% volatility, 30% lost in default',sg:15,dl:6,tau:25,al:30,r:4},
+  {k:'net',t:'A regulated network: low volatility (8%)',sg:8,dl:6,tau:25,al:30,r:4},
+  {k:'mer',t:'A merchant asset: high volatility (30%)',sg:30,dl:6,tau:25,al:30,r:4},
+  {k:'stp',t:'A contracted asset with step-in rights: 10% volatility, 10% lost in default',sg:10,dl:6,tau:25,al:10,r:4},
+  {k:'cus',t:'My own settings (use the sliders)',sg:null}];
+PRE.forEach(function(p){var o=document.createElement('option');o.value=p.k;o.textContent=p.t;$('pre').appendChild(o);}); $('pre').value='gen';
+var S={sg:15,dl:6,tau:25,al:30,r:4};
+function opt(o){o=o||{};var sg=o.sg!==undefined?o.sg:S.sg,al=o.al!==undefined?o.al:S.al;return W.lelandOpt(100,S.r/100,S.dl/100,sg/100,S.tau/100,al/100);}
+function draw(){
+  $('sgV').textContent=S.sg+'%'; $('dlV').textContent=fmt(S.dl,2)+'%'; $('tauV').textContent=S.tau+'%'; $('alV').textContent=S.al+'%'; $('rV').textContent=fmt(S.r,2)+'%';
+  var o=opt(); $('s1').textContent=fmt(o.C,2); $('s2').textContent=fmt(o.lev*100,0)+'%'; $('s3').textContent=fmt(o.spread*1e4,0); $('s4').textContent=fmt(o.gain*100,1)+'%';
+  var pts=W.lelandCurve(100,S.r/100,S.dl/100,S.sg/100,S.tau/100,S.al/100,81).map(function(p){return [p[0]*100,p[1]];}).filter(function(p){return p[1]>=92;});
+  var ymin=Math.min.apply(null,pts.map(function(p){return p[1];})), ymax=Math.max.apply(null,pts.map(function(p){return p[1];}));
+  R.ch.lines($('c1'),[{pts:pts,color:'var(--accent)',width:4}],{x0:0,x1:Math.min(100,Math.ceil(pts[pts.length-1][0]/10)*10),y0:Math.floor(Math.min(ymin,100)/5)*5,y1:Math.ceil(ymax/5)*5+2,xl:'Debt as a share of firm value, per cent',fy:function(t){return Math.round(t);},fx:function(t){return Math.round(t);},hlines:[[100,'all-equity value 100']],dots:[[o.lev*100,o.v,'var(--ink)']]});
+  $('n1').textContent='At the best coupon of '+fmt(o.C,2)+' the firm defaults if its asset value falls to '+fmt(o.VB,1)+', which has a present-value weight of '+fmt(o.P*100,0)+' per cent today. Debt is worth '+fmt(o.D,1)+', equity '+fmt(o.E,1)+', the tax shield adds '+fmt(o.TB,1)+' and default costs take '+fmt(o.BC,1)+'. Moving to more debt than this lowers firm value, because the extra default cost outweighs the extra tax shield.';
+  var s=[['var(--sage)',10],['var(--slate)',30],['var(--clay)',50]].map(function(c){var a=[],v;for(v=5;v<=40;v+=2.5) a.push([v,opt({sg:v,al:c[1]}).lev*100]);return {pts:a,color:c[0],width:2.5};});
+  R.ch.lines($('c2'),s,{x0:5,x1:40,y0:0,y1:100,xl:'Volatility of the asset’s value, per cent',fy:function(t){return Math.round(t);},fx:function(t){return Math.round(t);},dots:[[S.sg,o.lev*100,'var(--ink)']]});
+  var lo=opt({sg:Math.max(5,S.sg-5)}), hi=opt({sg:Math.min(40,S.sg+5)});
+  $('n2').textContent='With '+S.al+' per cent lost in default, a volatility of '+S.sg+' per cent supports debt of '+fmt(o.lev*100,0)+' per cent of firm value. Five points less volatility gives '+fmt(lo.lev*100,0)+' per cent and five more gives '+fmt(hi.lev*100,0)+' per cent. The dot marks your settings.';
+}
+function setPreset(k){var p=PRE.filter(function(x){return x.k===k;})[0]; if(p.sg!==null){['sg','dl','tau','al','r'].forEach(function(x){S[x]=p[x];$(x).value=S[x];});}}
+$('pre').addEventListener('change',function(e){setPreset(e.target.value);draw();});
+['sg','dl','tau','al','r'].forEach(function(k){$(k).addEventListener('input',function(e){S[k]=+e.target.value;$('pre').value='cus';draw();});});
+draw();
+})();
+</script>
+</body>
+</html>

@@ -9,6 +9,31 @@
      "kind": "PDF"
     }
    ]
+  },
+  {
+   "title": "Interactive pages",
+   "items": [
+    {
+     "label": "Why Estimates of the Return to Infrastructure Fall as the Evidence Improves",
+     "href": "identification-ladder.html",
+     "kind": "web page"
+    },
+    {
+     "label": "One Country or Eighty-Eight: Estimating the Return to Infrastructure",
+     "href": "one-country-or-eighty-eight.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Do Large Transport Projects Pay? A Portfolio View of the Chinese Evidence",
+     "href": "do-projects-pay.html",
+     "kind": "web page"
+    },
+    {
+     "label": "A Worked Example of Fee Drag: Holding Infrastructure Directly or Through a Fund",
+     "href": "fee-drag.html",
+     "kind": "web page"
+    }
+   ]
   }
  ]
 }

@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill, Size and Fees in Fund Management</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.legend i.dash{ border-radius:0; height:0; width:18px; border-top:2px dashed var(--muted); vertical-align:4px; background:none; }
+.pick{ margin-bottom:12px; }
+.src th{ text-align:left !important; } .src td{ text-align:left !important; }
+button.again{ font:inherit; font-size:13px; padding:6px 12px; border:1px solid var(--accent); background:var(--panel); color:var(--ink); border-radius:999px; cursor:pointer; margin-top:4px; }
+button.again:hover{ background:var(--line); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Skill, size and fees: why do investors pay for managers who do not beat the market for them?</h1>
+  <p class="lede">An infrastructure fund, a private credit fund or a mutual fund charges a fee and reports a return. Investors chase the managers who have done well, and yet the managers who did well do not do better next time, and investors as a group earn nothing above the benchmark after fees. Berk and Green (2004) showed that all three facts are what a rational market of skilled and unskilled managers would produce. Capital flows in until the last dollar earns nothing for investors, so the fruits of skill go to the manager and to the costs of managing a bigger fund. Set the skill in the industry, the cost of size and the fee, and watch a population of funds grow, learn and level off.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 5. The model is Berk and Green (2004), <i>Journal of Political Economy</i> 112(6), 1269&ndash;1295, equations 1 to 7 and 10, pages 1273 to 1277 (printed pages), with the cost of active management taken to be quadratic, <i>C</i>(<i>Q</i>) = <i>kQ</i>&sup2;/2, a choice of mine that the paper's general convex cost allows. Funds enter with skill drawn from the prior, all participants learn from returns in the way the paper describes, and a fund closes when investors would no longer break even. The simulated population uses a fixed random seed that the button changes. It is a teaching illustration with generic inputs and does not describe any fund. The model was computed twice, in Python and in this page, and the two agree. The Python was also checked on large simulations for zero expected net excess return and no persistence.</p>
+  <hr class="rule">
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. The managers</p>
+        <p class="cardsub">Skill is the return a manager can add before costs and fees</p>
+        <div class="field pick"><label class="f" for="pre">Start from</label><select id="pre"></select></div>
+        <div class="field"><label class="f" for="f0">Average skill across new funds <span class="val" id="f0V"></span></label><input type="range" id="f0" min="1" max="6" step="0.1" value="3">
+          <p class="hint">Excess return over the benchmark a year, before costs and fees, that investors expect of a new fund.</p></div>
+        <div class="field"><label class="f" for="h">Spread of skill across new funds <span class="val" id="hV"></span></label><input type="range" id="h" min="0.5" max="5" step="0.1" value="2">
+          <p class="hint">The standard deviation of skill, in percentage points.</p></div>
+        <div class="field"><label class="f" for="sig">Noise in each year's return <span class="val" id="sigV"></span></label><input type="range" id="sig" min="2" max="15" step="0.5" value="6">
+          <p class="hint">The more noise, the longer it takes to learn who is skilled.</p></div>
+      </div>
+      <div class="card">
+        <p class="step">2. Size and fees</p>
+        <p class="cardsub">What it costs to manage a larger fund, and what is charged</p>
+        <div class="field"><label class="f" for="k">Cost of size <span class="val" id="kV"></span></label><input type="range" id="k" min="0.1" max="1.5" step="0.05" value="0.4">
+          <p class="hint">The rise in the unit cost of active management for each extra billion dollars, in percentage points. Price impact and thin capacity make it rise with size.</p></div>
+        <div class="field"><label class="f" for="fee">Management fee <span class="val" id="feeV"></span></label><input type="range" id="fee" min="0.2" max="2.5" step="0.05" value="1">
+          <p class="hint">A fixed share of assets. Berk and Green show the same outcome from a fee that varies with perceived skill.</p></div>
+        <button type="button" class="again" id="again">Draw another set of funds</button>
+      </div>
+    </div>
+    <div>
+      <div class="stats">
+        <div><div class="k">Size of a new fund</div><div class="v" id="s1">&mdash;</div><div class="s">billion dollars, at the average skill</div></div>
+        <div><div class="k">Manager's fee income</div><div class="v" id="s2">&mdash;</div><div class="s">million dollars a year</div></div>
+        <div><div class="k">Cost of managing the fund</div><div class="v" id="s3">&mdash;</div><div class="s">million dollars a year, the price impact and effort</div></div>
+        <div><div class="k">Investors' excess return</div><div class="v" id="s4">&mdash;</div><div class="s" id="s4s">after costs and fees</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2>Fund size against the skill investors believe a manager has</h2>
+        <svg id="c1" viewBox="0 0 1000 400" role="img" aria-label="Line chart of fund size against perceived skill for a fixed fee and for the efficient fee"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--accent)"></i>Size with your fixed fee</span><span><i class="ln" style="background:var(--sage)"></i>Size with the fee that maximises the manager's income</span><span><i class="dash"></i>Average skill of a new fund</span></div>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Returns of a population of funds, year by year</h2>
+        <svg id="c2" viewBox="0 0 1000 400" role="img" aria-label="Line chart of the average gross and net excess return of simulated funds by year with a band of two standard errors around zero"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--clay)"></i>Gross excess return (before costs and fees)</span><span><i class="ln" style="background:var(--accent)"></i>Net excess return to investors</span><span><i class="dash"></i>Two standard errors around zero</span></div>
+        <p class="note" id="n2"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Money that flows in after a good year, by the age of the fund</h2>
+        <svg id="c3" viewBox="0 0 1000 380" role="img" aria-label="Bar chart of the inflow after a one standard deviation surprise by fund age"></svg>
+        <p class="note" id="n3"></p>
+      </div>
+    </div>
+  </div>
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">What the model says</p>
+      <p>Managers differ in skill, which no one can observe; investors and managers alike learn it from the returns. Running a larger fund costs more per dollar because trades move prices. Investors compare the fund with the benchmark and will put money in until the return they expect after costs and fees is zero, which happens when the unit cost of active management plus the fee equals the skill the fund is believed to have. A fund that has done well is believed to be more skilled, so money flows in and its size rises until investors are again indifferent. The flow is a response to performance, and larger for young funds, whose records are short and so move beliefs more.</p>
+      <p>Because investors have already moved until they expect nothing, last year's winner is no more likely than anyone else to beat the benchmark for them next year, and the average net return to investors is zero whatever the average skill is. That is what the second chart shows. The skill is real, and it earns a rent, but the rent goes to the manager, who is paid the fee on a fund that skill has made large, and to the cost of managing it. The evidence therefore cannot be read as showing that managers are unskilled, and the response to performance cannot be read as irrational. Berk and van Binsbergen (2012) measure the dollars a manager adds, the fund's size times its gross excess return, and find that skill is positive and persists for years even though the net return to investors does not.</p>
+      <p>For infrastructure, the model gives a way to ask where the fees come from and what limits the growth of funds. It does not say that fees of an infrastructure fund are earned. It says that, in a competitive market for capital, a fee equal to the manager's marginal contribution is compatible with investors earning only their benchmark, and that what to look for is the cost of size: whether the best managers can deploy more capital without a fall in return, and whether capital is as free to move as the model assumes. Unlisted funds lock capital in for ten years, which the model rules out.</p>
+      <p class="tag" style="margin-top:14px">Where the numbers and pages come from</p>
+      <table class="t src"><thead><tr><th>Item</th><th>Source</th></tr></thead><tbody>
+        <tr><td>The model: managers with unknown skill <i>a</i> earn a gross excess return <i>R</i> = <i>a</i> + noise; the cost of active management <i>C</i>(<i>Q</i>) is convex in size; fees are a fixed share <i>f</i>; investors supply capital until the expected excess return is zero (equation 3)</td><td>Berk and Green (2004), <i>Journal of Political Economy</i> 112(6), 1269&ndash;1295, pages 1273 to 1275 (printed pages)</td></tr>
+        <tr><td>Size solves <i>f</i><sub><i>t</i></sub> = <i>C</i>(<i>Q</i>)/<i>Q</i> + <i>f</i>, where <i>f</i><sub><i>t</i></sub> is the posterior mean of skill (equation 4)</td><td>Same, page 1275. With <i>C</i>(<i>Q</i>) = <i>kQ</i>&sup2;/2 this gives <i>Q</i> = 2(<i>f</i><sub><i>t</i></sub> &minus; <i>f</i>)/<i>k</i>, which is mine</td></tr>
+        <tr><td>Learning and the flow of funds: <i>f</i><sub><i>t</i></sub> = <i>f</i><sub><i>t</i>&minus;1</sub> + [<i>q</i>/(<i>g</i> + <i>tq</i>)]<i>r</i><sub><i>t</i></sub>, where <i>q</i> is the precision of the noise and <i>g</i> that of the prior; flows respond to performance, more for younger funds</td><td>Same, Proposition 1 and equations 5 to 7, pages 1275 to 1276</td></tr>
+        <tr><td>The fee that maximises the manager's income delivers the efficient size <i>Q</i>* = <i>f</i><sub><i>t</i></sub>/<i>k</i> and income <i>f</i><sub><i>t</i></sub>&sup2;/(2<i>k</i>); a fixed fee does the same if investors can allow part of the fund to be indexed</td><td>Same, equations 9 and 10 and the passage that follows, pages 1276 to 1277. On this page the fee that maximises income is half the perceived skill, which I checked numerically</td></tr>
+        <tr><td>Skill measured as dollars added, positive and persistent up to ten years; investors reward it with more capital</td><td>Berk and van Binsbergen (2012), NBER Working Paper 18184, abstract, with the published version in the <i>Journal of Financial Economics</i> 118(1), 2015, which I recall but have not checked. A paper about US mutual funds, not infrastructure</td></tr>
+        <tr><td>Values for the presets</td><td>Mine and generic. They are not estimates for any fund. Fee income is fee &times; size, the cost is <i>kQ</i>&sup2;/2, and the two together equal the skill times the size, which the page confirms in its top figures</td></tr>
+      </tbody></table>
+      <p class="note">The model is partial equilibrium, with a benchmark that no one can move, and costs that depend on size only. Investors can supply capital without limit to any fund with positive expected excess return, and take it out at no cost. None of this holds for a closed-end infrastructure fund, and the page should be read as a statement about what competition among investors implies, not as a description of private markets.</p>
+      <p class="q">With the generic settings, raise the spread of skill from 2 to 4 percentage points. Report what happens to the size of the largest funds and to the investors' average excess return, and say who gains from the extra spread.</p>
+      <p class="q">Raise the cost of size from 0.4 to 1.0. Report the size of a new fund and the manager's fee income, and say what this suggests about the capacity of a strategy that is hard to scale, such as direct lending to small projects.</p>
+    </div>
+  </div>
+</div>
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>/* Week 5 teaching models (JavaScript copy of models_w5.py; check_models_w5.py compares the two). */
+(function(g){
+'use strict';
+var R=g.RE07=g.RE07||{}, W=R.w5={};
+/* 1. Duffie, Garleanu and Pedersen (2005): search, bargaining and market makers (Condition 1) */
+function dgp(r,delta,lu,ld,lam,rho,s,q,z){
+  var H=lu/(lu+ld); if(!(s<H)) return null;
+  var b=2*lam*(H-s)+rho+lu+ld, mlo=(lam===0)?ld*s/b:(-b+Math.sqrt(b*b+8*lam*ld*s))/(4*lam), mho=s-mlo, mhn=H-mho, mln=1-mho-mhn-mlo;
+  var D=r+ld+2*lam*mlo*(1-q)+lu+2*lam*mhn*q+rho*(1-z);
+  var A=1/r-(delta/r)*(ld+2*lam*mlo*(1-q))/D, B=1/r-(delta/r)*(z*r+ld+2*lam*mlo*(1-q))/D, P=1/r-(delta/r)*((1-q)*r+ld+2*lam*mlo*(1-q))/D;
+  var sell=rho+2*lam*mhn;
+  return {mu_lo:mlo,mu_hn:mhn,mu_ho:mho,mu_ln:mln,A:A,B:B,P:P,spread:A-B,spread_pct:(A-B)/((A+B)/2),discount:1/r-P,discount_pct:(1/r-P)*r,wait_months:12/sell,
+          dealer_rev:rho*mlo*(A-B),D:D,dealer_vol:rho*mlo,inv_vol:2*lam*mhn*mlo};
+}
+W.dgp=dgp;
+/* 2. Berk and Green (2004): rational delegated management */
+function bgSize(ft,fee,k){ return Math.max(0,2*(ft-fee)/k); }
+function bgManagerIncome(ft,fee,k){ var Q=bgSize(ft,fee,k); return [fee*Q, ft>0?ft*ft/(2*k):0]; }
+function bgWeight(t,g,kappa){ return kappa/(g+t*kappa); }
+function bgPath(a,f0,g,kappa,fee,k,shocks){
+  var out=[], f=f0, Q=bgSize(f,fee,k), t, e, Rr, cprev, r, Qn;
+  for(t=1;t<=shocks.length;t++){
+    if(Q<=0) break;
+    e=shocks[t-1]; Rr=a+e/Math.sqrt(kappa); cprev=k*Q/2+fee; r=Rr-cprev;
+    f=f+bgWeight(t,g,kappa)*(Rr-f); Qn=bgSize(f,fee,k);
+    out.push([t,Rr,r,f,Qn]); Q=Qn;
+  }
+  return out;
+}
+function mulberry32(seed){ var a=seed|0; return function(){ a=a+0x6D2B79F5|0; var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function normals(seed,n){ var u=mulberry32(seed), out=[], a, b, rr; while(out.length<n){ a=u(); b=u(); if(a<1e-12) a=1e-12; rr=Math.sqrt(-2*Math.log(a)); out.push(rr*Math.cos(2*Math.PI*b)); out.push(rr*Math.sin(2*Math.PI*b)); } return out.slice(0,n); }
+function bgPopulation(f0,h,kappa,fee,k,nfunds,T,seed){
+  var g=1/(h*h), z=normals(seed,nfunds*(T+1)), paths=[], i, t, rows=[], rs, n, sizes, both, ma, mb, va, vb, corr, p, j, sr, sR, ss, x, y;
+  for(i=0;i<nfunds;i++) paths.push(bgPath(f0+h*z[i*(T+1)],f0,g,kappa,fee,k,z.slice(i*(T+1)+1,(i+1)*(T+1))));
+  for(t=1;t<=T;t++){
+    n=0; sr=0; sR=0; ss=0; both=[];
+    for(j=0;j<paths.length;j++){ p=paths[j]; if(p.length>=t){ n++; sr+=p[t-1][2]; sR+=p[t-1][1]; ss+=(t===1?bgSize(f0,fee,k):p[t-2][4]); if(p.length>=t+1) both.push([p[t-1][2],p[t][2]]); } }
+    if(n===0){ rows.push({t:t,n:0,r:NaN,R:NaN,size:NaN,corr:NaN}); continue; }
+    corr=NaN;
+    if(both.length>2){ ma=0; mb=0; both.forEach(function(q){ma+=q[0];mb+=q[1];}); ma/=both.length; mb/=both.length; va=0; vb=0; sr_=0; var cv=0;
+      both.forEach(function(q){ x=q[0]-ma; y=q[1]-mb; va+=x*x; vb+=y*y; cv+=x*y; }); if(va>0&&vb>0) corr=cv/Math.sqrt(va*vb); }
+    rows.push({t:t,n:n,r:sr/n,R:sR/n,size:ss/n,corr:corr});
+  }
+  return {paths:paths,rows:rows};
+}
+var sr_;
+W.bgSize=bgSize; W.bgManagerIncome=bgManagerIncome; W.bgWeight=bgWeight; W.bgPath=bgPath; W.normals=normals; W.bgPopulation=bgPopulation;
+/* 3. Franzoni (1999): certification with liability */
+function cert(b,h,s,alpha,P,N){
+  var aP=alpha*P, K=N/(N+1)*(b-s)*aP/(aP-s), cbar=(aP-s)/aP, regime, Q, fee, c, x, a, profit;
+  if(K<=1){ regime='partial'; Q=K; fee=s+(b-s)/(N+1); c=b-fee; x=s/(aP-s)*c/(1-c); a=c/b; profit=(b-s)*(b-s)*aP/((N+1)*(N+1)*(aP-s)); }
+  else { regime='full'; Q=1; fee=b-cbar; c=cbar; x=1; a=cbar/b; profit=(fee-s)/N; }
+  var nc=x*(1-c), through=(1-a)*nc, Wl=(b*c-c*c/2)+through*b-(c+nc)*s*a-through*h;
+  return {regime:regime,Q:Q,fee:fee,c:c,x:x,a:a,profit:profit,nc:nc,through:through,W:Wl,K:K,cbar:cbar,tested:c+nc,first_best:b*b/2};
+}
+W.cert=cert;
+})(window);
+</script>
+<script>/* Small SVG chart helpers for the Week 5 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+(function(g){
+'use strict';
+var R=g.RE07;
+function axisY(s,y,L,Rr,lo,hi,n,fmtf){R.niceTicks(lo,hi,n).forEach(function(t){s.push('<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+Rr+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+(fmtf?fmtf(t):t)+'</text>');});}
+/* bars: [{label, value, color, note}] ; one bar per category */
+function bars(el,items,o){
+  o=o||{}; var W=1000,H=o.h||380,L=80,Rr=W-30,T=30,B=70,lo=Math.min(0,o.lo!==undefined?o.lo:Math.min.apply(null,items.map(function(d){return d.value;}))*1.15),
+      hi=o.hi!==undefined?o.hi:Math.max.apply(null,items.map(function(d){return d.value;}))*1.18, y=R.lin(lo,hi,H-B,T), s=[], n=items.length, bw=(Rr-L)/n;
+  axisY(s,y,L,Rr,lo,hi,5,o.fmt);
+  s.push('<line class="axis" x1="'+L+'" y1="'+y(0)+'" x2="'+Rr+'" y2="'+y(0)+'"/>');
+  items.forEach(function(d,k){var x0=L+k*bw+bw*0.2,w=bw*0.6,y0=y(Math.max(d.value,0)),y1=y(Math.min(d.value,0));
+    s.push('<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+Math.max(1,y1-y0)+'" fill="'+d.color+'"/>');
+    s.push('<text x="'+(x0+w/2)+'" y="'+(d.value>=0?y0-8:y1+20)+'" text-anchor="middle" font-size="18" font-weight="700">'+(o.fmt?o.fmt(d.value):R.fmt(d.value,1))+'</text>');
+    s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+26)+'" text-anchor="middle" font-size="16">'+d.label+'</text>');
+    if(d.sub) s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+46)+'" text-anchor="middle" font-size="14">'+d.sub+'</text>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+}
+/* lines: series [{pts:[[x,y]], color, width, dash, label}] */
+function lines(el,series,o){
+  var W=1000,H=o.h||420,L=80,Rr=W-30,T=26,B=60,xs=[],ys=[]; series.forEach(function(se){se.pts.forEach(function(p){xs.push(p[0]);ys.push(p[1]);});});
+  var x0=o.x0!==undefined?o.x0:Math.min.apply(null,xs),x1=o.x1!==undefined?o.x1:Math.max.apply(null,xs),y0=o.y0!==undefined?o.y0:Math.min.apply(null,ys),y1=o.y1!==undefined?o.y1:Math.max.apply(null,ys);
+  var x=R.lin(x0,x1,L,Rr),y=R.lin(y0,y1,H-B,T),s=[];
+  axisY(s,y,L,Rr,y0,y1,6,o.fy);
+  R.niceTicks(x0,x1,8).forEach(function(t){s.push('<text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+(o.fx?o.fx(t):t)+'</text>');});
+  s.push('<text class="mut" x="'+Rr+'" y="'+(H-8)+'" text-anchor="end" font-size="16">'+(o.xl||'')+'</text>');
+  (o.bands||[]).forEach(function(b){s.push('<rect x="'+x(b[0])+'" y="'+T+'" width="'+(x(b[1])-x(b[0]))+'" height="'+(H-B-T)+'" fill="'+b[2]+'" opacity="0.5"/>');if(b[3])s.push('<text class="mut" x="'+((x(b[0])+x(b[1]))/2)+'" y="'+(T+18)+'" text-anchor="middle" font-size="15">'+b[3]+'</text>');});
+  (o.hlines||[]).forEach(function(h){s.push('<line x1="'+L+'" y1="'+y(h[0])+'" x2="'+Rr+'" y2="'+y(h[0])+'" stroke="'+(h[2]||'var(--muted)')+'" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(Rr-4)+'" y="'+(y(h[0])-6)+'" text-anchor="end" font-size="15">'+h[1]+'</text>');});
+  (o.vlines||[]).forEach(function(v){s.push('<line x1="'+x(v[0])+'" y1="'+T+'" x2="'+x(v[0])+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(x(v[0])+6)+'" y="'+(H-B-8)+'" font-size="15">'+v[1]+'</text>');});
+  series.forEach(function(se){var d='';se.pts.forEach(function(p,k){d+=(k?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1);});
+    s.push('<path d="'+d+'" fill="none" stroke="'+se.color+'" stroke-width="'+(se.width||3.5)+'"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' stroke-linejoin="round"/>');});
+  (o.dots||[]).forEach(function(p){s.push('<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="6" fill="'+p[2]+'" stroke="var(--panel)" stroke-width="2"/>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+  return {x:x,y:y};
+}
+R.ch={bars:bars,lines:lines};
+})(window);
+</script>
+<script>
+(function(){
+var R=RE07, W=R.w5, $=function(id){return document.getElementById(id);}, fmt=R.fmt;
+var PRE=[{t:'A generic industry: average skill 3%, spread 2%, size cost 0.4',f0:3,h:2,sig:6,k:0.4,fee:1},
+  {t:'Highly skilled managers: spread of skill 4%',f0:3,h:4,sig:6,k:0.4,fee:1},
+  {t:'A strategy that is hard to scale: size cost 1.0',f0:3,h:2,sig:6,k:1.0,fee:1},
+  {t:'Noisy returns: 12% a year',f0:3,h:2,sig:12,k:0.4,fee:1},
+  {t:'My own settings (use the sliders)',f0:null}];
+PRE.forEach(function(p,i){var o=document.createElement('option');o.value=i;o.textContent=p.t;$('pre').appendChild(o);}); $('pre').value=0;
+var S={f0:3,h:2,sig:6,k:0.4,fee:1}, seed=5, KEYS=['f0','h','sig','k','fee'], NF=600, T=15;
+function par(){return {f0:S.f0/100,h:S.h/100,kap:1/Math.pow(S.sig/100,2),fee:S.fee/100,k:S.k/100};}
+function draw(){
+  var maxfee=S.f0-0.1; if(S.fee>maxfee){S.fee=Math.max(0.2,maxfee);$('fee').value=S.fee;}
+  $('f0V').textContent=fmt(S.f0,1)+'%'; $('hV').textContent=fmt(S.h,1)+' points'; $('sigV').textContent=fmt(S.sig,1)+'%'; $('kV').textContent=fmt(S.k,2)+' points per $bn'; $('feeV').textContent=fmt(S.fee,2)+'%';
+  var p=par(), Q0=W.bgSize(p.f0,p.fee,p.k), inc=W.bgManagerIncome(p.f0,p.fee,p.k), cost=p.k*Q0*Q0/2*1000;
+  $('s1').textContent=fmt(Q0,1); $('s2').textContent=fmt(inc[0]*1000,0); $('s3').textContent=fmt(cost,0);
+  var pop=W.bgPopulation(p.f0,p.h,p.kap,p.fee,p.k,NF,T,seed), rows=pop.rows, i, sr=0, nn=0, cs=[];
+  var se=[], lo=[], hi=[], net=[], gross=[];
+  rows.forEach(function(r,idx){ var t=r.t, vals=[]; pop.paths.forEach(function(q){ if(q.length>=t) vals.push(q[t-1][2]); });
+    if(vals.length>2){ var m=R.mean(vals), s=R.sd(vals)/Math.sqrt(vals.length); net.push([t,m*100]); gross.push([t,r.R*100]); lo.push([t,-2*s*100]); hi.push([t,2*s*100]); sr+=m*vals.length; nn+=vals.length; }
+    if(!isNaN(r.corr)) cs.push(r.corr); });
+  var avg=nn?sr/nn*100:0, corr=cs.length?R.mean(cs):NaN;
+  $('s4').textContent=fmt(avg,2)+'%'; $('s4s').textContent='after costs and fees; simulated average of '+nn+' fund-years. Correlation from one year to the next: '+fmt(corr,2);
+  // chart 1
+  var a=[],b=[],x,xm=8; for(x=0;x<=xm;x+=0.1){a.push([x,W.bgSize(x/100,p.fee,p.k)]);b.push([x,Math.max(0,x/100/p.k)]);}
+  var ymax=Math.ceil(Math.max(a[a.length-1][1],b[b.length-1][1])/5)*5||5;
+  R.ch.lines($('c1'),[{pts:a,color:'var(--accent)',width:3.5},{pts:b,color:'var(--sage)',width:3}],{x0:0,x1:xm,y0:0,y1:ymax,xl:'Perceived skill, per cent a year',fy:function(t){return Math.round(t);},fx:function(t){return Math.round(t);},vlines:[[S.f0,'average new fund']],dots:[[S.f0,Q0,'var(--ink)']]});
+  $('n1').textContent='A fund that investors believe adds '+fmt(S.f0,1)+' per cent a year grows to '+fmt(Q0,1)+' billion dollars, where its average cost per dollar of '+fmt(p.k*Q0/2*100,2)+' per cent and its fee of '+fmt(S.fee,2)+' per cent exactly use up the skill. It then earns the manager '+fmt(inc[0]*1000,0)+' million dollars a year in fees. The fee that would maximise the manager\'s income is '+fmt(S.f0/2,2)+' per cent, which would give a size of '+fmt(p.f0/p.k,1)+' billion and an income of '+fmt(inc[1]*1000,0)+' million.';
+  // chart 2
+  var ymx=Math.max(1,Math.ceil(Math.max.apply(null,gross.map(function(t){return t[1];}))*1.1)), ymn=-1;
+  R.ch.lines($('c2'),[{pts:gross,color:'var(--clay)',width:3},{pts:net,color:'var(--accent)',width:3.5},{pts:lo,color:'var(--muted)',width:1.5,dash:'5 5'},{pts:hi,color:'var(--muted)',width:1.5,dash:'5 5'}],{x0:1,x1:T,y0:Math.min(ymn,Math.floor(Math.min.apply(null,lo.map(function(t){return t[1];}))*1.2)),y1:ymx,xl:'Year of the fund\'s life',fy:function(t){return fmt(t,1);},fx:function(t){return Math.round(t);}});
+  $('n2').textContent='Funds that have earned a good record are bigger, and the gross return they earn is the average skill of the survivors, about '+fmt(R.mean(gross.map(function(t){return t[1];})),1)+' per cent. Net of the cost of their size and of the fee, investors earn '+fmt(avg,2)+' per cent on average, indistinguishable from zero within the band. A fund\'s net return this year tells you almost nothing about next year\'s (correlation '+fmt(corr,2)+').';
+  // chart 3
+  var g=1/(p.h*p.h), ages=[1,2,3,5,8,12], items=ages.map(function(t){var phi=W.bgWeight(t,g,p.kap); return {label:'Year '+t,value:2*phi*(S.sig/100)/p.k,color:'var(--accent)'};});
+  R.ch.bars($('c3'),items,{fmt:function(v){return fmt(v,1);},lo:0});
+  $('n3').textContent='After a return one standard deviation ('+fmt(S.sig,1)+' per cent) above what was expected, a fund in its first year receives about '+fmt(items[0].value,1)+' billion dollars; a fund in its twelfth year receives '+fmt(items[5].value,1)+'. Young funds have short records, so one good year moves beliefs about their skill more.';
+}
+function setPreset(i){var p=PRE[i]; if(p.f0!==null){S.f0=p.f0;S.h=p.h;S.sig=p.sig;S.k=p.k;S.fee=p.fee; ['f0','h','sig','k','fee'].forEach(function(x){$(x).value=S[x];});}}
+$('pre').addEventListener('change',function(e){setPreset(+e.target.value);draw();});
+KEYS.forEach(function(k){$(k).addEventListener('input',function(e){S[k]=+e.target.value;$('pre').value=PRE.length-1;draw();});});
+$('again').addEventListener('click',function(){seed=Math.floor(Math.random()*1e6)+1;draw();});
+draw();
+})();
+</script>
+</body>
+</html>

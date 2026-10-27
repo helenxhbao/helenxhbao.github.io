@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Worked Example of Fee Drag: Holding Infrastructure Directly or Through a Fund</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.src th{ text-align:left !important; } .src td{ text-align:left !important; }
+.pick{ margin-bottom:12px; }
+.legend i.dash{ border-radius:0; height:0; width:18px; border-top:2px dashed var(--muted); vertical-align:4px; background:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>A worked example of fee drag</h1>
+  <p class="lede">An investor can hold a regulated infrastructure asset directly, or through a closed-end fund that sells it after ten years and starts again in a new fund. This page prices that choice. The inputs are real figures: the returns that regulators allow on equity,
+     the fees that fund managers charge, the fund life, and the net returns that infrastructure funds have actually delivered. Move the sliders and see where the gross return goes.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 1. Every default and every preset is taken from a published source listed at the foot of the page, with the page number. The model is deliberately simple (one commitment drawn at the start, fees taken from the fund&rsquo;s assets,
+     a whole-of-fund waterfall, no leverage or tax) and it is a teaching illustration and not a forecast. It was computed twice, in Python and in this page, and the two agree.</p>
+  <hr class="rule">
+
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. The asset</p>
+        <p class="cardsub">What the underlying asset earns each year before any fund costs</p>
+        <div class="field pick"><label class="f" for="aPre">Start from a real figure</label><select id="aPre"></select></div>
+        <div class="field"><label class="f" for="g">Gross return a year <span class="val" id="gV"></span></label><input type="range" id="g" min="2" max="16" step="0.05" value="8"></div>
+        <div class="field"><label class="f" for="T">Years the investor wants to hold the exposure</label>
+          <select id="T"><option value="20">20 years</option><option value="24">24 years</option><option value="30" selected>30 years</option><option value="36">36 years</option><option value="40">40 years</option></select>
+          <p class="hint">A regulated network or a concession can last thirty or forty years. A closed-end fund cannot.</p></div>
+      </div>
+      <div class="card">
+        <p class="step">2. The fund route</p>
+        <p class="cardsub">Terms of the closed-end fund, and what happens when it sells</p>
+        <div class="field pick"><label class="f" for="fPre">Start from real terms</label><select id="fPre"></select></div>
+        <div class="field"><label class="f" for="m">Management fee a year <span class="val" id="mV"></span></label><input type="range" id="m" min="0" max="4" step="0.01" value="1.5">
+          <select id="base" aria-label="Fee base" style="margin-top:6px"><option value="commit" selected>charged on committed capital</option><option value="nav">charged on net asset value</option></select></div>
+        <div class="field"><label class="f" for="c">Carried interest <span class="val" id="cV"></span></label><input type="range" id="c" min="0" max="30" step="0.5" value="20"></div>
+        <div class="field"><label class="f" for="h">Hurdle (preferred return) <span class="val" id="hV"></span></label><input type="range" id="h" min="0" max="12" step="0.25" value="8">
+          <label class="chk" style="margin-top:8px"><input type="checkbox" id="catch" checked><span>Full catch-up: once the hurdle is met the manager takes all profit until it holds its carried share of the total</span></label></div>
+        <div class="field"><label class="f" for="F">Fund life <span class="val" id="FV"></span></label><input type="range" id="F" min="5" max="15" step="1" value="10">
+          <p class="hint">At the end of the life the fund sells, the manager is paid, and the investor commits to a new fund on the same terms.</p></div>
+        <div class="field"><label class="f" for="x">Discount to net asset value when the fund sells <span class="val" id="xV"></span></label><input type="range" id="x" min="0" max="15" step="0.5" value="0">
+          <p class="hint">Zero means the sale is at the fund&rsquo;s own valuation. A forced sale into a weak market can fall short of it.</p></div>
+      </div>
+      <div class="card">
+        <p class="step">3. The direct route</p>
+        <p class="cardsub">The investor holds the asset itself, with no fund life</p>
+        <div class="field"><label class="f" for="d">Internal cost a year <span class="val" id="dV"></span></label><input type="range" id="d" min="0" max="1.5" step="0.01" value="0.18">
+          <p class="hint">Default 0.18 per cent, the average internal cost of large Canadian pension funds across all asset classes. Infrastructure teams cost more, so try 0.5.</p></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="stats">
+        <div><div class="k">Direct route</div><div class="v" id="sD">&mdash;</div><div class="s">net return a year</div></div>
+        <div><div class="k">Fund route</div><div class="v" id="sF">&mdash;</div><div class="s">net return a year</div></div>
+        <div><div class="k">Fee drag</div><div class="v" id="sB">&mdash;</div><div class="s">basis points a year, gross less fund net</div></div>
+        <div><div class="k">Lost to the fund route</div><div class="v" id="sL">&mdash;</div><div class="s">of the gross profit over the horizon</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2 id="t1">What 100 grows to</h2>
+        <svg id="c1" viewBox="0 0 1000 430" role="img" aria-label="Line chart of the value of 100 invested over the horizon, gross, held directly and through funds"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--muted)"></i>Gross asset, no costs</span><span><i class="ln" style="background:var(--sage)"></i>Held directly</span>
+          <span><i class="ln" style="background:var(--accent)"></i>Through funds, rolled every fund life</span><span><i class="dash"></i>Fund sells</span></div>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2 id="t2">Where the gross profit of one fund goes</h2>
+        <svg id="c2" viewBox="0 0 1000 170" role="img" aria-label="Stacked bar splitting one fund cycle's gross profit between investor, fees, carried interest and exit discount"></svg>
+        <p class="note" id="n2"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Net return against gross return</h2>
+        <svg id="c3" viewBox="0 0 1000 380" role="img" aria-label="Net annual return of the fund and direct routes against the gross return of the asset"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--sage)"></i>Held directly</span><span><i class="ln" style="background:var(--accent)"></i>Through funds</span><span><i class="dash"></i>Real figures: allowed returns, and the gross return implied by the observed net IRR</span></div>
+        <p class="note" id="n3"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">What the observed returns of infrastructure funds imply</p>
+      <p id="impl"></p>
+      <p><button type="button" class="go" id="useImpl">Set the asset return to this figure</button></p>
+      <p class="note">Andonov, Kr&auml;ussl and Rauh (2021) report the net internal rate of return of 210 infrastructure funds with performance data: mean 9.92 per cent, median 9.35 per cent, against a public market equivalent of 0.93 (Table 3, panel B, page 3897). The page finds the gross return that a fund on the terms you have set would need to earn to deliver that net figure over one fund life.
+         It is a calculation under a stated model and not a measurement, because real funds draw capital over several years, use leverage and are not all on the same terms.</p>
+      <p class="tag" style="margin-top:16px">The real figures, and where they come from</p>
+      <table class="t src"><thead><tr><th>Quantity</th><th>Value used</th><th>Source and page</th></tr></thead><tbody>
+        <tr><td>Allowed return on equity, regulated water</td><td>7.2 per cent a year, nominal, for 2025 to 2030</td><td>Independent Water Commission (2025), Final Report, page 323, citing Ofwat Price Review 2024</td></tr>
+        <tr><td>Draft cost of equity, electricity transmission and gas</td><td>7.64 and 8.04 per cent, including a 2 per cent inflation assumption</td><td>Independent Water Commission (2025), page 323, citing Ofgem RIIO-3 draft determination</td></tr>
+        <tr><td>Return quoted for comparable regulated markets</td><td>8 to 12 per cent on equity (midpoint 10)</td><td>Global Infrastructure Investor Association, as reported to the Commission, page 323. A trade body&rsquo;s figure</td></tr>
+        <tr><td>Management fee</td><td>1.5 to 2.0 per cent, stable across private funds; 1.0 to 2.0 per cent on committed capital for infrastructure funds</td><td>ILPA (2021), What&rsquo;s market in fund terms, page 4; StepStone Private Infrastructure Fund prospectus (SEC Form 424B3, 6 March 2025), page 11, note 2</td></tr>
+        <tr><td>Carried interest</td><td>About 15 to 20 per cent of net profits</td><td>StepStone prospectus, page 11, note 2; ILPA (2021), page 12: the whole-of-fund waterfall is the dominant structure</td></tr>
+        <tr><td>Hurdle</td><td>8 per cent, compounded</td><td>Market convention. A survey of fund terms reported by Dakota, citing Callan (2024), puts it at 84 per cent of funds; I have not seen the survey, so treat the 8 as a convention</td></tr>
+        <tr><td>Fund life</td><td>10 years by default, 10 to 12 with extensions</td><td>Andonov, Kr&auml;ussl and Rauh (2021), page 3888</td></tr>
+        <tr><td>Fund of funds, all-in annual cost</td><td>3.06 per cent (institutional class) of net assets, plus the carry of the funds below</td><td>StepStone prospectus, &ldquo;Summary of Fees and Expenses&rdquo;, pages 11 to 12. The 3.06 excludes the underlying funds&rsquo; performance fees</td></tr>
+        <tr><td>Internal cost of direct investing</td><td>0.18 per cent, all asset classes</td><td>Beath, Betermier, Flynn and Spehner (2021), Journal of Portfolio Management, page 2: 18 basis points internal against 121 external, with external costs including carried interest</td></tr>
+        <tr><td>Observed net return of infrastructure funds</td><td>Mean 9.92, median 9.35 per cent IRR; public market equivalent 0.93</td><td>Andonov, Kr&auml;ussl and Rauh (2021), Table 3, page 3897</td></tr>
+      </tbody></table>
+      <ul>
+        <li>The model takes the management fee out of the fund&rsquo;s assets and applies the hurdle to the value after fees. Real partnerships call fees on top of the commitment and measure the hurdle from each drawdown, so the timing differs, but the size of the drag is similar.</li>
+        <li>With catch-up, the net return rises very little over a range of gross returns just above the hurdle, because the manager takes the extra. The flat stretch on the third chart is the catch-up. Switch it off to see the difference.</li>
+        <li>The direct route is not free. An internal team has to be built, and the default cost is an average for all asset classes. Raise it and see how much of the advantage survives.</li>
+        <li>The fund route can be worth its cost if it gives access to assets that the investor could not otherwise reach or manage. The page measures the price, not the value.</li>
+      </ul>
+      <p class="q">Find the gross return at which carried interest is first paid on your chosen terms, and explain why a regulated asset earning its allowed return pays the management fee in every year but never pays carried interest.</p>
+      <p class="q">Set the fund life to 12 and the horizon to 36 years. State what happens to the gap between the two routes, and what that says about the match between a ten-year vehicle and a forty-year asset.</p>
+    </div>
+  </div>
+</div>
+
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>/* Fee-drag model for the RE07 Week 1 page. Mirrors fee_model.py; the two are checked against each other by check_fee_model.py. */
+(function(g){
+'use strict';
+function cycle(n,gr,m,base,c,h,catchup,x){
+  var nav=100,fees=0,i;
+  for(i=0;i<n;i++){var fee=base==='commit'?m*100:m*nav; nav=nav*(1+gr)-fee; fees+=fee; if(nav<0)nav=0;}
+  var navg=100*Math.pow(1+gr,n), v=nav*(1+x), H=100*Math.pow(1+h,n), carry=0;
+  if(v>H){carry=catchup?Math.min(v-H,c*(v-100)):c*(v-H);} if(carry<0)carry=0;
+  return {nav:nav,navg:navg,v:v,carry:carry,proceeds:v-carry,fees:fees,feesFv:navg-nav,exitEffect:nav*x};
+}
+/* Wealth path of the fund route: one value per year 0..T, valued at net asset value inside a cycle and after carry at each exit. */
+function route(p){
+  var T=p.T,F=p.F,k=Math.floor(T/F),r=T-k*F,lens=[],i;
+  for(i=0;i<k;i++)lens.push(F); if(r>0)lens.push(r);
+  var W=100,path=[100],exits=[],cycles=[],t=0;
+  lens.forEach(function(n){
+    var W0=W,nav=100,s,fee;
+    for(s=1;s<=n;s++){fee=p.base==='commit'?p.m*100:p.m*nav; nav=nav*(1+p.g)-fee; if(nav<0)nav=0; t++; if(s<n)path.push(W0*nav/100);}
+    var cy=cycle(n,p.g,p.m,p.base,p.c,p.h,p.catchup,p.x); W=W0*cy.proceeds/100; path.push(W); exits.push(t); cycles.push({n:n,cy:cy});
+  });
+  var gross=100*Math.pow(1+p.g,T), direct=100*Math.pow(1+p.g-p.d,T);
+  function cagr(w){return w>0?Math.pow(w/100,1/T)-1:NaN;}
+  return {WFund:W,WDirect:direct,WGross:gross,cagrFund:cagr(W),cagrDirect:cagr(direct),dragBps:(p.g-cagr(W))*1e4,
+          leak:gross>100?1-(W-100)/(gross-100):NaN,path:path,exits:exits,cycles:cycles};
+}
+function impliedGross(target,F,m,base,c,h,catchup,x){
+  var lo=-0.05,hi=0.60,it,mid,cy,irr;
+  for(it=0;it<200;it++){mid=(lo+hi)/2; cy=cycle(F,mid,m,base,c,h,catchup,x);
+    irr=cy.proceeds>0?Math.pow(cy.proceeds/100,1/F)-1:-1; if(irr<target)lo=mid; else hi=mid;}
+  return (lo+hi)/2;
+}
+g.RE07=g.RE07||{}; g.RE07.fee={cycle:cycle,route:route,impliedGross:impliedGross};
+})(typeof window!=='undefined'?window:globalThis);
+</script>
+<script>
+(function(){
+var R=RE07, F=R.fee, fmt=R.fmt, $=function(id){return document.getElementById(id);};
+var ASSETS=[{k:'water',t:'Regulated water: Ofwat allowed return on equity, 2025 to 2030 (7.2%)',g:7.2},
+  {k:'elec',t:'Electricity transmission: Ofgem draft cost of equity, RIIO-3 (7.64%)',g:7.64},
+  {k:'gas',t:'Gas networks: Ofgem draft cost of equity, RIIO-3 (8.04%)',g:8.04},
+  {k:'giia',t:'Comparable markets quoted by the GIIA, midpoint of 8 to 12% (10%)',g:10},
+  {k:'cust',t:'My own figure (use the slider)',g:null}];
+var FUNDS=[{k:'mid',t:'Closed-end fund, mid-range terms: 1.5% on commitments, 20% carry over 8%',m:1.5,base:'commit',c:20,h:8,catchup:true,F:10},
+  {k:'top',t:'Closed-end fund, 2% and 20% over 8%',m:2,base:'commit',c:20,h:8,catchup:true,F:10},
+  {k:'low',t:'Lower-cost fund: 1.0% on commitments, 15% carry over 8%',m:1,base:'commit',c:15,h:8,catchup:true,F:10},
+  {k:'fof',t:'SEC-filed fund of funds: 3.06% a year on net assets, 20% carry over 8% below',m:3.06,base:'nav',c:20,h:8,catchup:true,F:10},
+  {k:'cust',t:'My own terms (use the sliders)',m:null}];
+var OBS={mean:9.92,median:9.35};
+var S={g:8,T:30,m:1.5,base:'commit',c:20,h:8,catchup:true,F:10,x:0,d:0.18};
+ASSETS.forEach(function(a){var o=document.createElement('option');o.value=a.k;o.textContent=a.t;$('aPre').appendChild(o);});
+FUNDS.forEach(function(a){var o=document.createElement('option');o.value=a.k;o.textContent=a.t;$('fPre').appendChild(o);});
+$('aPre').value='cust'; $('fPre').value='mid';
+function par(){return {T:S.T,F:S.F,g:S.g/100,m:S.m/100,base:S.base,c:S.c/100,h:S.h/100,catchup:S.catchup,x:-S.x/100,d:S.d/100};}
+function pctf(v,d){return isFinite(v)?fmt(v*100,d===undefined?2:d)+'%':'n/a';}
+function lineChart(){
+  var p=par(),r=F.route(p),T=S.T,W=1000,H=430,L=70,Rr=110,Tt=24,B=52,i,s='';
+  var gross=[],dir=[];for(i=0;i<=T;i++){gross.push(100*Math.pow(1+p.g,i));dir.push(100*Math.pow(1+p.g-p.d,i));}
+  var ymax=Math.max.apply(null,gross)*1.05,x=R.lin(0,T,L,W-Rr),y=R.lin(0,ymax,H-B,Tt);
+  R.niceTicks(0,ymax,6).forEach(function(t){s+='<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+(W-Rr)+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+Math.round(t)+'</text>';});
+  for(i=0;i<=T;i+=(T>=40?5:5)){s+='<text class="mut" x="'+x(i)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+i+'</text>';}
+  s+='<text class="mut" x="'+(W-Rr)+'" y="'+(H-8)+'" text-anchor="end" font-size="16">Years from the first commitment</text>';
+  r.exits.forEach(function(e){if(e<T)s+='<line x1="'+x(e)+'" y1="'+Tt+'" x2="'+x(e)+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/>';});
+  function path(a,col,w){var d='';a.forEach(function(v,k){d+=(k?'L':'M')+x(k).toFixed(1)+' '+y(v).toFixed(1);});return '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linejoin="round"/>';}
+  s+=path(gross,'var(--muted)',2.5)+path(dir,'var(--sage)',3.5)+path(r.path,'var(--accent)',3.5);
+  function lab(v,t,col,dy){s+='<text x="'+(W-Rr+8)+'" y="'+(y(v)+5+(dy||0))+'" font-size="16" style="fill:'+col+';font-weight:700">'+t+'</text>';}
+  lab(gross[T],Math.round(gross[T]),'var(--muted)',-14); lab(dir[T],Math.round(dir[T]),'var(--sage)',0); lab(r.path[T],Math.round(r.path[T]),'var(--accent)',16);
+  $('c1').innerHTML=s;
+  $('t1').textContent='What 100 grows to over '+T+' years';
+  $('n1').textContent='Held directly the investor ends with '+Math.round(r.WDirect)+', through funds '+Math.round(r.WFund)+', against '+Math.round(r.WGross)+' for the asset before any costs. The fund route loses '+Math.round(r.WDirect-r.WFund)+' to the direct route, and each fund sale resets the clock.';
+  return r;
+}
+function stats(r){
+  $('sD').textContent=pctf(r.cagrDirect); $('sF').textContent=pctf(r.cagrFund); $('sB').textContent=isFinite(r.dragBps)?Math.round(r.dragBps):'n/a'; $('sL').textContent=isFinite(r.leak)?Math.round(r.leak*100)+'%':'n/a';
+}
+function stack(){
+  var p=par(),cy=F.cycle(p.F,p.g,p.m,p.base,p.c,p.h,p.catchup,p.x),gp=cy.navg-100,inv=cy.proceeds-100,fees=cy.feesFv,carry=cy.carry,ex=Math.max(0,-cy.exitEffect);
+  var segs=[['Investor',Math.max(inv,0),'var(--sage)'],['Management fees',fees,'var(--clay)'],['Carried interest',carry,'var(--accent)'],['Exit discount',ex,'var(--slate)']];
+  var tot=segs.reduce(function(a,b){return a+b[1];},0)||1,W=1000,L=40,Rr=40,xx=L,s='';
+  segs.forEach(function(sg){var w=sg[1]/tot*(W-L-Rr); if(w<=0)return; s+='<rect x="'+xx+'" y="20" width="'+w+'" height="60" fill="'+sg[2]+'"/>';
+    if(w>70)s+='<text x="'+(xx+w/2)+'" y="56" text-anchor="middle" font-size="17" style="fill:#fff;font-weight:700">'+Math.round(sg[1]/tot*100)+'%</text>'; xx+=w;});
+  var lx=L,ly=112;segs.forEach(function(sg){if(sg[1]<=0)return; s+='<rect x="'+lx+'" y="'+(ly-12)+'" width="13" height="13" fill="'+sg[2]+'"/><text x="'+(lx+20)+'" y="'+ly+'" font-size="16">'+sg[0]+', '+fmt(sg[1],1)+'</text>'; lx+=230;});
+  $('c2').innerHTML=s;
+  $('t2').textContent='Where the gross profit of one '+p.F+'-year fund goes';
+  $('n2').textContent='On 100 committed the asset alone would earn '+fmt(gp,1)+' over '+p.F+' years. The investor keeps '+fmt(Math.max(inv,0),1)+'. Fees are shown at their future value, because a fee paid in year 1 is a fee on the compounding of every later year.'
+    +(carry<=0?' No carried interest is paid, because the return after fees does not reach the hurdle.':'');
+}
+function curves(){
+  var p=par(),W=1000,H=380,L=70,Rr=30,Tt=24,B=52,gs=[],fn=[],dn=[],i,s='';
+  for(var gv=2;gv<=16.0001;gv+=0.25){var q=JSON.parse(JSON.stringify(p));q.g=gv/100;var r=F.route(q);gs.push(gv);fn.push(r.cagrFund*100);dn.push(r.cagrDirect*100);}
+  var x=R.lin(2,16,L,W-Rr),y=R.lin(0,16,H-B,Tt);
+  R.niceTicks(0,16,8).forEach(function(t){s+='<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+(W-Rr)+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+t+'%</text>';});
+  [2,4,6,8,10,12,14,16].forEach(function(t){s+='<text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+t+'%</text>';});
+  s+='<text class="mut" x="'+(W-Rr)+'" y="'+(H-8)+'" text-anchor="end" font-size="16">Gross return of the asset</text>';
+  s+='<line x1="'+x(2)+'" y1="'+y(2)+'" x2="'+x(16)+'" y2="'+y(16)+'" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 5"/>';
+  var gi=F.impliedGross(OBS.mean/100,p.F,p.m,p.base,p.c,p.h,p.catchup,p.x)*100;
+  [[7.2,'Water 7.2'],[8.04,'Gas 8.04'],[10,'GIIA 10'],[gi,'Implied '+fmt(gi,1)]].forEach(function(m,k){if(m[0]<2||m[0]>16)return;
+    s+='<line x1="'+x(m[0])+'" y1="'+Tt+'" x2="'+x(m[0])+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="5 5"/><text x="'+(k===0?x(m[0])-5:x(m[0])+5)+'" y="'+(Tt+14+(k%2)*18)+'" text-anchor="'+(k===0?'end':'start')+'" font-size="15" class="mut">'+m[1]+'</text>';});
+  function path(a,col){var d='';a.forEach(function(v,k){d+=(k?'L':'M')+x(gs[k]).toFixed(1)+' '+y(v).toFixed(1);});return '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="3.5" stroke-linejoin="round"/>';}
+  s+=path(dn,'var(--sage)')+path(fn,'var(--accent)');
+  var cx=R.lin(0,1,0,1),cur=F.route(p);
+  s+='<circle cx="'+x(S.g)+'" cy="'+y(cur.cagrFund*100)+'" r="6" fill="var(--accent)"/><circle cx="'+x(S.g)+'" cy="'+y(cur.cagrDirect*100)+'" r="6" fill="var(--sage)"/>';
+  $('c3').innerHTML=s;
+  $('n3').textContent='The two dots are the current setting. The fund line bends where the hurdle is reached and carried interest begins, and flattens over the catch-up. The gap to the direct line is the fee drag.';
+  return gi;
+}
+function implied(gi){
+  var p=par(),gm=F.impliedGross(OBS.median/100,p.F,p.m,p.base,p.c,p.h,p.catchup,p.x)*100;
+  $('impl').innerHTML='On the terms you have set, an infrastructure fund must earn a gross return of <b>'+fmt(gi,1)+'% a year</b> over its '+p.F+'-year life to deliver the observed average net IRR of 9.92 per cent, and <b>'+fmt(gm,1)+'%</b> to deliver the median of 9.35 per cent. '
+    +'The allowed returns on equity for regulated networks are 7.2 to 8.0 per cent. The difference has to come from somewhere other than a stable regulated yield: leverage, development risk, merchant exposure, or higher-risk assets.';
+  $('useImpl').onclick=function(){S.g=Math.round(gi*20)/20; $('aPre').value='cust'; sync(); render();};
+}
+function sync(){
+  $('g').value=S.g;$('T').value=S.T;$('m').value=S.m;$('base').value=S.base;$('c').value=S.c;$('h').value=S.h;$('catch').checked=S.catchup;$('F').value=S.F;$('x').value=S.x;$('d').value=S.d;
+  $('gV').textContent=fmt(S.g,2)+'%';$('mV').textContent=fmt(S.m,2)+'%';$('cV').textContent=fmt(S.c,1)+'%';$('hV').textContent=fmt(S.h,2)+'%';$('FV').textContent=S.F+' years';$('xV').textContent=fmt(S.x,1)+'%';$('dV').textContent=fmt(S.d,2)+'%';
+}
+function render(){var r=lineChart();stats(r);stack();var gi=curves();implied(gi);}
+function bind(id,key,num){$(id).addEventListener('input',function(){S[key]=num?+this.value:this.value; if(key==='g')$('aPre').value='cust'; if(['m','c','h','F','base'].indexOf(key)>=0)$('fPre').value='cust'; sync();render();});}
+bind('g','g',1);bind('T','T',1);bind('m','m',1);bind('base','base',0);bind('c','c',1);bind('h','h',1);bind('F','F',1);bind('x','x',1);bind('d','d',1);
+$('catch').addEventListener('change',function(){S.catchup=this.checked;$('fPre').value='cust';render();});
+$('aPre').addEventListener('change',function(){var a=ASSETS.filter(function(z){return z.k===$('aPre').value;})[0]; if(a&&a.g!==null){S.g=a.g;} sync();render();});
+$('fPre').addEventListener('change',function(){var f=FUNDS.filter(function(z){return z.k===$('fPre').value;})[0]; if(f&&f.m!==null){S.m=f.m;S.base=f.base;S.c=f.c;S.h=f.h;S.catchup=f.catchup;S.F=f.F;} sync();render();});
+sync();render();
+})();
+</script>
+</body>
+</html>

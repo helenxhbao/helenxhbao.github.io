@@ -9,6 +9,26 @@
      "kind": "PDF"
     }
    ]
+  },
+  {
+   "title": "Interactive pages",
+   "items": [
+    {
+     "label": "Bundling Build and Operate: Hart's Incomplete-Contract Model",
+     "href": "bundling-build-and-operate.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Sharing Demand Risk in a Concession: Engel, Fischer and Galetovic",
+     "href": "sharing-demand-risk.html",
+     "kind": "web page"
+    },
+    {
+     "label": "The Price of Private Finance: A Public Sector Comparator",
+     "href": "price-of-private-finance.html",
+     "kind": "web page"
+    }
+   ]
   }
  ]
 }

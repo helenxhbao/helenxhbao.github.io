@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search, Dealers and the Bid-Ask Spread</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.legend i.dash{ border-radius:0; height:0; width:18px; border-top:2px dashed var(--muted); vertical-align:4px; background:none; }
+.pick{ margin-bottom:12px; }
+.src th{ text-align:left !important; } .src td{ text-align:left !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Search, dealers and the bid&ndash;ask spread: what does immediacy cost?</h1>
+  <p class="lede">An unlisted asset does not trade on an exchange. An owner who wants to sell has to find a buyer, and the buyer has to find the owner. Duffie, G&acirc;rleanu and Pedersen (2005) built the simplest model of such a market, in which investors meet one another at random and a dealer, when found, will buy at a bid and sell at an ask. The price of the asset falls below the value of its income because waiting is costly, and the dealer's spread is the part of that cost that an owner pays to avoid waiting longer. Set how easily investors find one another and a dealer, and how much bargaining power the dealer has, and see the prices, the spread and the waiting time.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 5. The model, the steady-state masses and the three prices are Duffie, G&acirc;rleanu and Pedersen (2005), <i>Econometrica</i> 73(6), 1815&ndash;1847, as in the NBER working paper 10816 of November 2004, equations 3 to 6 and Theorem 2 (equations 11 to 13), pages 9 to 13 (printed page equals PDF page less two). The asset is a consol paying 1 a year, so the frictionless price is 1/<i>r</i>. The page covers the case in which owners are fewer than high-type investors (Condition 1, the paper's natural case). It is a teaching illustration with generic inputs, not an estimate for any market. It was computed twice, in Python and in this page, and the two agree; the Python was also checked against the value-function system the paper solves and against the stationary distribution of the investor types.</p>
+  <hr class="rule">
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. How easily the asset trades</p>
+        <p class="cardsub">Contacts are random, and counted per year</p>
+        <div class="field pick"><label class="f" for="pre">Start from</label><select id="pre"></select></div>
+        <div class="field"><label class="f" for="rho">An investor finds a dealer <span class="val" id="rhoV"></span></label><input type="range" id="rho" min="0" max="40" step="0.5" value="2">
+          <p class="hint">Times a year. Zero removes the dealers: investors trade only with each other.</p></div>
+        <div class="field"><label class="f" for="lam">An investor meets another investor <span class="val" id="lamV"></span></label><input type="range" id="lam" min="0" max="40" step="0.1" value="1"></div>
+        <div class="field"><label class="f" for="z">Dealer's bargaining power <span class="val" id="zV"></span></label><input type="range" id="z" min="0" max="100" step="1" value="50">
+          <p class="hint">At 100 per cent the dealer takes the whole gain from each trade. The paper treats this as a monopolist.</p></div>
+        <div class="field"><label class="f" for="q">Seller's power against another investor <span class="val" id="qV"></span></label><input type="range" id="q" min="0" max="100" step="1" value="50"></div>
+      </div>
+      <div class="card">
+        <p class="step">2. The asset and its owners</p>
+        <p class="cardsub">Why some owners want to sell</p>
+        <div class="field"><label class="f" for="d">Cost of holding for a low-type owner <span class="val" id="dV"></span></label><input type="range" id="d" min="10" max="90" step="1" value="50">
+          <p class="hint">As a share of the asset's income. It stands for a need for cash, a high cost of funds or a tax disadvantage.</p></div>
+        <div class="field"><label class="f" for="lu">Chance a low type turns high, per year <span class="val" id="luV"></span></label><input type="range" id="lu" min="0.5" max="6" step="0.1" value="2"></div>
+        <div class="field"><label class="f" for="ld">Chance a high type turns low, per year <span class="val" id="ldV"></span></label><input type="range" id="ld" min="0.2" max="4" step="0.1" value="1"></div>
+        <div class="field"><label class="f" for="s">Share of investors who own the asset <span class="val" id="sV"></span></label><input type="range" id="s" min="5" max="65" step="1" value="40"></div>
+        <div class="field"><label class="f" for="r">Interest rate <span class="val" id="rV"></span></label><input type="range" id="r" min="2" max="10" step="0.25" value="5"></div>
+      </div>
+    </div>
+    <div>
+      <div class="stats">
+        <div><div class="k">Ask and bid</div><div class="v" id="s1">&mdash;</div><div class="s" id="s1s">price from a dealer, price to a dealer</div></div>
+        <div><div class="k">Bid&ndash;ask spread</div><div class="v" id="s2">&mdash;</div><div class="s">per cent of the mid price</div></div>
+        <div><div class="k">Illiquidity discount</div><div class="v" id="s3">&mdash;</div><div class="s">of the frictionless price, on a trade between investors</div></div>
+        <div><div class="k">Expected wait to sell</div><div class="v" id="s4">&mdash;</div><div class="s">months, for an owner who wants out</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2>Prices against how easily a dealer is found</h2>
+        <svg id="c1" viewBox="0 0 1000 400" role="img" aria-label="Line chart of the ask, bid and investor-to-investor prices against the number of times a year an investor finds a dealer"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--clay)"></i>Ask</span><span><i class="ln" style="background:var(--accent)"></i>Between investors</span><span><i class="ln" style="background:var(--slate)"></i>Bid</span><span><i class="dash"></i>No frictions: 1/<i>r</i></span></div>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>The spread, for dealers with different bargaining power</h2>
+        <svg id="c2" viewBox="0 0 1000 400" role="img" aria-label="Line chart of the bid-ask spread against dealer contact intensity for four levels of dealer bargaining power"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--sage)"></i>Dealer power 20%</span><span><i class="ln" style="background:var(--slate)"></i>50%</span><span><i class="ln" style="background:var(--clay)"></i>90%</span><span><i class="ln" style="background:var(--accent)"></i>100%, a monopolist</span></div>
+        <p class="note" id="n2"></p>
+      </div>
+    </div>
+  </div>
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">What the model says</p>
+      <p>Investors hold at most one unit of an asset that pays 1 a year. Some are of a high type and enjoy the asset fully. Others are of a low type and bear a holding cost, so they would like to sell, and the high types who do not own it would like to buy. Types change at random. A trade between a low-type owner and a high-type non-owner is worth making, but only if they meet, and meetings are random. A dealer who is found can take either side, and lays off the position at once on an inter-dealer market, so the dealer holds no inventory and earns only the spread. The price an owner can expect is the present value of the income, 1/<i>r</i>, less an illiquidity discount that grows with the cost of holding and with the time it takes to find a counterparty.</p>
+      <p>Three results are worth taking from the page. First, the discount is much larger than the dealer's spread. Most of what illiquidity costs is the cost of waiting, which a dealer shortens but does not remove, and the spread is only the price of having it shortened. Second, the spread falls as investors find one another or a dealer more easily, because each investor's outside option, the next counterparty, improves, but only when the dealer has less than all of the bargaining power. Third, with a monopolist dealer (100 per cent) the spread rises with the dealer's reach, because a dealer who is found more often can charge for it. The comparison with brokerage and arranging is direct: an adviser or arranger is paid for shortening a search, and the price of that service depends on how many alternatives the client has.</p>
+      <p class="tag" style="margin-top:14px">Where the numbers and pages come from</p>
+      <table class="t src"><thead><tr><th>Item</th><th>Source</th></tr></thead><tbody>
+        <tr><td>The model: investors of four types (high or low, owner or not), random meetings with intensity &lambda;, dealers found with intensity &rho;, a holding cost &delta; for low types, type switches at &lambda;<sub>u</sub> and &lambda;<sub>d</sub></td><td>Duffie, G&acirc;rleanu and Pedersen (2005), NBER Working Paper 10816, pages 5 to 10 (printed page equals PDF page less two). The published version is <i>Econometrica</i> 73(6), 1815&ndash;1847</td></tr>
+        <tr><td>Steady-state masses of the four types</td><td>Same, equations 3 to 6 and Proposition 1, pages 9 to 10. Under Condition 1 (<i>s</i> &lt; &lambda;<sub>u</sub>/(&lambda;<sub>u</sub> + &lambda;<sub>d</sub>)) the mass of low-type owners solves a quadratic, which I solved in closed form</td></tr>
+        <tr><td>Ask <i>A</i>, bid <i>B</i> and inter-investor price <i>P</i></td><td>Same, Theorem 2, equations 11 to 13, page 13. <i>P</i> = 1/<i>r</i> &minus; (&delta;/<i>r</i>)((1 &minus; <i>q</i>)<i>r</i> + &lambda;<sub>d</sub> + 2&lambda;&mu;<sub>lo</sub>(1 &minus; <i>q</i>)) / <i>D</i>, with <i>D</i> = <i>r</i> + &lambda;<sub>d</sub> + 2&lambda;&mu;<sub>lo</sub>(1 &minus; <i>q</i>) + &lambda;<sub>u</sub> + 2&lambda;&mu;<sub>hn</sub><i>q</i> + &rho;(1 &minus; <i>z</i>). The ask and the bid have 0 and <i>zr</i> in the numerator in place of (1 &minus; <i>q</i>)<i>r</i></td></tr>
+        <tr><td>The spread falls in &lambda; and, for dealer power below 1, in &rho;; with a monopolist (<i>z</i> = 1) it rises in &rho;</td><td>Same, pages 13 to 14. The chart reproduces both results</td></tr>
+        <tr><td>Expected wait</td><td>Mine. An owner of low type sells at rate &rho; + 2&lambda;&mu;<sub>hn</sub>, because owners are on the short side of the market under Condition 1 and are not rationed, so the expected wait is the inverse of that rate</td></tr>
+        <tr><td>Values for the presets</td><td>Mine and generic: the paper's own numerical illustration is in its later sections, which this page does not reproduce. No preset is calibrated to an asset</td></tr>
+      </tbody></table>
+      <p class="note">Every investor has linear utility and holds one unit or none. There is no price impact, no risk aversion, no information problem and no entry of dealers, and the dealer has no inventory cost, which is why the spread is so small. The paper's later sections add risk-averse investors and endogenous search. An unlisted infrastructure stake has far fewer potential buyers than any setting on this page, and the preset for it is a guess at the order of magnitude and not an estimate.</p>
+      <p class="q">With the generic settings, raise the dealer's reach from 2 to 20 contacts a year. Report what happens to the spread and to the illiquidity discount, and say which of the two the dealer is mainly being paid to reduce.</p>
+      <p class="q">Set the dealer's bargaining power to 100 per cent and repeat. Report the direction in which the spread moves and say why a dealer with all the power gains from being found more often.</p>
+    </div>
+  </div>
+</div>
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>/* Week 5 teaching models (JavaScript copy of models_w5.py; check_models_w5.py compares the two). */
+(function(g){
+'use strict';
+var R=g.RE07=g.RE07||{}, W=R.w5={};
+/* 1. Duffie, Garleanu and Pedersen (2005): search, bargaining and market makers (Condition 1) */
+function dgp(r,delta,lu,ld,lam,rho,s,q,z){
+  var H=lu/(lu+ld); if(!(s<H)) return null;
+  var b=2*lam*(H-s)+rho+lu+ld, mlo=(lam===0)?ld*s/b:(-b+Math.sqrt(b*b+8*lam*ld*s))/(4*lam), mho=s-mlo, mhn=H-mho, mln=1-mho-mhn-mlo;
+  var D=r+ld+2*lam*mlo*(1-q)+lu+2*lam*mhn*q+rho*(1-z);
+  var A=1/r-(delta/r)*(ld+2*lam*mlo*(1-q))/D, B=1/r-(delta/r)*(z*r+ld+2*lam*mlo*(1-q))/D, P=1/r-(delta/r)*((1-q)*r+ld+2*lam*mlo*(1-q))/D;
+  var sell=rho+2*lam*mhn;
+  return {mu_lo:mlo,mu_hn:mhn,mu_ho:mho,mu_ln:mln,A:A,B:B,P:P,spread:A-B,spread_pct:(A-B)/((A+B)/2),discount:1/r-P,discount_pct:(1/r-P)*r,wait_months:12/sell,
+          dealer_rev:rho*mlo*(A-B),D:D,dealer_vol:rho*mlo,inv_vol:2*lam*mhn*mlo};
+}
+W.dgp=dgp;
+/* 2. Berk and Green (2004): rational delegated management */
+function bgSize(ft,fee,k){ return Math.max(0,2*(ft-fee)/k); }
+function bgManagerIncome(ft,fee,k){ var Q=bgSize(ft,fee,k); return [fee*Q, ft>0?ft*ft/(2*k):0]; }
+function bgWeight(t,g,kappa){ return kappa/(g+t*kappa); }
+function bgPath(a,f0,g,kappa,fee,k,shocks){
+  var out=[], f=f0, Q=bgSize(f,fee,k), t, e, Rr, cprev, r, Qn;
+  for(t=1;t<=shocks.length;t++){
+    if(Q<=0) break;
+    e=shocks[t-1]; Rr=a+e/Math.sqrt(kappa); cprev=k*Q/2+fee; r=Rr-cprev;
+    f=f+bgWeight(t,g,kappa)*(Rr-f); Qn=bgSize(f,fee,k);
+    out.push([t,Rr,r,f,Qn]); Q=Qn;
+  }
+  return out;
+}
+function mulberry32(seed){ var a=seed|0; return function(){ a=a+0x6D2B79F5|0; var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function normals(seed,n){ var u=mulberry32(seed), out=[], a, b, rr; while(out.length<n){ a=u(); b=u(); if(a<1e-12) a=1e-12; rr=Math.sqrt(-2*Math.log(a)); out.push(rr*Math.cos(2*Math.PI*b)); out.push(rr*Math.sin(2*Math.PI*b)); } return out.slice(0,n); }
+function bgPopulation(f0,h,kappa,fee,k,nfunds,T,seed){
+  var g=1/(h*h), z=normals(seed,nfunds*(T+1)), paths=[], i, t, rows=[], rs, n, sizes, both, ma, mb, va, vb, corr, p, j, sr, sR, ss, x, y;
+  for(i=0;i<nfunds;i++) paths.push(bgPath(f0+h*z[i*(T+1)],f0,g,kappa,fee,k,z.slice(i*(T+1)+1,(i+1)*(T+1))));
+  for(t=1;t<=T;t++){
+    n=0; sr=0; sR=0; ss=0; both=[];
+    for(j=0;j<paths.length;j++){ p=paths[j]; if(p.length>=t){ n++; sr+=p[t-1][2]; sR+=p[t-1][1]; ss+=(t===1?bgSize(f0,fee,k):p[t-2][4]); if(p.length>=t+1) both.push([p[t-1][2],p[t][2]]); } }
+    if(n===0){ rows.push({t:t,n:0,r:NaN,R:NaN,size:NaN,corr:NaN}); continue; }
+    corr=NaN;
+    if(both.length>2){ ma=0; mb=0; both.forEach(function(q){ma+=q[0];mb+=q[1];}); ma/=both.length; mb/=both.length; va=0; vb=0; sr_=0; var cv=0;
+      both.forEach(function(q){ x=q[0]-ma; y=q[1]-mb; va+=x*x; vb+=y*y; cv+=x*y; }); if(va>0&&vb>0) corr=cv/Math.sqrt(va*vb); }
+    rows.push({t:t,n:n,r:sr/n,R:sR/n,size:ss/n,corr:corr});
+  }
+  return {paths:paths,rows:rows};
+}
+var sr_;
+W.bgSize=bgSize; W.bgManagerIncome=bgManagerIncome; W.bgWeight=bgWeight; W.bgPath=bgPath; W.normals=normals; W.bgPopulation=bgPopulation;
+/* 3. Franzoni (1999): certification with liability */
+function cert(b,h,s,alpha,P,N){
+  var aP=alpha*P, K=N/(N+1)*(b-s)*aP/(aP-s), cbar=(aP-s)/aP, regime, Q, fee, c, x, a, profit;
+  if(K<=1){ regime='partial'; Q=K; fee=s+(b-s)/(N+1); c=b-fee; x=s/(aP-s)*c/(1-c); a=c/b; profit=(b-s)*(b-s)*aP/((N+1)*(N+1)*(aP-s)); }
+  else { regime='full'; Q=1; fee=b-cbar; c=cbar; x=1; a=cbar/b; profit=(fee-s)/N; }
+  var nc=x*(1-c), through=(1-a)*nc, Wl=(b*c-c*c/2)+through*b-(c+nc)*s*a-through*h;
+  return {regime:regime,Q:Q,fee:fee,c:c,x:x,a:a,profit:profit,nc:nc,through:through,W:Wl,K:K,cbar:cbar,tested:c+nc,first_best:b*b/2};
+}
+W.cert=cert;
+})(window);
+</script>
+<script>/* Small SVG chart helpers for the Week 5 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+(function(g){
+'use strict';
+var R=g.RE07;
+function axisY(s,y,L,Rr,lo,hi,n,fmtf){R.niceTicks(lo,hi,n).forEach(function(t){s.push('<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+Rr+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+(fmtf?fmtf(t):t)+'</text>');});}
+/* bars: [{label, value, color, note}] ; one bar per category */
+function bars(el,items,o){
+  o=o||{}; var W=1000,H=o.h||380,L=80,Rr=W-30,T=30,B=70,lo=Math.min(0,o.lo!==undefined?o.lo:Math.min.apply(null,items.map(function(d){return d.value;}))*1.15),
+      hi=o.hi!==undefined?o.hi:Math.max.apply(null,items.map(function(d){return d.value;}))*1.18, y=R.lin(lo,hi,H-B,T), s=[], n=items.length, bw=(Rr-L)/n;
+  axisY(s,y,L,Rr,lo,hi,5,o.fmt);
+  s.push('<line class="axis" x1="'+L+'" y1="'+y(0)+'" x2="'+Rr+'" y2="'+y(0)+'"/>');
+  items.forEach(function(d,k){var x0=L+k*bw+bw*0.2,w=bw*0.6,y0=y(Math.max(d.value,0)),y1=y(Math.min(d.value,0));
+    s.push('<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+Math.max(1,y1-y0)+'" fill="'+d.color+'"/>');
+    s.push('<text x="'+(x0+w/2)+'" y="'+(d.value>=0?y0-8:y1+20)+'" text-anchor="middle" font-size="18" font-weight="700">'+(o.fmt?o.fmt(d.value):R.fmt(d.value,1))+'</text>');
+    s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+26)+'" text-anchor="middle" font-size="16">'+d.label+'</text>');
+    if(d.sub) s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+46)+'" text-anchor="middle" font-size="14">'+d.sub+'</text>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+}
+/* lines: series [{pts:[[x,y]], color, width, dash, label}] */
+function lines(el,series,o){
+  var W=1000,H=o.h||420,L=80,Rr=W-30,T=26,B=60,xs=[],ys=[]; series.forEach(function(se){se.pts.forEach(function(p){xs.push(p[0]);ys.push(p[1]);});});
+  var x0=o.x0!==undefined?o.x0:Math.min.apply(null,xs),x1=o.x1!==undefined?o.x1:Math.max.apply(null,xs),y0=o.y0!==undefined?o.y0:Math.min.apply(null,ys),y1=o.y1!==undefined?o.y1:Math.max.apply(null,ys);
+  var x=R.lin(x0,x1,L,Rr),y=R.lin(y0,y1,H-B,T),s=[];
+  axisY(s,y,L,Rr,y0,y1,6,o.fy);
+  R.niceTicks(x0,x1,8).forEach(function(t){s.push('<text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+(o.fx?o.fx(t):t)+'</text>');});
+  s.push('<text class="mut" x="'+Rr+'" y="'+(H-8)+'" text-anchor="end" font-size="16">'+(o.xl||'')+'</text>');
+  (o.bands||[]).forEach(function(b){s.push('<rect x="'+x(b[0])+'" y="'+T+'" width="'+(x(b[1])-x(b[0]))+'" height="'+(H-B-T)+'" fill="'+b[2]+'" opacity="0.5"/>');if(b[3])s.push('<text class="mut" x="'+((x(b[0])+x(b[1]))/2)+'" y="'+(T+18)+'" text-anchor="middle" font-size="15">'+b[3]+'</text>');});
+  (o.hlines||[]).forEach(function(h){s.push('<line x1="'+L+'" y1="'+y(h[0])+'" x2="'+Rr+'" y2="'+y(h[0])+'" stroke="'+(h[2]||'var(--muted)')+'" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(Rr-4)+'" y="'+(y(h[0])-6)+'" text-anchor="end" font-size="15">'+h[1]+'</text>');});
+  (o.vlines||[]).forEach(function(v){s.push('<line x1="'+x(v[0])+'" y1="'+T+'" x2="'+x(v[0])+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(x(v[0])+6)+'" y="'+(H-B-8)+'" font-size="15">'+v[1]+'</text>');});
+  series.forEach(function(se){var d='';se.pts.forEach(function(p,k){d+=(k?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1);});
+    s.push('<path d="'+d+'" fill="none" stroke="'+se.color+'" stroke-width="'+(se.width||3.5)+'"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' stroke-linejoin="round"/>');});
+  (o.dots||[]).forEach(function(p){s.push('<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="6" fill="'+p[2]+'" stroke="var(--panel)" stroke-width="2"/>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+  return {x:x,y:y};
+}
+R.ch={bars:bars,lines:lines};
+})(window);
+</script>
+<script>
+(function(){
+var R=RE07, W=R.w5, $=function(id){return document.getElementById(id);}, fmt=R.fmt;
+var PRE=[{k:'gen',t:'A generic unlisted asset: dealers found twice a year',rho:2,lam:1,z:50,q:50,d:50,lu:2,ld:1,s:40,r:5},
+  {k:'liq',t:'A liquid market: dealers found every few days',rho:40,lam:20,z:20,q:50,d:50,lu:2,ld:1,s:40,r:5},
+  {k:'inf',t:'An unlisted infrastructure stake: few dealers, few buyers',rho:0.5,lam:0.3,z:70,q:50,d:50,lu:2,ld:1,s:40,r:5},
+  {k:'mon',t:'A monopolist dealer',rho:2,lam:1,z:100,q:50,d:50,lu:2,ld:1,s:40,r:5},
+  {k:'nod',t:'No dealers: investors only meet each other',rho:0,lam:1,z:50,q:50,d:50,lu:2,ld:1,s:40,r:5},
+  {k:'cus',t:'My own settings (use the sliders)',rho:null}];
+PRE.forEach(function(p){var o=document.createElement('option');o.value=p.k;o.textContent=p.t;$('pre').appendChild(o);}); $('pre').value='gen';
+var S={rho:2,lam:1,z:50,q:50,d:50,lu:2,ld:1,s:40,r:5}, KEYS=['rho','lam','z','q','d','lu','ld','s','r'];
+function go(o){o=o||{};return W.dgp(S.r/100,S.d/100,S.lu,S.ld,S.lam,o.rho!==undefined?o.rho:S.rho,S.s/100,S.q/100,(o.z!==undefined?o.z:S.z)/100);}
+function clampS(){var H=S.lu/(S.lu+S.ld)*100, mx=Math.floor(H-1); if(S.s>mx){S.s=mx;$('s').value=mx;}}
+function draw(){
+  clampS();
+  $('rhoV').textContent=fmt(S.rho,1)+' a year'; $('lamV').textContent=fmt(S.lam,1)+' a year'; $('zV').textContent=S.z+'%'; $('qV').textContent=S.q+'%'; $('dV').textContent=S.d+'%';
+  $('luV').textContent=fmt(S.lu,1); $('ldV').textContent=fmt(S.ld,1); $('sV').textContent=S.s+'%'; $('rV').textContent=fmt(S.r,2)+'%';
+  var m=go(); $('s1').textContent=fmt(m.A,2)+' / '+fmt(m.B,2); $('s1s').textContent='frictionless price '+fmt(100/S.r,2)+'; between investors '+fmt(m.P,2);
+  $('s2').textContent=fmt(m.spread_pct*100,2)+'%'; $('s3').textContent=fmt(m.discount_pct*100,1)+'%'; $('s4').textContent=fmt(m.wait_months,1);
+  var a=[],p=[],b=[],x; for(x=0;x<=30;x+=0.5){var o=go({rho:x});a.push([x,o.A]);p.push([x,o.P]);b.push([x,o.B]);}
+  var ymin=Math.floor(Math.min(b[0][1],p[0][1])*0.98), ymax=Math.ceil(100/S.r);
+  R.ch.lines($('c1'),[{pts:a,color:'var(--clay)',width:3},{pts:p,color:'var(--accent)',width:3},{pts:b,color:'var(--slate)',width:3}],{x0:0,x1:30,y0:ymin,y1:ymax,xl:'Times a year that an investor finds a dealer',fy:function(t){return Math.round(t);},fx:function(t){return Math.round(t);},hlines:[[100/S.r,'no frictions: '+fmt(100/S.r,1)]],dots:[[Math.min(S.rho,30),m.P,'var(--ink)']]});
+  $('n1').textContent='At '+fmt(S.rho,1)+' dealer contacts a year, an owner who wants to sell gets '+fmt(m.B,2)+' from a dealer, a buyer pays '+fmt(m.A,2)+', and two investors who find each other settle at '+fmt(m.P,2)+', which is '+fmt(m.discount_pct*100,1)+' per cent below the value of the income. An owner waits about '+fmt(m.wait_months,1)+' months to sell. The dot marks your settings.';
+  var ss=[['var(--sage)',20],['var(--slate)',50],['var(--clay)',90],['var(--accent)',100]].map(function(c){var pts=[],xx;for(xx=0;xx<=30;xx+=0.5) pts.push([xx,go({rho:xx,z:c[1]}).spread_pct*100]);return {pts:pts,color:c[0],width:c[1]===100?3.5:2.5};});
+  var ym=Math.max(0.1,Math.ceil(Math.max.apply(null,ss.map(function(q){return Math.max.apply(null,q.pts.map(function(t){return t[1];}));}))*10)/10);
+  R.ch.lines($('c2'),ss,{x0:0,x1:30,y0:0,y1:ym,xl:'Times a year that an investor finds a dealer',fy:function(t){return fmt(t,2);},fx:function(t){return Math.round(t);},dots:[[Math.min(S.rho,30),m.spread_pct*100,'var(--ink)']]});
+  $('n2').textContent='The spread is the dealer\'s margin on each trade: '+fmt(m.spread_pct*100,2)+' per cent of the mid price at your settings. With dealer power below 100 per cent the spread falls as dealers become easier to find; a monopolist\'s spread rises. The dot marks your settings.';
+}
+function setPreset(k){var p=PRE.filter(function(x){return x.k===k;})[0]; if(p.rho!==null){KEYS.forEach(function(x){S[x]=p[x];$(x).value=S[x];});}}
+$('pre').addEventListener('change',function(e){setPreset(e.target.value);draw();});
+KEYS.forEach(function(k){$(k).addEventListener('input',function(e){S[k]=+e.target.value;$('pre').value='cus';draw();});});
+draw();
+})();
+</script>
+</body>
+</html>
