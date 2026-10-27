@@ -154,7 +154,7 @@ const fromHash = () => {
 
 function tocHtml(){
   const q = (el('q').value || '').trim().toLowerCase();
-  const rows = q ? S.filter(s => ((s.text||'') + ' ' + (s.title||'')).toLowerCase().includes(q)) : S;
+  const rows = (q ? S.filter(s => ((s.text||'') + ' ' + (s.title||'')).toLowerCase().includes(q)) : S).filter(s => s.n !== 1);   // the title slide is left out of the contents (Helen, 2026-10-27)
   const out = [];
   if (q) out.push('<p class="hits">' + rows.length + (rows.length === 1 ? ' slide matches' : ' slides match') +
                   ' &ldquo;' + esc(el('q').value.trim()) + '&rdquo;</p>');
