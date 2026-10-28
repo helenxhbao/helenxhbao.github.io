@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fibre Roll-Out, Take-Up and the Break-Even Price</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.legend i.dash{ border-radius:0; height:0; width:18px; border-top:2px dashed var(--muted); vertical-align:4px; background:none; }
+.pick{ margin-bottom:12px; }
+.src th{ text-align:left !important; } .src td{ text-align:left !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>How many customers must a fibre network connect before it pays?</h1>
+  <p class="lede">A fibre network spends most of its money before it has a customer: it digs, lays and lights the street, and only then waits for households to sign up and be connected. The return therefore depends on three things the builder cannot fully control: what the street costs to pass, how many of the homes passed take the service and how soon, and what price the wholesale market will bear. This page takes the cost items that Ofcom uses for a reasonably efficient entrant and asks what monthly price per connected line just recovers them, and how that price moves with take-up, with the cost of capital and with a second network in the same streets.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 7. The cost items are Ofcom's Fibre Cost Model as published in the Telecoms Access Review 2026-31 (17 March 2026): for a reasonably efficient entrant in the competitive area (WLA Area 2) a build cost of &pound;307.43 (low) to &pound;465.91 (high) per premises passed, a connection cost of &pound;330.94 to &pound;383.28 per connection, operating costs of &pound;51.66 to &pound;54.56 per customer a year, access to Openreach's ducts (PIA) of &pound;12.40 to &pound;18.90 per line (which I read as pounds a year), take-up of 40% to 30% five years after build, and a pre-tax nominal cost of capital of 9.0% to 10.3% from April 2026 (Annex 11, Tables A11.5 and A11.6, page 233, and paragraph A11.154, page 231). Ofcom's published result is that such an entrant would have to charge &pound;13.30 to &pound;20.76 a month in 2025/26 prices (A11.161, page 233). The page's discount rate is real: I take Ofcom's pre-tax nominal rate less 2 per cent inflation, which is my assumption. The take-up path (a straight line to the final level over the years you choose, then flat), the 40-year horizon and the absence of any replacement of electronics are mine; Ofcom models electronics lives of 10 years and passive lives of 20. On Ofcom's own inputs the page gives &pound;12.69 and &pound;21.55 against Ofcom's &pound;13.30 and &pound;20.76. The Area 3 presets use Ofcom's Annex 12: build &pound;734 per premises passed (central), connection &pound;554 plus &pound;25 lead-to-cash, other operating costs &pound;58 per customer a year, take-up of 90% for Openreach where no altnet is present, 60% where one is, and 30% for the altnet, and a price of &pound;18.18 (the cap on FTTP 80/20 at the start of the control period). Nothing else is calibrated to any operator. The model was computed twice, in Python and in this page, and the two agree on 300 random settings.</p>
+  <hr class="rule">
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. The street</p>
+        <p class="cardsub">What it costs to build, connect and run</p>
+        <div class="field pick"><label class="f" for="pre">Start from</label><select id="pre"></select></div>
+        <div class="field"><label class="f" for="cp">Build cost per premises passed <span class="val" id="cpV"></span></label><input type="range" id="cp" min="100" max="1200" step="1" value="307"></div>
+        <div class="field"><label class="f" for="cc">Connection cost per connection <span class="val" id="ccV"></span></label><input type="range" id="cc" min="100" max="800" step="1" value="331"><p class="hint">Paid in the year a customer takes the service.</p></div>
+        <div class="field"><label class="f" for="ox">Operating and access cost per connected line a year <span class="val" id="oxV"></span></label><input type="range" id="ox" min="20" max="150" step="0.5" value="64"><p class="hint">Ofcom's entrant: operating cost plus access to ducts.</p></div>
+      </div>
+      <div class="card">
+        <p class="step">2. The customers and the price</p>
+        <p class="cardsub">How many take the service, how soon, and what they pay</p>
+        <div class="field"><label class="f" for="S">Take-up by customers once the ramp is complete <span class="val" id="SV"></span></label><input type="range" id="S" min="10" max="95" step="1" value="40"><p class="hint">Per cent of premises passed, for all networks together.</p></div>
+        <div class="field"><label class="f" for="sh">This network's share of those customers <span class="val" id="shV"></span></label><input type="range" id="sh" min="20" max="100" step="0.1" value="100"><p class="hint">100 per cent if it is the only network; less if a second network passes the same homes.</p></div>
+        <div class="field"><label class="f" for="rp">Years for take-up to build <span class="val" id="rpV"></span></label><input type="range" id="rp" min="1" max="12" step="1" value="5"></div>
+        <div class="field"><label class="f" for="pr">Price per connected line per month <span class="val" id="prV"></span></label><input type="range" id="pr" min="8" max="35" step="0.01" value="18.18"></div>
+        <div class="field"><label class="f" for="r">Real discount rate <span class="val" id="rV"></span></label><input type="range" id="r" min="3" max="12" step="0.05" value="6.86"></div>
+        <div class="field"><label class="f" for="H">Years of cash flow counted <span class="val" id="HV"></span></label><input type="range" id="H" min="10" max="40" step="1" value="40"></div>
+      </div>
+    </div>
+    <div>
+      <div class="stats">
+        <div><div class="k">Break-even price</div><div class="v" id="s1">&mdash;</div><div class="s">pounds per line per month</div></div>
+        <div><div class="k">Return at your price</div><div class="v" id="s2">&mdash;</div><div class="s" id="s2s">real, per year</div></div>
+        <div><div class="k">Value per premises passed</div><div class="v" id="s3">&mdash;</div><div class="s">pounds, at your price and rate</div></div>
+        <div><div class="k">Take-up needed at your price</div><div class="v" id="s4">&mdash;</div><div class="s" id="s4s">for this network</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2>Cumulative cash per premises passed, at your price</h2>
+        <svg id="c1" viewBox="0 0 1000 400" role="img" aria-label="Line chart of cumulative cash per premises passed against years since build"></svg>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Break-even price against take-up</h2>
+        <svg id="c2" viewBox="0 0 1000 420" role="img" aria-label="Line chart of the break-even price against the take-up of the network"></svg>
+        <p class="note" id="n2"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Break-even price against this network's share of the customers</h2>
+        <svg id="c3" viewBox="0 0 1000 420" role="img" aria-label="Line chart of the break-even price against the network's share of the market's customers"></svg>
+        <p class="note" id="n3"></p>
+      </div>
+    </div>
+  </div>
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">What the model says</p>
+      <p>The model asks for one number, the price per connected line per month at which the discounted flows of the network sum to zero. The build cost is paid for every premises passed, whether or not anyone connects, so the cost of each connected customer is the build cost divided by the share of homes that connect, plus the connection cost, plus the running cost, all spread over the years in which the customer pays. That is why the second chart is steep at low take-up: the price needed to recover a build cost of a few hundred pounds a home from one home in five is several times the price needed when two homes in three connect.</p>
+      <p>Take-up builds over years, and the evidence of how fast is in Ofcom's <i>Connected Nations 2025</i>: of the properties that have had full fibre for a year or less, 14 per cent have taken it; after two years, 30 per cent; after three, 41 per cent; and after three to four years or more, 55 per cent (Table 2.6, page 12). Across all networks 42 per cent of premises that can get full fibre have taken it. The ramp slider sets how many years the straight-line path takes to reach the final level.</p>
+      <p>The third chart is the one that changes how the investment looks. In the area where Openreach has built alone, Ofcom assumes that it reaches 90 per cent take-up; where an alternative network also passes the homes, Openreach reaches 60 per cent and the alternative 30 (Annex 12, paragraphs A12.34 and A12.35 and footnote 599, page 243). The total number of customers is the same; they are shared. Because the build cost is the same whoever the customers choose, the second network does not add customers, it divides them, and the break-even price of each network rises. On Ofcom's central Area 3 costs the price that just covers the cost is about &pound;13.35 for a network that has the area to itself, &pound;16.11 for one that keeps two thirds of the customers, and &pound;24.39 for one that has a third, against a regulated price of &pound;18.18. The first earns well above its cost of capital at that price, the second a little above it, and the third does not cover its cost. The page does not say what is efficient; it shows who bears the cost of duplicating a network.</p>
+      <p class="tag" style="margin-top:14px">Where the numbers and pages come from</p>
+      <table class="t src"><thead><tr><th>Item</th><th>Source</th></tr></thead><tbody>
+        <tr><td>Entrant in WLA Area 2, low-cost and high-cost scenarios: build capex &pound;307.43 and &pound;465.91 per premises passed, connection &pound;330.94 and &pound;383.28, opex &pound;51.66 and &pound;54.56 per customer a year, PIA cost &pound;12.40 and &pound;18.90 per line, take-up 40% and 30% after five years, WACC 9.0% and 10.3% from 2026/27 (7.8% until 2025/26), electronics life 10 years, passive life 20 years, rental needed &pound;13.30 and &pound;20.76 a month (2025/26 prices)</td><td>Ofcom (March 2026), Telecoms Access Review 2026-31, Annexes 1 to 21, Annex 11, Table A11.5 and paragraph A11.161, page 233; Table A11.6, page 233; WACC range paragraphs A11.150 to A11.154, page 231</td></tr>
+        <tr><td>An entrant would have to charge &pound;13.59 to &pound;21.21 a month (2026/27 prices); the cap on FTTP 80/20 rentals is &pound;18.18 at the start of the control period; Openreach's average FTTP price is about &pound;18 to &pound;20</td><td>Ofcom (March 2026), Volume 4, Pricing Remedies, paragraphs 1.116 and 1.117, page 20</td></tr>
+        <tr><td>Area 3 (the less competitive area): build &pound;571, &pound;734, &pound;904 per premises passed (low, central, high), connection &pound;554, lead-to-cash opex &pound;25 per connection, other opex &pound;56 to &pound;60 per customer a year, for a 3.6 million premises deployment, 2026/27 prices</td><td>Ofcom (March 2026), Annex 12, Table A12.5, page 241</td></tr>
+        <tr><td>Openreach take-up of 80% nine years after deployment, from 90% where no altnet is present and 60% where one is; altnets 30%; altnets pass about 1.2 million of 3.3 million commercially viable Area 3 premises</td><td>Ofcom (March 2026), Annex 12, paragraphs A12.34 and A12.35 with footnote 599, page 243</td></tr>
+        <tr><td>WACC of 7.8% for fibre services in the 2021-26 period</td><td>Ofcom (March 2026), Annex 12, paragraph A12.21, page 239</td></tr>
+        <tr><td>Take-up of full fibre by years since it became available: 14%, 30%, 41%, 55%, 55%; 42% of premises with access have taken it; coverage 78% of residential premises</td><td>Ofcom (19 November 2025), Connected Nations 2025, UK report, Table 2.6 and page 12; Highlights, page 6</td></tr>
+        <tr><td>The take-up ramp, the 40-year horizon, the treatment of inflation, the sharing of customers in proportion to share, the absence of churn and replacement</td><td>Mine. They are simplifications and are not Ofcom's</td></tr>
+      </tbody></table>
+      <p class="note">Ofcom's model is more detailed than this one: it phases the roll-out over years, models infrastructure reuse, replaces electronics, has take-up that continues to rise, and sets the price in real terms against nominal capital costs. Where the page's output differs from Ofcom's, Ofcom's is the better estimate. The page is a way of seeing which assumptions matter, and the one that matters most is take-up. It treats customers as shared in proportion to a given share, which is a simplification of how a second network competes: in practice the price, the quality and the timing of the second network would also change the shares.</p>
+      <p class="q">Start from the low-cost entrant and raise take-up from 40 to 55 per cent, the level Ofcom reports for properties with full fibre for three years or more. Report the fall in the break-even price, and say what the answer implies for an investor who has to decide how much to pay for a network that is only two years old.</p>
+      <p class="q">Choose the Area 3 preset for Openreach alone and move the share of customers to 67 per cent, then to 33 per cent. Report the break-even price each time, compare it with the price of &pound;18.18, and say who pays for a duplicate network when the regulated price does not rise.</p>
+    </div>
+  </div>
+</div>
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>/* Week 7 teaching models (JavaScript copy of models_w7.py; check_models_w7.py compares the two). */
+(function(g){
+'use strict';
+var R=g.RE07=g.RE07||{}, W=R.w7={};
+function irr(flows){
+  function npv(i){ var s=0,t; for(t=0;t<flows.length;t++) s+=flows[t]/Math.pow(1+i,t); return s; }
+  var lo=-0.99,hi=10,flo=npv(lo),fhi=npv(hi),k,mid,fm;
+  if(flo*fhi>0) return NaN;
+  for(k=0;k<200;k++){ mid=(lo+hi)/2; fm=npv(mid); if((fm>0)===(flo>0)){lo=mid;flo=fm;} else hi=mid; }
+  return (lo+hi)/2;
+}
+W.irr=irr;
+/* 1. Roll-out of a fixed access network, per premises passed */
+function takeupPath(tu,ramp,H){ var out=[],t; for(t=1;t<=H;t++) out.push(tu*Math.min(1,t/ramp)); return out; }
+function roll(cp,cc,opex,pia,marketTu,share,ramp,price,r,H){
+  var tu=marketTu*share,s=takeupPath(tu,ramp,H),prev=0,df=[],t,pvCost=cp,pvLines=0,flows=[-cp],ds,costT;
+  for(t=0;t<=H;t++) df.push(Math.pow(1+r,-t));
+  for(t=1;t<=H;t++){ ds=s[t-1]-prev; prev=s[t-1]; costT=(opex+pia)*s[t-1]+cc*ds; pvCost+=costT*df[t]; pvLines+=s[t-1]*df[t]; flows.push(price*12*s[t-1]-costT); }
+  var be=pvLines>0?pvCost/(12*pvLines):Infinity, npv=0, cum=0, payback=null, A=0;
+  for(t=0;t<=H;t++){ npv+=flows[t]*df[t]; cum+=flows[t]; if(payback===null&&cum>=0&&t>0) payback=t; }
+  for(t=1;t<=H;t++){ A+=((price*12-opex-pia)*Math.min(1,t/ramp)-cc*(Math.min(1,t/ramp)-Math.min(1,(t-1)/ramp)))*df[t]; }
+  return {be_price:be,npv:npv,irr:irr(flows),payback:payback,tu:tu,tu_be:A>0?cp/A:Infinity,flows:flows,s:s};
+}
+W.takeupPath=takeupPath; W.roll=roll;
+/* 2. Shared passive site, per site per year */
+function tower(revT,tau0,m0,phi,D,K,tau){
+  var opex0=tau0*revT*(1-m0),F=phi*opex0,v=(1-phi)*opex0/tau0,rev=tau*revT,ebitda=rev-v*tau-F,margin=rev>0?ebitda/rev:NaN,fcf=ebitda-D;
+  return {F:F,v:v,rev:rev,ebitda:ebitda,margin:margin,fcf:fcf,roic:fcf/K,marginal_ebitda:revT-v,marginal_margin:(revT-v)/revT};
+}
+function towerTauForRoic(revT,tau0,m0,phi,D,K,target){
+  var t1=tower(revT,tau0,m0,phi,D,K,1),t2=tower(revT,tau0,m0,phi,D,K,2),slope=t2.roic-t1.roic;
+  return slope>0?1+(target-t1.roic)/slope:Infinity;
+}
+W.tower=tower; W.towerTauForRoic=towerTauForRoic;
+/* 3. Price decline, demand growth and the life of a capacity asset */
+function capacity(R0,f0,gr,d,capex,opexPct,L,r,m,u,nUp){
+  var flows=[-capex],rev=[],cap=[],ups=[],left=nUp,K=1,t,demand,upCost,sold,rt,npv=0,peak=0,best=-Infinity,tot=0;
+  for(t=1;t<=L;t++){
+    demand=f0*Math.pow(1+gr,t-1); upCost=0;
+    if(demand>K&&left>0){ K*=m; left-=1; upCost=u*capex; ups.push(t); }
+    sold=Math.min(demand,K); rt=R0*Math.pow(1-d,t-1)*sold; rev.push(rt); cap.push(K); tot+=rt; flows.push(rt-opexPct*capex-upCost);
+  }
+  for(t=0;t<flows.length;t++) npv+=flows[t]/Math.pow(1+r,t);
+  for(t=0;t<rev.length;t++) if(rev[t]>best){best=rev[t];peak=t+1;}
+  return {npv:npv,irr:irr(flows),rev:rev,cap:cap,flows:flows,peak:peak,upgrades:ups,total_rev:tot};
+}
+W.capacity=capacity;
+})(window);
+</script>
+<script>/* Small SVG chart helpers for the Week 7 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+(function(g){
+'use strict';
+var R=g.RE07;
+function axisY(s,y,L,Rr,lo,hi,n,fmtf){R.niceTicks(lo,hi,n).forEach(function(t){s.push('<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+Rr+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+(fmtf?fmtf(t):t)+'</text>');});}
+/* bars: [{label, value, color, note}] ; one bar per category */
+function bars(el,items,o){
+  o=o||{}; var W=1000,H=o.h||380,L=80,Rr=W-30,T=30,B=70,lo=Math.min(0,o.lo!==undefined?o.lo:Math.min.apply(null,items.map(function(d){return d.value;}))*1.15),
+      hi=o.hi!==undefined?o.hi:Math.max.apply(null,items.map(function(d){return d.value;}))*1.18, y=R.lin(lo,hi,H-B,T), s=[], n=items.length, bw=(Rr-L)/n;
+  axisY(s,y,L,Rr,lo,hi,5,o.fmt);
+  s.push('<line class="axis" x1="'+L+'" y1="'+y(0)+'" x2="'+Rr+'" y2="'+y(0)+'"/>');
+  items.forEach(function(d,k){var x0=L+k*bw+bw*0.2,w=bw*0.6,y0=y(Math.max(d.value,0)),y1=y(Math.min(d.value,0));
+    s.push('<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+Math.max(1,y1-y0)+'" fill="'+d.color+'"/>');
+    s.push('<text x="'+(x0+w/2)+'" y="'+(d.value>=0?y0-8:y1+20)+'" text-anchor="middle" font-size="18" font-weight="700">'+(o.fmt?o.fmt(d.value):R.fmt(d.value,1))+'</text>');
+    s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+26)+'" text-anchor="middle" font-size="16">'+d.label+'</text>');
+    if(d.sub) s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+46)+'" text-anchor="middle" font-size="14">'+d.sub+'</text>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+}
+/* lines: series [{pts:[[x,y]], color, width, dash, label}] */
+function lines(el,series,o){
+  var W=1000,H=o.h||420,L=80,Rr=W-30,T=26,B=60,xs=[],ys=[]; series.forEach(function(se){se.pts.forEach(function(p){xs.push(p[0]);ys.push(p[1]);});});
+  var x0=o.x0!==undefined?o.x0:Math.min.apply(null,xs),x1=o.x1!==undefined?o.x1:Math.max.apply(null,xs),y0=o.y0!==undefined?o.y0:Math.min.apply(null,ys),y1=o.y1!==undefined?o.y1:Math.max.apply(null,ys);
+  var x=R.lin(x0,x1,L,Rr),y=R.lin(y0,y1,H-B,T),s=[];
+  axisY(s,y,L,Rr,y0,y1,6,o.fy);
+  R.niceTicks(x0,x1,8).forEach(function(t){s.push('<text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+(o.fx?o.fx(t):t)+'</text>');});
+  s.push('<text class="mut" x="'+Rr+'" y="'+(H-8)+'" text-anchor="end" font-size="16">'+(o.xl||'')+'</text>');
+  (o.bands||[]).forEach(function(b){s.push('<rect x="'+x(b[0])+'" y="'+T+'" width="'+(x(b[1])-x(b[0]))+'" height="'+(H-B-T)+'" fill="'+b[2]+'" opacity="0.5"/>');if(b[3])s.push('<text class="mut" x="'+((x(b[0])+x(b[1]))/2)+'" y="'+(T+18)+'" text-anchor="middle" font-size="15">'+b[3]+'</text>');});
+  (o.hlines||[]).forEach(function(h){s.push('<line x1="'+L+'" y1="'+y(h[0])+'" x2="'+Rr+'" y2="'+y(h[0])+'" stroke="'+(h[2]||'var(--muted)')+'" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(Rr-4)+'" y="'+(y(h[0])-6)+'" text-anchor="end" font-size="15">'+h[1]+'</text>');});
+  (o.vlines||[]).forEach(function(v){s.push('<line x1="'+x(v[0])+'" y1="'+T+'" x2="'+x(v[0])+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(x(v[0])+6)+'" y="'+(H-B-8)+'" font-size="15">'+v[1]+'</text>');});
+  series.forEach(function(se){var d='';se.pts.forEach(function(p,k){d+=(k?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1);});
+    s.push('<path d="'+d+'" fill="none" stroke="'+se.color+'" stroke-width="'+(se.width||3.5)+'"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' stroke-linejoin="round"/>');});
+  (o.dots||[]).forEach(function(p){s.push('<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="6" fill="'+p[2]+'" stroke="var(--panel)" stroke-width="2"/>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+  return {x:x,y:y};
+}
+R.ch={bars:bars,lines:lines};
+})(window);
+</script>
+<script>
+(function(){
+var R=RE07, W=R.w7, $=function(id){return document.getElementById(id);}, fmt=R.fmt;
+var PRE=[{t:'Ofcom entrant, low-cost scenario (Area 2)',cp:307.43,cc:330.94,ox:64.06,S:40,sh:100,rp:5,pr:18.18,r:6.86,H:40},
+  {t:'Ofcom entrant, high-cost scenario (Area 2)',cp:465.91,cc:383.28,ox:73.46,S:30,sh:100,rp:5,pr:18.18,r:8.14,H:40},
+  {t:'Openreach in Area 3, no altnet present (90% take-up)',cp:734,cc:579,ox:58,S:90,sh:100,rp:9,pr:18.18,r:5.69,H:40},
+  {t:'Openreach in Area 3, altnet present (60% take-up)',cp:734,cc:579,ox:58,S:90,sh:66.7,rp:9,pr:18.18,r:5.69,H:40},
+  {t:'An altnet in Area 3 (30% take-up)',cp:734,cc:579,ox:58,S:90,sh:33.3,rp:9,pr:18.18,r:5.69,H:40},
+  {t:'My own settings (use the sliders)',cp:null}];
+PRE.forEach(function(p,i){var o=document.createElement('option');o.value=i;o.textContent=p.t;$('pre').appendChild(o);}); $('pre').value=0;
+var S={cp:307.43,cc:330.94,ox:64.06,S:40,sh:100,rp:5,pr:18.18,r:6.86,H:40}, KEYS=['cp','cc','ox','S','sh','rp','pr','r','H'];
+function run(o){var q=Object.assign({},S,o||{}); return W.roll(q.cp,q.cc,q.ox,0,q.S/100,q.sh/100,q.rp,q.pr,q.r/100,q.H);}
+function pound(v,d){return (v<0?'−':'')+'£'+fmt(Math.abs(v),d===undefined?2:d);}
+function draw(){
+  $('cpV').textContent=pound(S.cp,0); $('ccV').textContent=pound(S.cc,0); $('oxV').textContent=pound(S.ox,2); $('SV').textContent=S.S+'%'; $('shV').textContent=fmt(S.sh,1)+'%';
+  $('rpV').textContent=S.rp+' years'; $('prV').textContent=pound(S.pr,2); $('rV').textContent=fmt(S.r,2)+'%'; $('HV').textContent=S.H+' years';
+  var o=run(), tu=S.S*S.sh/100;
+  $('s1').textContent=pound(o.be_price,2); $('s2').textContent=isFinite(o.irr)?fmt(o.irr*100,1)+'%':'n/a'; $('s2s').textContent='real, per year, against a rate of '+fmt(S.r,2)+'%';
+  $('s3').textContent=pound(o.npv,0); $('s4').textContent=isFinite(o.tu_be)?fmt(o.tu_be*100,0)+'%':'n/a'; $('s4s').textContent='of premises passed, against '+fmt(tu,0)+'% for this network';
+  var cum=0, pts=[], t; for(t=0;t<o.flows.length;t++){ cum+=o.flows[t]; pts.push([t,cum]); }
+  var ymin=Math.min.apply(null,pts.map(function(p){return p[1];})), ymax=Math.max.apply(null,pts.map(function(p){return p[1];}));
+  R.ch.lines($('c1'),[{pts:pts,color:'var(--accent)',width:3.5}],{x0:0,x1:S.H,y0:Math.floor(Math.min(ymin,0)/100)*100,y1:Math.ceil(Math.max(ymax,100)/100)*100,hlines:[[0,'']],xl:'Years since build',fy:function(v){return Math.round(v);},fx:function(v){return Math.round(v);}});
+  $('n1').textContent='At '+pound(S.pr,2)+' a month and a network take-up of '+fmt(tu,0)+'% the cumulative cash is lowest at '+pound(ymin,0)+' per premises passed'+(o.payback?' and turns positive in year '+o.payback+'.':' and does not turn positive within '+S.H+' years.')+' The value at the discount rate, counted over '+S.H+' years, is '+pound(o.npv,0)+'.';
+  var p2=[], x; for(x=15;x<=95;x+=1){ var v=run({S:x,sh:100}).be_price; if(isFinite(v)) p2.push([x,Math.min(v,60)]); }
+  R.ch.lines($('c2'),[{pts:p2,color:'var(--accent)',width:3.5}],{x0:15,x1:95,y0:5,y1:45,hlines:[[S.pr,'Your price '+pound(S.pr,2)]],dots:[[Math.min(95,Math.max(15,S.S)),run({sh:100}).be_price,'var(--ink)']],xl:'Take-up of the network once the ramp is complete, per cent of premises passed',fy:function(v){return Math.round(v);},fx:function(v){return Math.round(v);}});
+  var be100=run({sh:100}).be_price;
+  $('n2').textContent='Other settings as above, with the network keeping all the customers. At '+S.S+'% take-up the break-even price is '+pound(be100,2)+'; at 30% it is '+pound(run({S:30,sh:100}).be_price,2)+' and at 60% '+pound(run({S:60,sh:100}).be_price,2)+'.';
+  var p3=[], sh; for(sh=25;sh<=100;sh+=1){ var v3=run({sh:sh}).be_price; if(isFinite(v3)) p3.push([sh,Math.min(v3,60)]); }
+  R.ch.lines($('c3'),[{pts:p3,color:'var(--clay)',width:3.5}],{x0:25,x1:100,y0:5,y1:45,hlines:[[S.pr,'Your price '+pound(S.pr,2)]],dots:[[S.sh,Math.min(o.be_price,60),'var(--ink)']],xl:'This network’s share of the market’s customers, per cent',fy:function(v){return Math.round(v);},fx:function(v){return Math.round(v);}});
+  var a=run({sh:100}).be_price, b=run({sh:66.7}).be_price, c=run({sh:33.3}).be_price;
+  $('n3').textContent='With the market take-up of '+S.S+'% and your other settings, a network that keeps all of the customers needs '+pound(a,2)+' a month; two thirds of them, '+pound(b,2)+'; one third, '+pound(c,2)+'.';
+}
+function setPreset(i){var p=PRE[i]; if(p.cp!==null){KEYS.forEach(function(k){S[k]=p[k];$(k).value=S[k];});}}
+$('pre').addEventListener('change',function(e){setPreset(+e.target.value);draw();});
+KEYS.forEach(function(k){$(k).addEventListener('input',function(e){S[k]=+e.target.value;$('pre').value=PRE.length-1;draw();});});
+setPreset(0); draw();
+})();
+</script>
+</body>
+</html>

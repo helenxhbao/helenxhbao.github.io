@@ -1,31 +1,21 @@
 {
  "groups": [
   {
-   "title": "Slides",
-   "items": [
-    {
-     "label": "Slides, full deck",
-     "href": "slides.pdf",
-     "kind": "PDF"
-    }
-   ]
-  },
-  {
    "title": "Interactive pages",
    "items": [
     {
-     "label": "Pricing Sustainability Preferences",
-     "href": "esg-pricing.html",
+     "label": "Fibre Roll-Out, Take-Up and the Break-Even Price",
+     "href": "fibre-rollout.html",
      "kind": "web page"
     },
     {
-     "label": "Discounting Long-Lived Assets",
-     "href": "discounting.html",
+     "label": "Tenants per Tower, Operating Leverage and the Return on Capital",
+     "href": "tower-tenancy.html",
      "kind": "web page"
     },
     {
-     "label": "The Payoff to Resilience",
-     "href": "resilience-payoff.html",
+     "label": "Falling Prices, Growing Demand and the Life of a Capacity Asset",
+     "href": "capacity-price-fall.html",
      "kind": "web page"
     }
    ]

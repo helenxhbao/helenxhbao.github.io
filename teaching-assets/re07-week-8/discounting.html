@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pricing Sustainability Preferences</title>
+<title>Discounting Long-Lived Assets</title>
 <style>:root{
   --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
   --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
@@ -84,83 +84,90 @@ table.w td:first-child, table.w th:first-child{ text-align:left !important; }
 </head>
 <body>
 <div class="wrap">
-  <h1>Pricing sustainability preferences</h1>
-  <p class="lede">If some investors care how green their holdings are, the assets they like become dearer and the assets they dislike become cheaper. The greener asset then offers a lower expected return, and the investors who care hold more of it. Pastor, Stambaugh and Taylor (2021) derive this in a few lines from the standard mean-variance model. Use it to see how large the price effect is, who earns the lower return, and why the effect needs investors to disagree.</p>
-  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 7. The model is that of Pastor, Stambaugh and Taylor (2021), Journal of Financial Economics 142(2), 550&ndash;571. The page numbers below are those of the NBER working paper 26549, the version I read. The three assets, the two investor types and all numbers are illustrative, not estimates. It was computed twice, in Python and in this page, and the two agree.</p>
+  <h1>Discounting long-lived assets</h1>
+  <p class="lede">A road, a sea wall or a water network pays back over decades, so the rate at which the future is discounted decides whether it looks worth building. Most of the value of a long-lived asset arrives after the point at which a few tenths of a percentage point have compounded into a factor of two. This page puts the UK Treasury&rsquo;s declining schedule, its sensitivity case, the two schedules recommended by the June 2026 independent review, a flat rate and an uncertain rate side by side. Use it to see how much the answer depends on the choice, and where the dependence is greatest.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 8. Schedules from HM Treasury, <i>Green Book supplementary guidance: Discounting</i> (February 2026), and Freeman and Groom, <i>Green Book Discount Rate Review: Summary of Findings and Recommendations</i> (30 June 2026), an independent report that is not Treasury policy. The uncertain-rate case is derived here from the gamma distribution; I did not retrieve Weitzman (2001). The project in the last chart is illustrative. It was computed twice, in Python and in this page, and the two agree, and the Green Book discount factors in its Annex A are reproduced.</p>
   <hr class="rule">
   <div class="main">
     <div class="rail">
       <div class="card">
-        <p class="step">1. The assets</p>
-        <p class="cardsub">Three assets with an ESG score in standard deviations from the market average (see the table below the charts)</p>
-        <div class="field pick"><label class="f" for="pre">Start from</label><select id="pre"></select></div>
-        <div class="field"><label class="f" for="g0"><span id="l0">Greener asset</span>, ESG score <span class="val" id="g0V"></span></label><input type="range" id="g0" min="-2" max="2" step="0.1" value="1.2"></div>
-        <div class="field"><label class="f" for="g1"><span id="l1">Middle asset</span>, ESG score <span class="val" id="g1V"></span></label><input type="range" id="g1" min="-2" max="2" step="0.1" value="0"></div>
-        <div class="field"><label class="f" for="g2"><span id="l2">Browner asset</span>, ESG score <span class="val" id="g2V"></span></label><input type="range" id="g2" min="-2" max="2" step="0.1" value="-1.2">
-          <p class="hint">The model needs the market as a whole to be ESG-neutral, so the page subtracts the market-weighted average score from each score. Only the differences between scores matter.</p></div>
-        <div class="field"><label class="f" for="rho">Correlation between the assets <span class="val" id="rhoV"></span></label><input type="range" id="rho" min="0" max="0.9" step="0.05" value="0.5"></div>
+        <p class="step">1. The discount rate</p>
+        <p class="cardsub">One regime is highlighted in the figures on the right; all six are always drawn</p>
+        <div class="field pick"><label class="f" for="reg">Regime to highlight</label><select id="reg"></select></div>
+        <div class="field"><label class="f" for="flat">Flat rate <span class="val" id="flatV"></span></label><input type="range" id="flat" min="0.5" max="8" step="0.25" value="3.5"></div>
+        <div class="field"><label class="f" for="gm">Uncertain rate, mean <span class="val" id="gmV"></span></label><input type="range" id="gm" min="1" max="6" step="0.25" value="3"></div>
+        <div class="field"><label class="f" for="gs">Uncertain rate, standard deviation <span class="val" id="gsV"></span></label><input type="range" id="gs" min="0.5" max="4" step="0.25" value="2">
+          <p class="hint">Today&rsquo;s best guess of the rate is the mean. The spread is how far the right long-run rate might be from it. The higher the spread, the lower the long-horizon rate.</p></div>
       </div>
       <div class="card">
-        <p class="step">2. The investors</p>
-        <p class="cardsub">One group has a taste for green holdings, the other has none</p>
-        <div class="field"><label class="f" for="dh">Taste of the ESG-minded group, <i>d</i> <span class="val" id="dhV"></span></label><input type="range" id="dh" min="0" max="0.2" step="0.005" value="0.04">
-          <p class="hint">The group gains a non-pecuniary benefit of <i>d</i> times the score from each unit it holds of an asset.</p></div>
-        <div class="field"><label class="f" for="om">Share of wealth held by the ESG-minded group <span class="val" id="omV"></span></label><input type="range" id="om" min="0.05" max="1" step="0.05" value="0.3">
-          <p class="hint">At 100 per cent everyone has the same taste. Watch what happens to the portfolios.</p></div>
-        <div class="field"><label class="f" for="a">Relative risk aversion, <i>a</i> <span class="val" id="aV"></span></label><input type="range" id="a" min="1.5" max="8" step="0.5" value="3"></div>
+        <p class="step">2. The project</p>
+        <p class="cardsub">Costs 100 now and pays a level benefit each year</p>
+        <div class="field"><label class="f" for="B">Annual benefit <span class="val" id="BV"></span></label><input type="range" id="B" min="1" max="12" step="0.5" value="6"></div>
+        <div class="field"><label class="f" for="T">Years of benefit <span class="val" id="TV"></span></label><input type="range" id="T" min="10" max="125" step="5" value="60"></div>
+        <div class="field"><label class="f" for="Y">A single amount of 100 arrives in year <span class="val" id="YV"></span></label><input type="range" id="Y" min="10" max="125" step="5" value="100">
+          <p class="hint">A distant avoided loss, such as a once-a-century flood, has this shape.</p></div>
       </div>
     </div>
     <div>
       <div class="stats">
-        <div><div class="k" id="k1">Greener asset</div><div class="v" id="s1">&mdash;</div><div class="s">CAPM alpha, a year</div></div>
-        <div><div class="k" id="k2">Browner asset</div><div class="v" id="s2">&mdash;</div><div class="s">CAPM alpha, a year</div></div>
-        <div><div class="k">ESG-minded investors</div><div class="v" id="s3">&mdash;</div><div class="s">expected return against the market</div></div>
-        <div><div class="k">Indifferent investors</div><div class="v" id="s4">&mdash;</div><div class="s">expected return against the market</div></div>
+        <div><div class="k">Value today of 100 in year <span id="yk"></span></div><div class="v" id="s1">&mdash;</div><div class="s">highlighted regime</div></div>
+        <div><div class="k">Compared with a flat 3.5%</div><div class="v" id="s2">&mdash;</div><div class="s">times the value</div></div>
+        <div><div class="k">Benefit-cost ratio</div><div class="v" id="s3">&mdash;</div><div class="s">level benefit, highlighted regime</div></div>
+        <div><div class="k">Forward rate in year 50</div><div class="v" id="s4">&mdash;</div><div class="s">highlighted regime</div></div>
       </div>
       <div class="card chartcard">
-        <h2>The price of a preference, as an alpha</h2>
-        <svg id="c1" viewBox="0 0 1000 380" role="img" aria-label="Bar chart of the CAPM alpha of each asset in basis points a year"></svg>
+        <h2>What a pound in the future is worth today</h2>
+        <svg id="c1" viewBox="0 0 1000 420" role="img" aria-label="Line chart of the discount factor against the year for six regimes"></svg>
+        <div class="legend" id="lg"></div>
         <p class="note" id="n1"></p>
       </div>
       <div class="card chartcard">
-        <h2>Who holds what, compared with the market</h2>
-        <svg id="c2" viewBox="0 0 1000 380" role="img" aria-label="Grouped bars of each investor group's portfolio weight minus the market weight"></svg>
-        <div class="legend"><span><i class="sq" style="background:var(--sage)"></i>ESG-minded investors</span><span><i class="sq" style="background:var(--clay)"></i>Indifferent investors</span></div>
-        <table class="t w" id="tw" style="margin-top:10px"></table>
+        <h2>The rate applied to each future year</h2>
+        <svg id="c2" viewBox="0 0 1000 400" role="img" aria-label="Line chart of the forward discount rate against the year for six regimes"></svg>
         <p class="note" id="n2"></p>
       </div>
       <div class="card chartcard">
-        <h2>The return the ESG-minded investors give up, by their share of wealth</h2>
-        <svg id="c3" viewBox="0 0 1000 400" role="img" aria-label="Line chart of the yearly expected return of each investor group against the market, by share of wealth held by the ESG-minded group"></svg>
-        <div class="legend"><span><i class="ln" style="background:var(--sage)"></i>ESG-minded investors</span><span><i class="ln" style="background:var(--clay)"></i>Indifferent investors</span></div>
+        <h2>The present value of a distant amount</h2>
+        <svg id="c3" viewBox="0 0 1000 400" role="img" aria-label="Bar chart of the present value of 100 received in a chosen year under each regime"></svg>
         <p class="note" id="n3"></p>
       </div>
       <div class="card chartcard">
-        <h2>The assumptions behind the assets</h2>
-        <table class="t w" id="ta"></table>
-        <p class="note">Illustrative. The risk-free rate is 3 per cent. The expected return on the market is set by the model, <i>a</i> times its variance (equation 7).</p>
+        <h2>The same project under each regime</h2>
+        <svg id="c4" viewBox="0 0 1000 400" role="img" aria-label="Bar chart of the benefit-cost ratio of the level-benefit project under each regime"></svg>
+        <p class="note" id="n4"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>The schedules</h2>
+        <table class="t w"><thead><tr><th>Forward rate, per cent</th><th>Years 1 to 30</th><th>31 to 75</th><th>76 to 125</th><th>126 to 200</th><th>201 to 300</th><th>301 and over</th></tr></thead>
+          <tbody><tr><td>Green Book, February 2026</td><td>3.5</td><td>3.0</td><td>2.5</td><td colspan="3">not specified</td></tr>
+          <tr><td>Green Book, no pure time preference</td><td>3.00</td><td>2.57</td><td>2.14</td><td>1.71</td><td>1.29</td><td>0.86</td></tr>
+          <tr><td>June 2026 review, standard projects</td><td>3.0</td><td>2.5</td><td>2.25</td><td colspan="3">explicit welfare analysis</td></tr>
+          <tr><td>June 2026 review, social insurance projects</td><td>1.5</td><td>1.0</td><td>0.75</td><td colspan="3">explicit welfare analysis</td></tr></tbody></table>
+        <p class="note">The page carries the last rate of each schedule beyond year 125 for the chart, but caps the horizon at 125 years.</p>
       </div>
     </div>
   </div>
   <div class="lower">
     <div class="card explain">
       <p class="tag">What the model says</p>
-      <p>Each investor holds a mix of the assets and gets a benefit <i>d</i><sub>i</sub> <i>g</i><sub>n</sub> from each unit of asset <i>n</i> with ESG score <i>g</i><sub>n</sub>. Prices adjust until the markets clear. The result is that the expected excess return on asset <i>n</i> is the CAPM return less a term proportional to its score, so the CAPM alpha is &minus;(<i>d&#772;</i>/<i>a</i>) <i>g</i><sub>n</sub>, where <i>d&#772;</i> is the wealth-weighted average taste (Proposition 1 and Corollary 2, equations 9 and 10, pages 8 and 9). A greener asset has a negative alpha, a browner one a positive alpha. Both come from the price, not from any news about the assets.</p>
-      <p>The portfolios follow from the same algebra. An investor whose taste is above the average tilts towards the green assets by (<i>&delta;</i><sub>i</sub>/<i>a</i><sup>2</sup>) times the inverse covariance matrix times the scores, where <i>&delta;</i><sub>i</sub> = <i>d</i><sub>i</sub> &minus; <i>d&#772;</i> (Proposition 3, equation 14, page 10). An investor whose taste is below the average tilts the other way, which includes an investor with no taste at all. So &ldquo;I do not care about ESG, so I hold the market&rdquo; is not optimal when others care. If every investor has the same taste, every investor holds the market and the price effect remains (Corollary 4, page 11). The third chart shows the cost of the tilt. The investors who like green give up expected return, and the indifferent investors earn it, in proportion to the dispersion of tastes.</p>
-      <p>The model is a statement about expected returns in a competitive market. It is not a statement about whether the green asset is better for the world. The social impact of holdings enters the authors&rsquo; later sections (page 7), but it does not change prices here. For infrastructure the nearest reading is a lower cost of capital for assets that screen well, at the cost of a lower return for the capital that is screened in.</p>
+      <p>The Treasury sets the rate at which public spending is discounted from the Ramsey rule, the social time preference rate <i>r</i> = &delta; + <i>L</i> + &mu;<i>g</i>. The rate has three parts: pure time preference &delta; of 0.5 per cent, an allowance <i>L</i> of 1 per cent for catastrophic risk, and a wealth effect, the elasticity of marginal utility &mu; of 1 times expected growth in consumption per head <i>g</i> of 2 per cent. They sum to 3.5 per cent (Green Book supplementary guidance, paragraphs 2.1 and 2.2, page 7; review paragraph 7, page 4 of 15). Because the future values of those parameters are uncertain, the guidance lowers the rate with the horizon, to 3.0 per cent for years 31 to 75 and 2.5 per cent for years 76 to 125 (paragraph 3.1 and Table 3.A, page 12). Beyond 50 years it also asks for a sensitivity run with pure time preference removed (paragraphs 3.3 to 3.5, pages 12 and 13).</p>
+      <p>The review of June 2026 recommends a flatter schedule, 3.0 per cent falling to 2.25 per cent, because the standard model of consumption growth cannot generate a strongly declining rate from the historical data and only structural uncertainty about the growth regime does (paragraphs 44 to 46, page 10 of 15; Table 1, page 2). It adds a second schedule, 1.5 per cent falling to 0.75 per cent, for projects with significant social insurance properties, meaning interventions against severe downside risks to society whose benefits arrive when marginal utility is high, with a risk premium of &minus;0.5 per cent (paragraph 60, page 12 of 15). Whether a resilience measure counts as one is a judgement that the review leaves to HM Treasury, and this page does not decide it.</p>
+      <p>The gamma case is the textbook way to see why uncertainty about the rate lowers the long-run rate. If the right rate <i>r</i> is gamma distributed with mean &mu; and standard deviation &sigma;, the expected discount factor at year <i>t</i> is (1 + &theta;<i>t</i>)<sup>&minus;<i>k</i></sup>, with <i>k</i> = &mu;<sup>2</sup>/&sigma;<sup>2</sup> and &theta; = &sigma;<sup>2</sup>/&mu;. The rate applied to year <i>t</i> is then &mu;/(1 + &sigma;<sup>2</sup><i>t</i>/&mu;), which starts at the mean and falls with the horizon, because the low-rate states dominate the average at long horizons. Weitzman (2001) made the argument with a survey of economists; the formulas here are a derivation from the gamma moment generating function.</p>
+      <p>Read the third and fourth charts together. At the default settings the value today of a single amount in year 100 differs by a factor of about ten between the flat 3.5 per cent and the social insurance schedule, while the benefit-cost ratio of a level stream differs by a factor of about one and a half, because much of a level stream arrives in the early years where the regimes agree. A project whose benefits are concentrated late, as the avoided losses of rare events are, is the case in which the choice of schedule matters most.</p>
       <p class="tag" style="margin-top:14px">Where the numbers and pages come from</p>
       <table class="t src"><thead><tr><th>Item</th><th>Source</th></tr></thead><tbody>
-        <tr><td>Portfolio weights <i>X</i><sub>i</sub> = (1/<i>a</i>) &Sigma;<sup>-1</sup>(&mu; + <i>b</i><sub>i</sub>/<i>a</i>), with <i>b</i><sub>i</sub> = <i>d</i><sub>i</sub> <i>g</i>; market clearing <i>w</i><sub>m</sub> = &int; &omega;<sub>i</sub><i>X</i><sub>i</sub> d<i>i</i></td><td>Pastor, Stambaugh and Taylor (2021), NBER WP 26549, equations 4 and 5, pages 6 and 7</td></tr>
-        <tr><td>&mu; = <i>a</i>&Sigma;<i>w</i><sub>m</sub> &minus; (<i>d&#772;</i>/<i>a</i>) <i>g</i>; ESG-neutral market <i>w</i><sub>m</sub>&prime;<i>g</i> = 0; &mu;<sub>m</sub> = <i>a</i>&sigma;<sub>m</sub><sup>2</sup>; &mu; = &mu;<sub>m</sub>&beta; &minus; (<i>d&#772;</i>/<i>a</i>) <i>g</i></td><td>Same, equations 6 to 9, page 8</td></tr>
-        <tr><td>CAPM alpha &alpha;<sub>n</sub> = &minus;(<i>d&#772;</i>/<i>a</i>) <i>g</i><sub>n</sub></td><td>Same, Corollary 2, equation 10, page 9</td></tr>
-        <tr><td>Portfolio tilt <i>X</i><sub>i</sub> = <i>w</i><sub>m</sub> + (<i>&delta;</i><sub>i</sub>/<i>a</i><sup>2</sup>) &Sigma;<sup>-1</sup><i>g</i>; no tilt without dispersion in tastes</td><td>Same, Proposition 3, equation 14, page 10; Corollary 4, page 11</td></tr>
-        <tr><td>Expected return and variance of investor i: &mu;<sub>m</sub> &minus; <i>&delta;</i><sub>i</sub> <i>d&#772;</i> <i>g</i>&prime;&Sigma;<sup>-1</sup><i>g</i>/<i>a</i><sup>3</sup> and &sigma;<sub>m</sub><sup>2</sup> + <i>&delta;</i><sub>i</sub><sup>2</sup> <i>g</i>&prime;&Sigma;<sup>-1</sup><i>g</i>/<i>a</i><sup>4</sup></td><td>Derived here from equations 9 and 14, using <i>g</i>&prime;&Sigma;<sup>-1</sup>&beta; = <i>w</i><sub>m</sub>&prime;<i>g</i>/&sigma;<sub>m</sub><sup>2</sup> = 0. The page checks them against the direct calculation of <i>X</i>&prime;&mu; and <i>X</i>&prime;&Sigma;<i>X</i></td></tr>
-        <tr><td>Two investor types in place of a continuum of tastes; the ESG-minded share <i>&omega;</i>, so <i>d&#772;</i> = <i>&omega;</i><i>d</i></td><td>Mine. The paper has a continuum with a wealth-weighted mean</td></tr>
-        <tr><td>Value gain for a level perpetuity, (<i>r</i><sub>f</sub> + &mu;<sub>m</sub>&beta;)/(<i>r</i><sub>f</sub> + &mu;) &minus; 1</td><td>Mine, as an illustration of how a lower expected return converts into a higher price. It treats the cash flow as fixed</td></tr>
+        <tr><td>STPR = &rho; + &mu;<i>g</i> with &rho; = &delta; + <i>L</i>; the 3.5 per cent for years 1 to 30</td><td>HM Treasury (2026), <i>Green Book supplementary guidance: Discounting</i>, February 2026, paragraphs 2.1 to 2.4, page 7. The review gives the parameter values &delta; = 0.5%, &mu; = 1, <i>g</i> = 2%, <i>L</i> = 1% in paragraph 7, page 4 of 15</td></tr>
+        <tr><td>3.5, 3.0 and 2.5 per cent for years 1 to 30, 31 to 75 and 76 to 125</td><td>Same, paragraph 3.1 and Table 3.A, page 12</td></tr>
+        <tr><td>3.00, 2.57, 2.14, 1.71, 1.29 and 0.86 per cent with pure time preference excluded</td><td>Same, Table 3.B, page 13</td></tr>
+        <tr><td>Discount factors, for example 0.9662 in year 1, 0.3563 in year 30, 0.3358 in year 32, 0.1468 in year 60</td><td>Same, Annex A, page 14. The page reproduces them, rounded to four places</td></tr>
+        <tr><td>3.0, 2.5, 2.25 per cent and 1.5, 1.0, 0.75 per cent</td><td>Freeman and Groom (2026), Table 1, page 2 of 15; paragraphs 55 and 60, pages 11 and 12. An independent report commissioned by HM Treasury, not Treasury policy</td></tr>
+        <tr><td>Only structural uncertainty about growth regimes generates a strongly declining term structure</td><td>Same, paragraphs 44 to 46, page 10</td></tr>
+        <tr><td>Gamma discount factor (1 + &theta;<i>t</i>)<sup>&minus;<i>k</i></sup> and forward rate &mu;/(1 + &sigma;<sup>2</sup><i>t</i>/&mu;)</td><td>Derived here from the moment generating function of the gamma distribution, E[e<sup>&minus;<i>rt</i></sup>] = (1 + &theta;<i>t</i>)<sup>&minus;<i>k</i></sup>. Weitzman (2001), <i>American Economic Review</i> 91(1), 260&ndash;271, is the source of the idea; not retrieved</td></tr>
+        <tr><td>The project, the benefit-cost ratio and the single amount in a distant year</td><td>Mine and illustrative. Benefits arrive at the end of each year; the cost is paid at once</td></tr>
       </tbody></table>
-      <p class="note">There is one period, no taxes or frictions, and tastes are known. The paper&rsquo;s own sections on ESG as a risk factor and on social impact lie outside this page. The numbers are for teaching and are not calibrated to any market.</p>
-      <p class="q">Set the share of wealth held by the ESG-minded group to 100 per cent and keep the other inputs. Report the alphas and the portfolios, and explain why the price effect is unchanged while the trading disappears.</p>
-      <p class="q">Take the infrastructure illustration and double the taste of the ESG-minded group. Report the change in the alpha on gas-fired generation and say what it means for the cost of capital of a new gas plant.</p>
+      <p class="note">The guidance and the review do not agree on one point that bears on this page. The review recommends that discount-rate sensitivity analysis not be undertaken (page 2), and the February 2026 guidance requires it for horizons beyond 50 years (paragraph 3.4). Which stands is a matter for HM Treasury.</p>
+      <p class="q">Set the single amount to year 100 and read the value today under the Green Book, the review&rsquo;s standard schedule and its social insurance schedule. Report the ratio of the largest to the smallest and say what it means for a project whose benefit is an avoided loss a century away.</p>
+      <p class="q">Raise the standard deviation of the uncertain rate from 1 to 3 per cent at a mean of 3 per cent. Report the forward rate in year 100 and explain why the rate of the gamma regime falls with the horizon while the flat rate does not.</p>
     </div>
   </div>
 </div>
@@ -223,11 +230,11 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
 })(window);
 </script>
-<script>/* Week 7 teaching models (JavaScript copy of models_w7.py; check_models_w7.py compares the two). */
+<script>/* Week 8 teaching models (JavaScript copy of models_w8.py; check_models_w8.py compares the two). */
 (function(g){
 'use strict';
 var R=g.RE07=g.RE07||{};
-var W=R.w7={};
+var W=R.w8={};
 function dot(a,b){var s=0,i;for(i=0;i<a.length;i++)s+=a[i]*b[i];return s;}
 function matvec(A,x){return A.map(function(r){return dot(r,x);});}
 function solve(A,b){
@@ -297,7 +304,7 @@ W.npvByStandard=function(L100,s,cRef,kappa,maint,gamma,expo,T,D){
 };
 })(typeof window!=='undefined'?window:globalThis);
 </script>
-<script>/* Small SVG chart helpers for the Week 7 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+<script>/* Small SVG chart helpers for the Week 8 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
 (function(g){
 'use strict';
 var R=g.RE07;
@@ -351,46 +358,42 @@ R.ch={bars:bars,lines:lines,gbars:gbars};
 </script>
 <script>
 (function(){
-var R=RE07, W=R.w7, $=function(id){return document.getElementById(id);}, fmt=R.fmt;
-var PRE=[{k:'gen',t:'A generic illustration: a greener, a middle and a browner asset',lab:['Greener asset','Middle asset','Browner asset'],w:[0.3,0.4,0.3],vol:[0.20,0.16,0.22],g:[1.2,0,-1.2]},
-  {k:'inf',t:'An infrastructure illustration: renewables, regulated networks, gas-fired generation',lab:['Wind and solar','Regulated networks','Gas-fired generation'],w:[0.25,0.5,0.25],vol:[0.22,0.14,0.25],g:[1.5,0,-1.5]},
-  {k:'one',t:'Everyone has the same taste (no dispersion)',lab:['Greener asset','Middle asset','Browner asset'],w:[0.3,0.4,0.3],vol:[0.20,0.16,0.22],g:[1.2,0,-1.2],om:1},
-  {k:'cus',t:'My own inputs (use the sliders)'}];
-PRE.forEach(function(p){var o=document.createElement('option');o.value=p.k;o.textContent=p.t;$('pre').appendChild(o);}); $('pre').value='gen';
-var S={a:3,dh:0.04,om:0.3,rho:0.5,g:[1.2,0,-1.2],w:[0.3,0.4,0.3],vol:[0.20,0.16,0.22],lab:['Greener asset','Middle asset','Browner asset'],rf:0.03};
+var R=RE07, W=R.w8, $=function(id){return document.getElementById(id);}, fmt=R.fmt;
+var REG=[{k:'gb',t:'Green Book, February 2026: 3.5, 3.0, 2.5 per cent',s:'Green Book',c:'var(--accent)'},
+  {k:'gb0',t:'Green Book sensitivity without pure time preference: 3.00 falling to 0.86 per cent',s:'Green Book, no time preference',c:'var(--clay)'},
+  {k:'rev',t:'June 2026 independent review, standard: 3.0, 2.5, 2.25 per cent',s:'Review, standard',c:'var(--slate)'},
+  {k:'rev_si',t:'June 2026 independent review, social insurance: 1.5, 1.0, 0.75 per cent',s:'Review, social insurance',c:'var(--sage)'},
+  {k:'flat',t:'A flat rate (your slider)',s:'Flat rate',c:'var(--muted)',d:'8 6'},
+  {k:'gamma',t:'An uncertain rate, gamma distributed (your mean and spread)',s:'Uncertain rate',c:'var(--ink)',d:'3 5'}];
+REG.forEach(function(p){var o=document.createElement('option');o.value=p.k;o.textContent=p.t;$('reg').appendChild(o);}); $('reg').value='gb';
+var S={reg:'gb',flat:0.035,gm:0.03,gs:0.02,B:6,T:60,Y:100};
+$('lg').innerHTML=REG.map(function(r){return '<span><i class="'+(r.d?'dash':'ln')+'" style="'+(r.d?'border-top-color:'+r.c:'background:'+r.c)+'"></i>'+r.s+'</span>';}).join('');
+function df(k,T){return W.discountFactors(k,T,S.flat,S.gm,S.gs);}
 function draw(){
-  var i,p,bp=function(v){return v*1e4;}, sgn=function(v,d){return (v>0.0005?'+':'')+fmt(v,d);};
-  $('dhV').textContent=fmt(S.dh,3); $('omV').textContent=fmt(S.om*100,0)+'%'; $('aV').textContent=fmt(S.a,1); $('rhoV').textContent=fmt(S.rho,2);
-  for(i=0;i<3;i++){$('g'+i+'V').textContent=fmt(S.g[i],1); $('l'+i).textContent=S.lab[i];}
-  $('k1').textContent=S.lab[0]; $('k2').textContent=S.lab[2];
-  p=W.pst(S.w,S.vol,S.rho,S.g,S.a,S.dh,S.om,S.rf);
-  $('s1').textContent=sgn(bp(p.alpha[0]),0)+' bp'; $('s2').textContent=sgn(bp(p.alpha[2]),0)+' bp';
-  $('s3').textContent=sgn(bp(p.er_h-p.mu_m),1)+' bp'; $('s4').textContent=S.om>=0.999?'\u2014':sgn(bp(p.er_0-p.mu_m),1)+' bp';
-  R.ch.bars($('c1'),p.alpha.map(function(a,k){return {label:S.lab[k],sub:'score '+fmt(p.g[k],2)+' after centring',value:bp(a),color:p.g[k]>=0?'var(--sage)':'var(--clay)'};}),{fmt:function(v){return sgn(v,0);},h:380});
-  var up=p.uplift;
-  $('n1').textContent='With an average taste of '+fmt(p.d_bar,3)+' and risk aversion '+fmt(S.a,1)+', each point of ESG score moves the expected return by '+fmt(bp(p.d_bar/S.a),0)+' basis points a year. For a level perpetuity that is a value gain of '+fmt(up[0]*100,1)+' per cent for '+S.lab[0]+' and a value loss of '+fmt(-up[2]*100,1)+' per cent for '+S.lab[2]+', before any change in the cash flows.';
-  R.ch.gbars($('c2'),S.lab,[{name:'h',color:'var(--sage)',vals:p.x_h.map(function(x,k){return (x-S.w[k])*100;})},{name:'0',color:'var(--clay)',vals:p.x_0.map(function(x,k){return (x-S.w[k])*100;})}],{fmt:function(v){return sgn(v,1);}});
-  var rows='<thead><tr><th>Weight, per cent of wealth</th>'+S.lab.map(function(l){return '<th>'+l+'</th>';}).join('')+'<th>Risk-free asset</th></tr></thead><tbody>';
-  rows+='<tr><td>Market</td>'+S.w.map(function(x){return '<td>'+fmt(x*100,1)+'</td>';}).join('')+'<td>0.0</td></tr>';
-  rows+='<tr><td>ESG-minded investors</td>'+p.x_h.map(function(x){return '<td>'+fmt(x*100,1)+'</td>';}).join('')+'<td>'+fmt(p.cash_h*100,1)+'</td></tr>';
-  rows+='<tr><td>Indifferent investors</td>'+p.x_0.map(function(x){return '<td>'+fmt(x*100,1)+'</td>';}).join('')+'<td>'+fmt(p.cash_0*100,1)+'</td></tr></tbody>';
-  $('tw').innerHTML=rows;
-  $('n2').textContent=S.om>=0.999?'With one taste for everyone there is no tilt. The ESG-minded group holds all the wealth and holds the market, the indifferent row describes a group with no wealth, and the alphas of the first chart are still there.':'The bars are the difference from the market weight in percentage points. The ESG-minded investors tilt towards '+S.lab[0].toLowerCase()+' and away from '+S.lab[2].toLowerCase()+', and the indifferent investors do the reverse by the amount that clears the market. The risk-free column shows the leverage or lending that the tilt requires.';
-  var a=[],b=[],k,om,gv;
-  for(k=1;k<=24;k++){om=k/25; gv=W.pstGiveup(S.dh,om,p.q,S.a); a.push([om,-bp(gv[0])]); b.push([om,bp(gv[1])]);}
-  var cur=W.pstGiveup(S.dh,S.om,p.q,S.a), top=Math.max(1,Math.ceil(bp(Math.max.apply(null,b.map(function(z){return z[1];})))*1.15)), bot=Math.min(-1,Math.floor(bp(Math.min.apply(null,a.map(function(z){return z[1];})))*1.15));
-  R.ch.lines($('c3'),[{pts:a,color:'var(--sage)',width:3.5},{pts:b,color:'var(--clay)',width:3.5}],{x0:0,x1:1,y0:bot,y1:top,xl:'Share of wealth held by the ESG-minded group',fy:function(t){return fmt(t,0)+' bp';},fx:function(t){return fmt(t*100,0)+'%';},dots:[[S.om,-bp(cur[0]),'var(--ink)'],[S.om,bp(cur[1]),'var(--ink)']]});
-  $('n3').textContent='At a share of '+fmt(S.om*100,0)+' per cent the ESG-minded investors earn '+fmt(bp(cur[0]),1)+' basis points a year less than the market and the indifferent investors earn '+fmt(bp(cur[1]),1)+' more. The give-up of the ESG-minded group is largest when the two groups hold equal wealth and vanishes at 0 and at 100 per cent, because it is proportional to the product of the two shares. The gain per unit of wealth of the indifferent group keeps rising with the other group’s share, but the group that earns it shrinks to nothing.';
-  var ta='<thead><tr><th></th><th>Market weight</th><th>Volatility</th><th>Score</th><th>Score after centring</th><th>Beta</th><th>Expected excess return</th></tr></thead><tbody>';
-  for(i=0;i<3;i++) ta+='<tr><td>'+S.lab[i]+'</td><td>'+fmt(S.w[i]*100,0)+'%</td><td>'+fmt(S.vol[i]*100,0)+'%</td><td>'+fmt(S.g[i],1)+'</td><td>'+fmt(p.g[i],2)+'</td><td>'+fmt(p.beta[i],2)+'</td><td>'+fmt(p.mu[i]*100,2)+'%</td></tr>';
-  $('ta').innerHTML=ta+'</tbody>';
+  var i,r,sel=REG.filter(function(x){return x.k===S.reg;})[0];
+  $('flatV').textContent=fmt(S.flat*100,2)+'%'; $('gmV').textContent=fmt(S.gm*100,2)+'%'; $('gsV').textContent=fmt(S.gs*100,2)+'%'; $('BV').textContent=fmt(S.B,1); $('TV').textContent=S.T+' years'; $('YV').textContent=S.Y; $('yk').textContent=S.Y;
+  var Dsel=df(S.reg,125), Dflat35=W.discountFactors('flat',125,0.035,0,0);
+  $('s1').textContent=fmt(100*Dsel[S.Y-1],1); $('s2').textContent=fmt(Dsel[S.Y-1]/Dflat35[S.Y-1],2)+'×';
+  var annuity=function(D){var s=0,t;for(t=0;t<S.T;t++)s+=D[t];return s;};
+  $('s3').textContent=fmt(S.B*annuity(Dsel)/100,2); $('s4').textContent=fmt(W.forwardRate(S.reg,50,S.flat,S.gm,S.gs)*100,2)+'%';
+  var series=[],fseries=[];
+  REG.forEach(function(r){var D=df(r.k,125),pts=[[0,1]],fp=[],t;for(t=1;t<=125;t++){pts.push([t,D[t-1]]);fp.push([t,W.forwardRate(r.k,t,S.flat,S.gm,S.gs)*100]);}
+    var w=r.k===S.reg?5:2.5; series.push({pts:pts,color:r.c,width:w,dash:r.d}); fseries.push({pts:fp,color:r.c,width:w,dash:r.d});});
+  R.ch.lines($('c1'),series,{x0:0,x1:125,y0:0,y1:1,xl:'Years from today',xt:[0,25,50,75,100,125],fy:function(t){return fmt(t,1);},fx:function(t){return t;},vlines:[[S.Y,'year '+S.Y]]});
+  $('n1').textContent='A pound received in year '+S.Y+' is worth '+fmt(Dsel[S.Y-1]*100,1)+' pence under the highlighted regime. The thick line is the highlighted regime. Each curve is the product of the yearly factors 1/(1 + rate), so it bends where the schedule steps down.';
+  R.ch.lines($('c2'),fseries,{x0:0,x1:125,y0:0,y1:Math.max(4,Math.ceil(Math.max(S.flat*100,S.gm*100,3.5))),xl:'Year to which the rate applies',xt:[0,25,50,75,100,125],fy:function(t){return fmt(t,1)+'%';},fx:function(t){return t;}});
+  $('n2').textContent='Rates are forward rates, the rate applied to that year alone. In the highlighted regime the rate is '+fmt(W.forwardRate(S.reg,10,S.flat,S.gm,S.gs)*100,2)+' per cent in year 10, '+fmt(W.forwardRate(S.reg,50,S.flat,S.gm,S.gs)*100,2)+' in year 50 and '+fmt(W.forwardRate(S.reg,100,S.flat,S.gm,S.gs)*100,2)+' in year 100.';
+  var pvs=REG.map(function(r){return df(r.k,S.Y)[S.Y-1]*100;}), bcrs=REG.map(function(r){return S.B*annuity(df(r.k,S.T))/100;});
+  R.ch.bars($('c3'),REG.map(function(r,k){return {label:r.s.split(',')[0],sub:r.s.indexOf(',')>0?r.s.split(',')[1].trim():'',value:pvs[k],color:r.c};}),{fmt:function(v){return fmt(v,1);}});
+  var mx=Math.max.apply(null,pvs),mn=Math.min.apply(null,pvs);
+  $('n3').textContent='Present value of 100 received in year '+S.Y+'. The largest is '+fmt(mx,1)+' and the smallest is '+fmt(mn,1)+', a ratio of '+fmt(mx/mn,1)+'.';
+  R.ch.bars($('c4'),REG.map(function(r,k){return {label:r.s.split(',')[0],sub:r.s.indexOf(',')>0?r.s.split(',')[1].trim():'',value:bcrs[k],color:r.c};}),{fmt:function(v){return fmt(v,2);}});
+  var bx=Math.max.apply(null,bcrs),bn=Math.min.apply(null,bcrs);
+  $('n4').textContent='Benefit-cost ratio of '+fmt(S.B,1)+' a year for '+S.T+' years against a cost of 100. It runs from '+fmt(bn,2)+' to '+fmt(bx,2)+', a ratio of '+fmt(bx/bn,2)+', against '+fmt(mx/mn,1)+' for the single distant amount. Projects with a ratio near 1 are the ones whose ranking depends on the schedule.';
 }
-function setPreset(k){var p=PRE.filter(function(x){return x.k===k;})[0]; if(!p.lab) return; S.lab=p.lab.slice(); S.w=p.w.slice(); S.vol=p.vol.slice(); S.g=p.g.slice(); if(p.om!==undefined) S.om=p.om; else S.om=0.3;
-  for(var i=0;i<3;i++) $('g'+i).value=S.g[i]; $('om').value=S.om;}
-$('pre').addEventListener('change',function(e){setPreset(e.target.value);draw();});
+$('reg').addEventListener('change',function(e){S.reg=e.target.value;draw();});
 var pending=null;
-['a','dh','om','rho'].forEach(function(k){$(k).addEventListener('input',function(e){S[k]=+e.target.value; if(k==='om'&&$('pre').value==='one')$('pre').value='cus'; if(pending)cancelAnimationFrame(pending);pending=requestAnimationFrame(draw);});});
-[0,1,2].forEach(function(i){$('g'+i).addEventListener('input',function(e){S.g[i]=+e.target.value;$('pre').value='cus';if(pending)cancelAnimationFrame(pending);pending=requestAnimationFrame(draw);});});
+[['flat',100],['gm',100],['gs',100],['B',1],['T',1],['Y',1]].forEach(function(kv){var k=kv[0],d=kv[1];$(k).addEventListener('input',function(e){S[k]=+e.target.value/d;if(pending)cancelAnimationFrame(pending);pending=requestAnimationFrame(draw);});});
 draw();
 })();
 </script>

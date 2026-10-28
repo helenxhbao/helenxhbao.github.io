@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Falling Prices, Growing Demand and the Life of a Capacity Asset</title>
+<style>:root{
+  --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+  --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B;
+  --serif:Georgia,"Times New Roman",serif; --fig:"Times New Roman",Times,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+}
+:root[data-theme="dark"]{ --ground:#191714; --panel:#221F1B; --ink:#EFE9DE; --muted:#A39C8E; --accent:#D69A6B; --clay:#C98E5E;
+         --sand:#2E2923; --sage:#9BAA8E; --slate:#8FB1C9; --line:#3A342C; --grid:#2A251F; --focus:#D69A6B; }
+:root[data-theme="light"]{ --ground:#FBF8F2; --panel:#FFFFFF; --ink:#1C1B18; --muted:#6A665E; --accent:#7A4B2B; --clay:#A9714B;
+         --sand:#EDE4D6; --sage:#6E7B63; --slate:#46647A; --line:#DCD2C2; --grid:#EFE8DC; --focus:#7A4B2B; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--serif); line-height:1.5; }
+.wrap{ max-width:1180px; margin:0 auto; padding:26px 26px 60px; }
+h1{ font-size:26px; font-weight:600; margin:0 0 6px; text-wrap:balance; }
+h2{ font-size:17px; font-weight:700; margin:0 0 6px; }
+.lede{ font-size:15px; color:var(--muted); margin:0 0 4px; max-width:900px; }
+.provenance{ font-size:12.5px; color:var(--muted); margin:10px 0 0; max-width:1000px; }
+.rule{ border:0; border-top:1px solid var(--line); margin:20px 0 22px; }
+.main{ display:grid; grid-template-columns:334px minmax(0,1fr); gap:30px; align-items:start; margin-top:18px; }
+.main > *{ min-width:0; }
+@media(max-width:920px){ .main{ grid-template-columns:minmax(0,1fr); gap:22px; } }
+.rail{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+.card{ background:var(--panel); border:1px solid var(--line); padding:15px 16px 17px; min-width:0; }
+.step{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 3px; }
+.cardsub{ font-size:12.5px; color:var(--muted); margin:0 0 12px; }
+label.f{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:0 0 4px; }
+select, input[type=number]{ font-family:var(--serif); font-size:14px; width:100%; min-width:0; padding:6px 8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+input[type=range]{ width:100%; accent-color:var(--accent); }
+.field{ margin-bottom:12px; } .field:last-child{ margin-bottom:0; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+.val{ float:right; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; letter-spacing:0; text-transform:none; font-size:13px; }
+label.chk{ display:flex; gap:8px; align-items:flex-start; font-size:13.5px; cursor:pointer; margin-bottom:6px; }
+label.chk input{ margin-top:4px; accent-color:var(--accent); }
+select:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+button.go{ font-family:var(--serif); font-size:13.5px; border:1px solid var(--accent); color:var(--panel); background:var(--accent); padding:7px 14px; cursor:pointer; }
+button.go:hover{ filter:brightness(1.1); }
+button.alt{ font-family:var(--serif); font-size:13px; border:1px solid var(--accent); color:var(--accent); background:var(--panel); padding:6px 12px; cursor:pointer; margin-left:6px; }
+button.alt:hover{ background:var(--sand); }
+.stats{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:0 0 14px; }
+.stats > div{ background:var(--panel); padding:9px 12px; }
+.stats .k{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.stats .v{ font-family:var(--fig); font-size:20px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+.stats .s{ font-size:11.5px; color:var(--muted); }
+@media(max-width:700px){ .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.chartcard{ padding:14px 14px 10px; margin-bottom:16px; }
+.chartcard svg{ width:100%; height:auto; display:block; }
+.legend{ display:flex; gap:16px; font-size:12.5px; color:var(--muted); margin:6px 2px 0; flex-wrap:wrap; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend i.ln{ border-radius:0; height:3px; width:18px; vertical-align:3px; }
+.legend i.sq{ border-radius:0; }
+.note{ font-size:12.5px; color:var(--muted); margin:8px 2px 0; }
+.explain p{ margin:0 0 9px; font-size:14.5px; } .explain ul{ margin:0 0 9px; padding-left:19px; font-size:14px; } .explain li{ margin-bottom:4px; }
+.explain .tag{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--accent); margin:0 0 3px; }
+.lower{ margin-top:22px; display:grid; gap:18px; }
+table.t{ border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--grid); }
+table.t th:first-child, table.t td:first-child{ text-align:left; }
+table.t th{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+.q{ font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px; margin:10px 0 0; }
+.hub a.tile{ display:block; text-decoration:none; color:inherit; background:var(--panel); border:1px solid var(--line); padding:16px 18px; margin:0 0 14px; }
+.hub a.tile:hover{ border-color:var(--accent); }
+.hub a.tile b{ display:block; font-size:17px; color:var(--accent); margin-bottom:3px; }
+.hub a.tile span{ font-size:14px; color:var(--muted); }
+svg text{ font-family:var(--fig); fill:var(--ink); }
+svg .mut{ fill:var(--muted); }
+svg .axis{ stroke:var(--muted); stroke-width:1; }
+svg .gridl{ stroke:var(--grid); stroke-width:1; }
+
+.legend i.dash{ border-radius:0; height:0; width:18px; border-top:2px dashed var(--muted); vertical-align:4px; background:none; }
+.pick{ margin-bottom:12px; }
+.src th{ text-align:left !important; } .src td{ text-align:left !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>When the price of capacity falls every year, what is a cable worth?</h1>
+  <p class="lede">A submarine cable is built once, lasts on paper for 25 years, and sells capacity whose price per unit has fallen year after year while the demand for capacity has grown even faster. Revenue is price times the quantity sold, and one of the two is falling. This page takes a stylised cable: demand for its capacity grows from an initial fill, price per unit falls at a steady rate, the cable's capacity is fixed until it is upgraded by changing the equipment at the ends of the cable, and the asset has a finite life. Set the rates of price fall and demand growth, the cost of the upgrades and the life, and see when revenue peaks, whether it falls afterwards, and what the asset is worth.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 7. The two rates that drive the page come from TeleGeography's <i>State of the Network 2026</i> (Transport Networks findings): used international bandwidth demand grew 45 per cent in 2020 and 29 per cent in 2024, a compound rate of 32 per cent from 2020 and a total of 6.4 petabits a second in 2024 (page 7); the weighted median price of an unprotected 100 gigabit wavelength fell by 11 per cent a year on average across the key routes between the fourth quarters of 2021 and 2024, by 25 per cent a year between Miami and S&atilde;o Paulo, 15 per cent between Johannesburg and London, 6 per cent between Singapore and Tokyo and 2 per cent between Marseille and Singapore (pages 13 and 14). New submarine cables were built at an average cost of over US$2 billion a year over the nine years to 2024, and cables worth over US$14 billion may enter service from 2025 to 2027 (pages 11 and 12). A design life of 25 years is the industry convention for the submerged plant, and the equipment at the cable stations is commonly upgraded several times in that life (SubTel Forum; PTC&rsquo;24 slides, listed below). The demand growth for this particular cable is a setting of yours: route demand grows by about 29 per cent a year, but a cable shares it with the others that serve the route, so the default is 15. The revenue at full capacity in the first year, the initial fill, the build cost, the operating cost, the size and cost of upgrades and the discount rate are generic and mine, chosen so that the default cable earns a little more than its cost of capital with two upgrades and a little less without them. They are not estimates for any cable. The model was computed twice, in Python and in this page, and the two agree on 300 random settings.</p>
+  <hr class="rule">
+  <div class="main">
+    <div class="rail">
+      <div class="card">
+        <p class="step">1. The market</p>
+        <p class="cardsub">Price, demand and the cable's initial position</p>
+        <div class="field pick"><label class="f" for="pre">Start from</label><select id="pre"></select></div>
+        <div class="field"><label class="f" for="d">Fall in the price of capacity a year <span class="val" id="dV"></span></label><input type="range" id="d" min="0" max="30" step="0.5" value="11"><p class="hint">TeleGeography: 11 on average across key routes, 2 to 25 by route.</p></div>
+        <div class="field"><label class="f" for="g">Growth of demand for this cable a year <span class="val" id="gV"></span></label><input type="range" id="g" min="0" max="45" step="0.5" value="15"><p class="hint">Route demand grew about 29 in 2024; this cable shares it.</p></div>
+        <div class="field"><label class="f" for="f0">Capacity sold in the first year <span class="val" id="f0V"></span></label><input type="range" id="f0" min="10" max="80" step="1" value="30"><p class="hint">Per cent of the cable's initial capacity.</p></div>
+        <div class="field"><label class="f" for="R0">Revenue at full capacity in year 1 <span class="val" id="R0V"></span></label><input type="range" id="R0" min="100" max="400" step="5" value="250"><p class="hint">Millions a year, before price falls.</p></div>
+      </div>
+      <div class="card">
+        <p class="step">2. The asset</p>
+        <p class="cardsub">Cost, life, upgrades and the rate of return</p>
+        <div class="field"><label class="f" for="cx">Build cost <span class="val" id="cxV"></span></label><input type="range" id="cx" min="200" max="1000" step="10" value="600"><p class="hint">Millions.</p></div>
+        <div class="field"><label class="f" for="ox">Operating cost a year <span class="val" id="oxV"></span></label><input type="range" id="ox" min="0" max="6" step="0.1" value="2.5"><p class="hint">Per cent of the build cost.</p></div>
+        <div class="field"><label class="f" for="L">Life <span class="val" id="LV"></span></label><input type="range" id="L" min="5" max="30" step="1" value="25"></div>
+        <div class="field"><label class="f" for="r">Discount rate <span class="val" id="rV"></span></label><input type="range" id="r" min="4" max="14" step="0.25" value="8"></div>
+        <div class="field"><label class="f" for="n">Upgrades allowed <span class="val" id="nV"></span></label><input type="range" id="n" min="0" max="3" step="1" value="2"><p class="hint">Each is taken in the first year demand exceeds capacity.</p></div>
+        <div class="field"><label class="f" for="m">Capacity gained by each upgrade <span class="val" id="mV"></span></label><input type="range" id="m" min="1.5" max="4" step="0.1" value="2"></div>
+        <div class="field"><label class="f" for="u">Cost of each upgrade <span class="val" id="uV"></span></label><input type="range" id="u" min="5" max="40" step="1" value="15"><p class="hint">Per cent of the build cost. My assumption.</p></div>
+      </div>
+    </div>
+    <div>
+      <div class="stats">
+        <div><div class="k">Net present value</div><div class="v" id="s1">&mdash;</div><div class="s" id="s1s">millions, at your discount rate</div></div>
+        <div><div class="k">Internal rate of return</div><div class="v" id="s2">&mdash;</div><div class="s" id="s2s">per year</div></div>
+        <div><div class="k">Revenue peaks in year</div><div class="v" id="s3">&mdash;</div><div class="s" id="s3s">of the asset's life</div></div>
+        <div><div class="k">Upgrades taken</div><div class="v" id="s4">&mdash;</div><div class="s" id="s4s">in years</div></div>
+      </div>
+      <div class="card chartcard">
+        <h2>Revenue each year, with and without upgrades</h2>
+        <svg id="c1" viewBox="0 0 1000 420" role="img" aria-label="Line chart of revenue against year for your settings and for the same cable with no upgrades"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--accent)"></i>Your upgrades</span><span><i class="ln" style="background:var(--slate)"></i>No upgrades</span></div>
+        <p class="note" id="n1"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Value against the speed of price erosion</h2>
+        <svg id="c2" viewBox="0 0 1000 420" role="img" aria-label="Line chart of net present value against the annual fall in the price of capacity"></svg>
+        <div class="legend"><span><i class="ln" style="background:var(--accent)"></i>Your upgrades</span><span><i class="ln" style="background:var(--slate)"></i>No upgrades</span></div>
+        <p class="note" id="n2"></p>
+      </div>
+      <div class="card chartcard">
+        <h2>Value against the life of the asset</h2>
+        <svg id="c3" viewBox="0 0 1000 400" role="img" aria-label="Line chart of net present value against the life of the asset, for your settings"></svg>
+        <p class="note" id="n3"></p>
+      </div>
+    </div>
+  </div>
+  <div class="lower">
+    <div class="card explain">
+      <p class="tag">What the model says</p>
+      <p>Revenue in a year is the price per unit, which has been falling, times the smaller of the demand for the cable's capacity and the capacity it has. While demand is below capacity, revenue grows at about the growth of demand less the fall in price: at 15 per cent growth and an 11 per cent fall, about 2 per cent a year. When demand reaches the capacity of the cable the quantity stops growing, and with no upgrade revenue falls at the rate of the price fall, here 11 per cent a year, for the remainder of the life. The first chart shows that peak and the fall after it, and what an upgrade does: it lets the quantity go on growing, at a cost of a fraction of the original build, so that revenue climbs to a second peak.</p>
+      <p>Two things follow, and both are about how the technology and the market shape value. The first is that the price of a unit of capacity falls on every route, but unevenly: TeleGeography reports 25 per cent a year between Miami and S&atilde;o Paulo, where new cables were arriving, and 2 per cent between Marseille and Singapore, where cables had been delayed by geopolitics and permitting. A cable's value depends sharply on which of these it is on, as the second chart shows, and on whether the next cable to serve the route is already being built. The second is that the option to upgrade is where much of the value lies, so a cable whose owners can add capacity cheaply, because they own the fibre pairs and the stations, is worth more than one whose capacity is sold to others on long contracts that fix its price. In the cable business that option has moved to the buyers of capacity: content and cloud companies accounted for almost three quarters of international bandwidth demand in 2024 and, with others, own or lead a rising share of new cables.</p>
+      <p>The third chart takes the life of the asset to its limit. A cable with a 25-year design life that can be retired early for commercial reasons, or a satellite with a life of five years, must recover its cost sooner, and a falling price leaves less time to do so. The point is general: for any digital asset whose product loses price every year, the question is how long the equipment lasts relative to how quickly its output cheapens.</p>
+      <p class="tag" style="margin-top:14px">Where the numbers and pages come from</p>
+      <table class="t src"><thead><tr><th>Item</th><th>Source</th></tr></thead><tbody>
+        <tr><td>Used international bandwidth demand up 45% in 2020 and 29% in 2024; a 32% compound rate from 2020; 6.4 Pbps in 2024; Africa above 40% a year; the United States about 29%</td><td>TeleGeography (2026), State of the Network 2026, Transport Networks findings, pages 7 and 8 (of the PDF)</td></tr>
+        <tr><td>Content and cloud networks accounted for almost three quarters of bandwidth demand in 2024, and at least 80% on the trans-Atlantic, trans-Pacific and intra-Asian routes</td><td>Same, page 10</td></tr>
+        <tr><td>Cost of new submarine cables over the past nine years averaged over US$2 billion a year; cables worth over US$14 billion planned to enter service from 2025 to 2027, over US$3 billion of it trans-Pacific</td><td>Same, pages 11 and 12</td></tr>
+        <tr><td>Weighted median price of an unprotected 100 Gbps wavelength down 11% a year on average, Q4 2021 to Q4 2024; Miami to S&atilde;o Paulo &minus;25% to US$12,000 a month; Johannesburg to London &minus;15% (US$32,272 a month on Africa-Europe, 5.9 times London-New York); Singapore to Tokyo &minus;6%; Marseille to Singapore &minus;2%</td><td>Same, pages 13 and 14</td></tr>
+        <tr><td>Design life of 25 years for the submerged plant; equipment at the landing stations is commonly upgraded several times in a cable's life; cables are often retired early for commercial reasons</td><td>SubTel Forum, <i>Submarine cable design life: lessons</i>; Andrew Robinson, PTC&rsquo;24 slides on cable life and upgrades (secondary; not read in full)</td></tr>
+        <tr><td>Starlink satellites are designed to serve for five years or more at operating altitude</td><td>SpaceX, Starlink space safety pages, constellation altitudes</td></tr>
+        <tr><td>Revenue at full capacity, initial fill, build and operating cost, upgrade size and cost, discount rate; the choice that the cable's demand grows more slowly than the route's</td><td>Mine. Illustrative and not calibrated to any cable</td></tr>
+      </tbody></table>
+      <p class="note">The model treats demand for the cable as a smooth growth path and ignores the arrival of competing cables as an event, except through the price fall. It has one price for all capacity, no sale of capacity in advance (the indefeasible rights of use that fund many cables), no repair costs and no residual value. A real cable's revenue depends on contracts, on who the capacity is sold to and on faults. The page is a way of seeing how the two rates interact with capacity and life, and what an upgrade option is worth.</p>
+      <p class="q">Start from the default, set the price fall to 25 per cent a year (the Miami to S&atilde;o Paulo rate) and then to 2 per cent (Marseille to Singapore). Report the net present value each time with and without upgrades, and say what an investor should want to know about the next cable on the route.</p>
+      <p class="q">Take the life down to 5 years with the price fall at 25 per cent and no upgrades. Report the value, and say what it implies for the financing of an asset that is built to last 25 years but sells a product whose price halves every three years.</p>
+    </div>
+  </div>
+</div>
+<script>/* Shared helpers for the RE07 Block B pages: random numbers, least squares, and small SVG drawing tools. */
+(function(g){
+'use strict';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function RNG(seed){var r=mulberry32(seed>>>0||1);var spare=null;
+  return {u:r,
+    n:function(){ if(spare!==null){var s=spare;spare=null;return s;} var u=0,v=0; while(u===0)u=r(); v=r();
+      var m=Math.sqrt(-2*Math.log(u)); spare=m*Math.sin(2*Math.PI*v); return m*Math.cos(2*Math.PI*v);},
+    int:function(n){return Math.floor(r()*n);}};
+}
+/* Solve A x = b for a small symmetric positive definite matrix by Gaussian elimination. */
+function solve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=i;j<=n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=i;j2<=n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r[n];});}
+function inverse(A){var n=A.length,M=A.map(function(r,i){var e=new Array(n).fill(0);e[i]=1;return r.concat(e);});
+  for(var i=0;i<n;i++){var p=i;for(var k=i+1;k<n;k++)if(Math.abs(M[k][i])>Math.abs(M[p][i]))p=k;
+    var t=M[i];M[i]=M[p];M[p]=t; var d=M[i][i]; if(Math.abs(d)<1e-14) return null;
+    for(var j=0;j<2*n;j++)M[i][j]/=d;
+    for(var k2=0;k2<n;k2++){if(k2===i)continue;var f=M[k2][i];if(f===0)continue;for(var j2=0;j2<2*n;j2++)M[k2][j2]-=f*M[i][j2];}}
+  return M.map(function(r){return r.slice(n);});}
+/* OLS of y on the columns in X (array of rows). Returns coefficients, residuals and (X'X)^-1. */
+function ols(X,y){var n=y.length,k=X[0].length,XtX=[],Xty=new Array(k).fill(0),i,j,r;
+  for(i=0;i<k;i++)XtX.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var x=X[r];for(i=0;i<k;i++){Xty[i]+=x[i]*y[r];for(j=i;j<k;j++)XtX[i][j]+=x[i]*x[j];}}
+  for(i=0;i<k;i++)for(j=0;j<i;j++)XtX[i][j]=XtX[j][i];
+  var inv=inverse(XtX); if(!inv) return null;
+  var b=new Array(k).fill(0);for(i=0;i<k;i++)for(j=0;j<k;j++)b[i]+=inv[i][j]*Xty[j];
+  var res=new Array(n);for(r=0;r<n;r++){var f=0;for(i=0;i<k;i++)f+=X[r][i]*b[i];res[r]=y[r]-f;}
+  return {b:b,res:res,inv:inv,n:n,k:k};}
+/* Cluster-robust standard errors (CR1) by the grouping vector cl. */
+function olsCluster(X,y,cl){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,groups={},r,i,j;
+  for(r=0;r<n;r++){var c=cl[r];if(!groups[c])groups[c]=new Array(k).fill(0);for(i=0;i<k;i++)groups[c][i]+=X[r][i]*fit.res[r];}
+  var meat=[];for(i=0;i<k;i++)meat.push(new Array(k).fill(0));var G=0;
+  for(var c2 in groups){G++;var s=groups[c2];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=s[i]*s[j];}
+  var adj=(G/(G-1))*((n-1)/(n-k)),V=[];
+  for(i=0;i<k;i++){V.push(new Array(k).fill(0));for(j=0;j<k;j++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][j];V[i][j]=a*adj;}}
+  return {b:fit.b,se:V.map(function(row,i){return Math.sqrt(Math.max(row[i],0));}),n:n,G:G};}
+/* Heteroskedasticity-robust (HC1) standard errors. */
+function olsHC1(X,y){var fit=ols(X,y); if(!fit) return null; var k=fit.k,n=fit.n,meat=[],i,j,r;
+  for(i=0;i<k;i++)meat.push(new Array(k).fill(0));
+  for(r=0;r<n;r++){var u2=fit.res[r]*fit.res[r];for(i=0;i<k;i++)for(j=0;j<k;j++)meat[i][j]+=X[r][i]*X[r][j]*u2;}
+  var adj=n/(n-k),se=[];
+  for(i=0;i<k;i++){var a=0;for(var p=0;p<k;p++)for(var q=0;q<k;q++)a+=fit.inv[i][p]*meat[p][q]*fit.inv[q][i];se.push(Math.sqrt(Math.max(a*adj,0)));}
+  return {b:fit.b,se:se,n:n};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function sd(a){var m=mean(a),s=0;for(var i=0;i<a.length;i++)s+=(a[i]-m)*(a[i]-m);return Math.sqrt(s/(a.length-1));}
+function pct(a,p){var s=a.slice().sort(function(x,y){return x-y;});var i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function fmt(x,d){if(x===null||x===undefined||!isFinite(x))return '—';d=d===undefined?2:d;var s=Math.abs(x).toFixed(d);return (x<0&&+s!==0?'−':'')+s;}
+function niceTicks(lo,hi,n){var span=hi-lo,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=n/span*step;
+  if(err<=.15)step*=10;else if(err<=.35)step*=5;else if(err<=.75)step*=2;
+  var a=Math.ceil(lo/step-1e-9)*step,t=[];for(var v=a;v<=hi+1e-9;v+=step)t.push(Math.round(v/step)*step);return t;}
+function lin(d0,d1,r0,r1){return function(v){return r0+(v-d0)/(d1-d0)*(r1-r0);};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
+})(window);
+</script>
+<script>/* Week 7 teaching models (JavaScript copy of models_w7.py; check_models_w7.py compares the two). */
+(function(g){
+'use strict';
+var R=g.RE07=g.RE07||{}, W=R.w7={};
+function irr(flows){
+  function npv(i){ var s=0,t; for(t=0;t<flows.length;t++) s+=flows[t]/Math.pow(1+i,t); return s; }
+  var lo=-0.99,hi=10,flo=npv(lo),fhi=npv(hi),k,mid,fm;
+  if(flo*fhi>0) return NaN;
+  for(k=0;k<200;k++){ mid=(lo+hi)/2; fm=npv(mid); if((fm>0)===(flo>0)){lo=mid;flo=fm;} else hi=mid; }
+  return (lo+hi)/2;
+}
+W.irr=irr;
+/* 1. Roll-out of a fixed access network, per premises passed */
+function takeupPath(tu,ramp,H){ var out=[],t; for(t=1;t<=H;t++) out.push(tu*Math.min(1,t/ramp)); return out; }
+function roll(cp,cc,opex,pia,marketTu,share,ramp,price,r,H){
+  var tu=marketTu*share,s=takeupPath(tu,ramp,H),prev=0,df=[],t,pvCost=cp,pvLines=0,flows=[-cp],ds,costT;
+  for(t=0;t<=H;t++) df.push(Math.pow(1+r,-t));
+  for(t=1;t<=H;t++){ ds=s[t-1]-prev; prev=s[t-1]; costT=(opex+pia)*s[t-1]+cc*ds; pvCost+=costT*df[t]; pvLines+=s[t-1]*df[t]; flows.push(price*12*s[t-1]-costT); }
+  var be=pvLines>0?pvCost/(12*pvLines):Infinity, npv=0, cum=0, payback=null, A=0;
+  for(t=0;t<=H;t++){ npv+=flows[t]*df[t]; cum+=flows[t]; if(payback===null&&cum>=0&&t>0) payback=t; }
+  for(t=1;t<=H;t++){ A+=((price*12-opex-pia)*Math.min(1,t/ramp)-cc*(Math.min(1,t/ramp)-Math.min(1,(t-1)/ramp)))*df[t]; }
+  return {be_price:be,npv:npv,irr:irr(flows),payback:payback,tu:tu,tu_be:A>0?cp/A:Infinity,flows:flows,s:s};
+}
+W.takeupPath=takeupPath; W.roll=roll;
+/* 2. Shared passive site, per site per year */
+function tower(revT,tau0,m0,phi,D,K,tau){
+  var opex0=tau0*revT*(1-m0),F=phi*opex0,v=(1-phi)*opex0/tau0,rev=tau*revT,ebitda=rev-v*tau-F,margin=rev>0?ebitda/rev:NaN,fcf=ebitda-D;
+  return {F:F,v:v,rev:rev,ebitda:ebitda,margin:margin,fcf:fcf,roic:fcf/K,marginal_ebitda:revT-v,marginal_margin:(revT-v)/revT};
+}
+function towerTauForRoic(revT,tau0,m0,phi,D,K,target){
+  var t1=tower(revT,tau0,m0,phi,D,K,1),t2=tower(revT,tau0,m0,phi,D,K,2),slope=t2.roic-t1.roic;
+  return slope>0?1+(target-t1.roic)/slope:Infinity;
+}
+W.tower=tower; W.towerTauForRoic=towerTauForRoic;
+/* 3. Price decline, demand growth and the life of a capacity asset */
+function capacity(R0,f0,gr,d,capex,opexPct,L,r,m,u,nUp){
+  var flows=[-capex],rev=[],cap=[],ups=[],left=nUp,K=1,t,demand,upCost,sold,rt,npv=0,peak=0,best=-Infinity,tot=0;
+  for(t=1;t<=L;t++){
+    demand=f0*Math.pow(1+gr,t-1); upCost=0;
+    if(demand>K&&left>0){ K*=m; left-=1; upCost=u*capex; ups.push(t); }
+    sold=Math.min(demand,K); rt=R0*Math.pow(1-d,t-1)*sold; rev.push(rt); cap.push(K); tot+=rt; flows.push(rt-opexPct*capex-upCost);
+  }
+  for(t=0;t<flows.length;t++) npv+=flows[t]/Math.pow(1+r,t);
+  for(t=0;t<rev.length;t++) if(rev[t]>best){best=rev[t];peak=t+1;}
+  return {npv:npv,irr:irr(flows),rev:rev,cap:cap,flows:flows,peak:peak,upgrades:ups,total_rev:tot};
+}
+W.capacity=capacity;
+})(window);
+</script>
+<script>/* Small SVG chart helpers for the Week 7 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+(function(g){
+'use strict';
+var R=g.RE07;
+function axisY(s,y,L,Rr,lo,hi,n,fmtf){R.niceTicks(lo,hi,n).forEach(function(t){s.push('<line class="gridl" x1="'+L+'" y1="'+y(t)+'" x2="'+Rr+'" y2="'+y(t)+'"/><text class="mut" x="'+(L-8)+'" y="'+(y(t)+5)+'" text-anchor="end" font-size="16">'+(fmtf?fmtf(t):t)+'</text>');});}
+/* bars: [{label, value, color, note}] ; one bar per category */
+function bars(el,items,o){
+  o=o||{}; var W=1000,H=o.h||380,L=80,Rr=W-30,T=30,B=70,lo=Math.min(0,o.lo!==undefined?o.lo:Math.min.apply(null,items.map(function(d){return d.value;}))*1.15),
+      hi=o.hi!==undefined?o.hi:Math.max.apply(null,items.map(function(d){return d.value;}))*1.18, y=R.lin(lo,hi,H-B,T), s=[], n=items.length, bw=(Rr-L)/n;
+  axisY(s,y,L,Rr,lo,hi,5,o.fmt);
+  s.push('<line class="axis" x1="'+L+'" y1="'+y(0)+'" x2="'+Rr+'" y2="'+y(0)+'"/>');
+  items.forEach(function(d,k){var x0=L+k*bw+bw*0.2,w=bw*0.6,y0=y(Math.max(d.value,0)),y1=y(Math.min(d.value,0));
+    s.push('<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+Math.max(1,y1-y0)+'" fill="'+d.color+'"/>');
+    s.push('<text x="'+(x0+w/2)+'" y="'+(d.value>=0?y0-8:y1+20)+'" text-anchor="middle" font-size="18" font-weight="700">'+(o.fmt?o.fmt(d.value):R.fmt(d.value,1))+'</text>');
+    s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+26)+'" text-anchor="middle" font-size="16">'+d.label+'</text>');
+    if(d.sub) s.push('<text class="mut" x="'+(x0+w/2)+'" y="'+(H-B+46)+'" text-anchor="middle" font-size="14">'+d.sub+'</text>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+}
+/* lines: series [{pts:[[x,y]], color, width, dash, label}] */
+function lines(el,series,o){
+  var W=1000,H=o.h||420,L=80,Rr=W-30,T=26,B=60,xs=[],ys=[]; series.forEach(function(se){se.pts.forEach(function(p){xs.push(p[0]);ys.push(p[1]);});});
+  var x0=o.x0!==undefined?o.x0:Math.min.apply(null,xs),x1=o.x1!==undefined?o.x1:Math.max.apply(null,xs),y0=o.y0!==undefined?o.y0:Math.min.apply(null,ys),y1=o.y1!==undefined?o.y1:Math.max.apply(null,ys);
+  var x=R.lin(x0,x1,L,Rr),y=R.lin(y0,y1,H-B,T),s=[];
+  axisY(s,y,L,Rr,y0,y1,6,o.fy);
+  R.niceTicks(x0,x1,8).forEach(function(t){s.push('<text class="mut" x="'+x(t)+'" y="'+(H-B+24)+'" text-anchor="middle" font-size="16">'+(o.fx?o.fx(t):t)+'</text>');});
+  s.push('<text class="mut" x="'+Rr+'" y="'+(H-8)+'" text-anchor="end" font-size="16">'+(o.xl||'')+'</text>');
+  (o.bands||[]).forEach(function(b){s.push('<rect x="'+x(b[0])+'" y="'+T+'" width="'+(x(b[1])-x(b[0]))+'" height="'+(H-B-T)+'" fill="'+b[2]+'" opacity="0.5"/>');if(b[3])s.push('<text class="mut" x="'+((x(b[0])+x(b[1]))/2)+'" y="'+(T+18)+'" text-anchor="middle" font-size="15">'+b[3]+'</text>');});
+  (o.hlines||[]).forEach(function(h){s.push('<line x1="'+L+'" y1="'+y(h[0])+'" x2="'+Rr+'" y2="'+y(h[0])+'" stroke="'+(h[2]||'var(--muted)')+'" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(Rr-4)+'" y="'+(y(h[0])-6)+'" text-anchor="end" font-size="15">'+h[1]+'</text>');});
+  (o.vlines||[]).forEach(function(v){s.push('<line x1="'+x(v[0])+'" y1="'+T+'" x2="'+x(v[0])+'" y2="'+(H-B)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/><text class="mut" x="'+(x(v[0])+6)+'" y="'+(H-B-8)+'" font-size="15">'+v[1]+'</text>');});
+  series.forEach(function(se){var d='';se.pts.forEach(function(p,k){d+=(k?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1);});
+    s.push('<path d="'+d+'" fill="none" stroke="'+se.color+'" stroke-width="'+(se.width||3.5)+'"'+(se.dash?' stroke-dasharray="'+se.dash+'"':'')+' stroke-linejoin="round"/>');});
+  (o.dots||[]).forEach(function(p){s.push('<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="6" fill="'+p[2]+'" stroke="var(--panel)" stroke-width="2"/>');});
+  el.setAttribute('viewBox','0 0 '+W+' '+H); el.innerHTML=s.join('');
+  return {x:x,y:y};
+}
+R.ch={bars:bars,lines:lines};
+})(window);
+</script>
+<script>
+(function(){
+var R=RE07, W=R.w7, $=function(id){return document.getElementById(id);}, fmt=R.fmt;
+var PRE=[{t:'A generic cable, 11% price fall and 15% demand growth',d:11,g:15,f0:30,R0:250,cx:600,ox:2.5,L:25,r:8,n:2,m:2,u:15},
+  {t:'Average key route (11% price fall), demand growing at the route rate (29%)',d:11,g:29,f0:30,R0:250,cx:600,ox:2.5,L:25,r:8,n:2,m:2,u:15},
+  {t:'Slow erosion: Marseille to Singapore (2% a year)',d:2,g:15,f0:30,R0:250,cx:600,ox:2.5,L:25,r:8,n:2,m:2,u:15},
+  {t:'Fast erosion: Miami to São Paulo (25% a year)',d:25,g:15,f0:30,R0:250,cx:600,ox:2.5,L:25,r:8,n:2,m:2,u:15},
+  {t:'A stylised five-year asset in a market where prices fall 25% a year',d:25,g:29,f0:30,R0:250,cx:600,ox:2.5,L:5,r:8,n:0,m:2,u:15},
+  {t:'My own settings (use the sliders)',d:null}];
+PRE.forEach(function(p,i){var o=document.createElement('option');o.value=i;o.textContent=p.t;$('pre').appendChild(o);}); $('pre').value=0;
+var S={d:11,g:15,f0:30,R0:250,cx:600,ox:2.5,L:25,r:8,n:2,m:2,u:15}, KEYS=['d','g','f0','R0','cx','ox','L','r','n','m','u'];
+function run(o){var q=Object.assign({},S,o||{}); return W.capacity(q.R0,q.f0/100,q.g/100,q.d/100,q.cx,q.ox/100,q.L,q.r/100,q.m,q.u/100,q.n);}
+function draw(){
+  $('dV').textContent=fmt(S.d,1)+'%'; $('gV').textContent=fmt(S.g,1)+'%'; $('f0V').textContent=S.f0+'%'; $('R0V').textContent='$'+S.R0+'m'; $('cxV').textContent='$'+S.cx+'m';
+  $('oxV').textContent=fmt(S.ox,1)+'%'; $('LV').textContent=S.L+' years'; $('rV').textContent=fmt(S.r,2)+'%'; $('nV').textContent=S.n; $('mV').textContent=fmt(S.m,1)+' times'; $('uV').textContent=S.u+'%';
+  var o=run(), z=run({n:0});
+  $('s1').textContent='$'+fmt(o.npv,0)+'m'; $('s1s').textContent='millions, against '+fmt(z.npv,0)+' with no upgrades';
+  $('s2').textContent=isFinite(o.irr)?fmt(o.irr*100,1)+'%':'n/a'; $('s2s').textContent='per year, against a discount rate of '+fmt(S.r,2)+'%';
+  $('s3').textContent=o.peak; $('s3s').textContent='of '+S.L+' (year '+z.peak+' with no upgrades)';
+  $('s4').textContent=o.upgrades.length?o.upgrades.length:'None'; $('s4s').textContent=o.upgrades.length?'in year '+o.upgrades.join(' and '):'demand does not exceed capacity, or none allowed';
+  var years=[],t; for(t=1;t<=S.L;t++) years.push(t);
+  var s1=years.map(function(y,i){return [y,o.rev[i]];}), s2=years.map(function(y,i){return [y,z.rev[i]];});
+  var ymax=Math.ceil(Math.max(Math.max.apply(null,o.rev),Math.max.apply(null,z.rev))/50)*50;
+  R.ch.lines($('c1'),[{pts:s2,color:'var(--slate)',width:3},{pts:s1,color:'var(--accent)',width:3.5}],{x0:1,x1:Math.max(S.L,2),y0:0,y1:Math.max(ymax,50),hlines:[[S.cx*S.ox/100,'Operating cost']],xl:'Year',fy:function(v){return Math.round(v);},fx:function(v){return Math.round(v);}});
+  $('n1').textContent='With your settings revenue peaks at '+fmt(Math.max.apply(null,o.rev),0)+' million in year '+o.peak+(o.upgrades.length?', after upgrades in year '+o.upgrades.join(' and '):'')+', and ends at '+fmt(o.rev[o.rev.length-1],0)+' million. With no upgrades it peaks at '+fmt(Math.max.apply(null,z.rev),0)+' million in year '+z.peak+' and falls to '+fmt(z.rev[z.rev.length-1],0)+'.';
+  var ds=[],dd; for(dd=0;dd<=30.001;dd+=1) ds.push(dd);
+  var a1=ds.map(function(x){return [x,run({d:x}).npv];}), a2=ds.map(function(x){return [x,run({d:x,n:0}).npv];});
+  var all=a1.concat(a2).map(function(p){return p[1];}), lo=Math.floor(Math.min.apply(null,all)/500)*500, hi=Math.ceil(Math.max.apply(null,all)/500)*500;
+  R.ch.lines($('c2'),[{pts:a2,color:'var(--slate)',width:3},{pts:a1,color:'var(--accent)',width:3.5}],{x0:0,x1:30,y0:Math.min(lo,-500),y1:Math.max(hi,500),hlines:[[0,'']],vlines:[[11,'11: key-route average']],dots:[[S.d,o.npv,'var(--ink)']],xl:'Fall in the price of capacity a year, per cent',fy:function(v){return Math.round(v);},fx:function(v){return Math.round(v);}});
+  $('n2').textContent='At your other settings, value with upgrades is '+fmt(run({d:2}).npv,0)+' million at a 2 per cent fall, '+fmt(run({d:11}).npv,0)+' at 11 and '+fmt(run({d:25}).npv,0)+' at 25; with no upgrades, '+fmt(run({d:2,n:0}).npv,0)+', '+fmt(run({d:11,n:0}).npv,0)+' and '+fmt(run({d:25,n:0}).npv,0)+'.';
+  var ls=[],l; for(l=5;l<=30;l++) ls.push(l);
+  var b=ls.map(function(x){return [x,run({L:x}).npv];}), bb=b.map(function(p){return p[1];});
+  R.ch.lines($('c3'),[{pts:b,color:'var(--accent)',width:3.5}],{x0:5,x1:30,y0:Math.floor(Math.min.apply(null,bb.concat([0]))/200)*200-200,y1:Math.ceil(Math.max.apply(null,bb.concat([0]))/200)*200+200,hlines:[[0,'']],dots:[[S.L,o.npv,'var(--ink)']],xl:'Life of the asset, years',fy:function(v){return Math.round(v);},fx:function(v){return Math.round(v);}});
+  $('n3').textContent='At your other settings the value is '+fmt(run({L:5}).npv,0)+' million with a 5-year life, '+fmt(run({L:10}).npv,0)+' with 10, '+fmt(run({L:15}).npv,0)+' with 15 and '+fmt(run({L:25}).npv,0)+' with 25.';
+}
+function setPreset(i){var p=PRE[i]; if(p.d!==null){KEYS.forEach(function(k){S[k]=p[k];$(k).value=S[k];});}}
+$('pre').addEventListener('change',function(e){setPreset(+e.target.value);draw();});
+KEYS.forEach(function(k){$(k).addEventListener('input',function(e){S[k]=+e.target.value;$('pre').value=PRE.length-1;draw();});});
+setPreset(0); draw();
+})();
+</script>
+</body>
+</html>

@@ -86,7 +86,7 @@ table.w td:first-child, table.w th:first-child{ text-align:left !important; }
 <div class="wrap">
   <h1>The payoff to resilience</h1>
   <p class="lede">A resilience measure pays for itself by the losses it prevents, and most of those losses come from events that are rare. The value of the measure therefore depends on three things that are hard to know: how large the loss from a rare event is, how fast the frequency of such events is rising, and how the distant benefits are discounted. This page builds the simplest version of that calculation. A curve links the return period of an event to its loss, a protection standard removes the losses below it, and the avoided losses are discounted and compared with the cost. Use it to find the standard at which the net benefit is greatest, and to see how much the answer moves when the climate or the discount rate does.</p>
-  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 7. The loss curve, the protection rule and the cost curve are mine and are chosen to be as simple as the argument allows. Hazard, exposure and vulnerability follow the framework of the World Resources Institute&rsquo;s Aqueduct 4.0 (Kuzma and others), and the sense of scale comes from the World Bank&rsquo;s <i>Lifelines</i> (Hallegatte, Rentschler and Rozenberg, 2019). Every input is illustrative. It was computed twice, in Python and in this page, and the two agree.</p>
+  <p class="provenance">RE07 Global Infrastructure Investment and Management, Week 8. The loss curve, the protection rule and the cost curve are mine and are chosen to be as simple as the argument allows. Hazard, exposure and vulnerability follow the framework of the World Resources Institute&rsquo;s Aqueduct 4.0 (Kuzma and others), and the sense of scale comes from the World Bank&rsquo;s <i>Lifelines</i> (Hallegatte, Rentschler and Rozenberg, 2019). Every input is illustrative. It was computed twice, in Python and in this page, and the two agree.</p>
   <hr class="rule">
   <div class="main">
     <div class="rail">
@@ -231,11 +231,11 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 g.RE07={RNG:RNG,ols:ols,olsCluster:olsCluster,olsHC1:olsHC1,solve:solve,mean:mean,sd:sd,pct:pct,fmt:fmt,niceTicks:niceTicks,lin:lin,esc:esc};
 })(window);
 </script>
-<script>/* Week 7 teaching models (JavaScript copy of models_w7.py; check_models_w7.py compares the two). */
+<script>/* Week 8 teaching models (JavaScript copy of models_w8.py; check_models_w8.py compares the two). */
 (function(g){
 'use strict';
 var R=g.RE07=g.RE07||{};
-var W=R.w7={};
+var W=R.w8={};
 function dot(a,b){var s=0,i;for(i=0;i<a.length;i++)s+=a[i]*b[i];return s;}
 function matvec(A,x){return A.map(function(r){return dot(r,x);});}
 function solve(A,b){
@@ -305,7 +305,7 @@ W.npvByStandard=function(L100,s,cRef,kappa,maint,gamma,expo,T,D){
 };
 })(typeof window!=='undefined'?window:globalThis);
 </script>
-<script>/* Small SVG chart helpers for the Week 7 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
+<script>/* Small SVG chart helpers for the Week 8 pages: grouped bars and line charts, in the colours of the shared stylesheet. */
 (function(g){
 'use strict';
 var R=g.RE07;
@@ -359,7 +359,7 @@ R.ch={bars:bars,lines:lines,gbars:gbars};
 </script>
 <script>
 (function(){
-var R=RE07, W=R.w7, $=function(id){return document.getElementById(id);}, fmt=R.fmt, L10=function(v){return Math.log(v)/Math.LN10;};
+var R=RE07, W=R.w8, $=function(id){return document.getElementById(id);}, fmt=R.fmt, L10=function(v){return Math.log(v)/Math.LN10;};
 var REG=[{k:'gb',t:'Green Book, February 2026: 3.5, 3.0, 2.5 per cent',s:'Green Book',c:'var(--accent)'},
   {k:'gb0',t:'Green Book sensitivity without pure time preference',s:'Green Book, no time preference',c:'var(--clay)'},
   {k:'rev',t:'June 2026 independent review, standard: 3.0, 2.5, 2.25 per cent',s:'Review, standard',c:'var(--slate)'},

@@ -1,0 +1,34 @@
+{
+ "groups": [
+  {
+   "title": "Slides",
+   "items": [
+    {
+     "label": "Slides, full deck",
+     "href": "slides.pdf",
+     "kind": "PDF"
+    }
+   ]
+  },
+  {
+   "title": "Interactive pages",
+   "items": [
+    {
+     "label": "Pricing Sustainability Preferences",
+     "href": "esg-pricing.html",
+     "kind": "web page"
+    },
+    {
+     "label": "Discounting Long-Lived Assets",
+     "href": "discounting.html",
+     "kind": "web page"
+    },
+    {
+     "label": "The Payoff to Resilience",
+     "href": "resilience-payoff.html",
+     "kind": "web page"
+    }
+   ]
+  }
+ ]
+}

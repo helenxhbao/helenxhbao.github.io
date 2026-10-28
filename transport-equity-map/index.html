@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public Transport Equity in the Pearl River Delta</title>
+<style>
+  :root{ --ink:#1c1b18; --paper:#fbf8f2; --line:#d9d2c5; --accent:#7a4b2b; --land:#f1ece1; --sea:#eef2f4; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:Georgia,"Times New Roman",serif; color:var(--ink); background:var(--paper); line-height:1.5; }
+  .container{ max-width:1080px; margin:0 auto; padding:22px 26px 40px; }
+  h1{ font-size:23px; margin:0 0 6px; font-weight:600; }
+  .sub{ font-size:14px; color:#5c564a; margin:0 0 10px; }
+  .embed h1, .embed .sub{ display:none; }
+  .filters{ display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; margin:14px 0 8px; padding-bottom:14px; border-bottom:1px solid var(--line); }
+  .filters label{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#6b6455; margin-bottom:3px; }
+  select{ font-family:inherit; font-size:14px; padding:5px 8px; border:1px solid var(--line); background:#fff; color:var(--ink); max-width:270px; }
+  .tabs{ display:flex; gap:0; }
+  .tab{ font-family:inherit; font-size:14px; padding:6px 14px; border:1px solid var(--line); background:#fff; color:var(--ink); cursor:pointer; }
+  .tab:first-child{ border-radius:3px 0 0 3px; } .tab:last-child{ border-radius:0 3px 3px 0; border-left:0; }
+  .tab.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .cols{ display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:26px; align-items:start; margin-top:6px; }
+  .mapwrap{ position:relative; border:1px solid var(--line); background:var(--sea); }
+  #map{ width:100%; display:block; cursor:grab; touch-action:none; }
+  #map.drag{ cursor:grabbing; }
+  .zoom{ position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:3px; }
+  .zoom button{ width:28px; height:28px; border:1px solid var(--line); background:#fffdf8; font-size:16px; line-height:1; cursor:pointer; font-family:inherit; }
+  .zoom button.wide{ width:auto; font-size:11px; padding:0 6px; height:24px; }
+  .tip{ position:absolute; pointer-events:none; background:#fffdf8; border:1px solid var(--ink); padding:6px 9px; font-size:12.5px; box-shadow:2px 3px 8px rgba(0,0,0,.12); display:none; z-index:5; white-space:nowrap; line-height:1.45; }
+  .tip b{ font-weight:600; }
+  .legend{ margin:10px 0 2px; }
+  .lg{ display:flex; align-items:center; gap:7px; font-size:12.5px; padding:2px 0; }
+  .sw{ width:14px; height:14px; border:1px solid rgba(0,0,0,.2); flex:0 0 14px; }
+  .lg .pc{ margin-left:auto; color:#6b6455; font-variant-numeric:tabular-nums; }
+  .ramp{ height:12px; border:1px solid rgba(0,0,0,.2); margin:4px 0 2px; }
+  .rampl{ display:flex; justify-content:space-between; font-size:11.5px; color:#6b6455; }
+  .note{ font-size:11.5px; color:#7a7466; margin-top:8px; }
+  h2{ font-size:16px; margin:0 0 2px; font-weight:600; }
+  .psub{ font-size:12.5px; color:#6b6455; margin:2px 0 8px; }
+  .desc{ font-size:13px; color:#3d3a33; margin:8px 0; }
+  table.t{ width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
+  table.t th, table.t td{ padding:3px 5px; text-align:right; }
+  table.t th:first-child, table.t td:first-child{ text-align:left; }
+  table.t thead th{ border-bottom:1px solid var(--line); color:#6b6455; font-weight:600; }
+  table.t tbody tr.hi{ background:#f3ecdf; font-weight:600; }
+  .stat{ display:grid; grid-template-columns:auto 1fr; gap:2px 12px; font-size:13px; margin:6px 0; }
+  .stat span:nth-child(odd){ color:#6b6455; }
+  .foot{ margin-top:18px; padding-top:12px; border-top:1px solid var(--line); font-size:12px; color:#6b6455; }
+  .foot a{ color:var(--accent); }
+  @media(max-width:820px){ .cols{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Public Transport Equity in the Pearl River Delta</h1>
+  <p class="sub">Where public transport service falls short of, or exceeds, the demand for it across 4,531 grid cells of 3 km by 3 km in eight cities, and which features of a place go with the gap. The cells and coefficients are those reported in the paper.</p>
+
+  <div class="filters">
+    <div><label>View</label><div class="tabs"><button class="tab on" id="tMis">Local mismatch</button><button class="tab" id="tMg">What shapes the gap</button></div></div>
+    <div><label for="fGroup">Residents</label><select id="fGroup"><option value="A">All housing</option><option value="I">Indemnificatory housing</option></select></div>
+    <div><label for="fLayer" id="lLayer">Layer</label><select id="fLayer"></select></div>
+    <div><label for="fCity">Highlight a city</label><select id="fCity"></select></div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <div class="mapwrap">
+        <canvas id="map"></canvas>
+        <div class="zoom"><button id="zIn" title="Zoom in">+</button><button id="zOut" title="Zoom out">&minus;</button><button id="zReset" class="wide" title="Reset">Reset</button></div>
+        <div class="tip" id="tip"></div>
+      </div>
+      <div class="legend" id="legend"></div>
+      <p class="note">Scroll or use the buttons to zoom, and drag to move. Hover over a cell to read its values. Cells with no results are left blank.</p>
+    </div>
+    <div class="col-side">
+      <h2 id="pTitle"></h2>
+      <div class="desc" id="pDesc"></div>
+      <div id="pExtra"></div>
+    </div>
+  </div>
+
+  <div class="foot">Source: Zhu, J., Liu, J. and Bao, H. X. H. (2026). A cross-level diagnostic framework for spatial equity of public transportation services: Supply-demand mismatch and influencing factors in the Pearl River Delta. <i>Cities</i>, 179, 107714. <a href="https://doi.org/10.1016/j.cities.2026.107714" target="_blank" rel="noopener">doi.org/10.1016/j.cities.2026.107714</a>. The map shows only grid-level results presented in the paper. The study covers eight of the nine cities of the delta; Zhaoqing is excluded for lack of data. PTS stands for public transportation services.</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>(s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+if(location.search.includes("embed")||location.hash.includes("embed")) document.documentElement.classList.add("embed");
+
+const MM_LABEL=["No residents in this group","Relative shortfall, low absolute supply","Relative shortfall, high absolute supply","Relative surplus, low absolute supply","Relative surplus, high absolute supply"];
+const MM_NOTE=["","doubly disadvantaged","","missed by the relative measure","well served"];
+const MM_COL=["#f1ece1","#b2182b","#ef8a62","#a6cee3","#2166ac"];
+const Q_LABEL=["Low demand, low supply","High demand, low supply","Low demand, high supply","High demand, high supply"];
+const Q_COL=["#e6dfcf","#b2182b","#2166ac","#8a63a8"];
+const VAR_NAME={LUM:"Land-use mix (LUM)",RD:"Residential density (RD)",ID:"Intersection density (ID)",PFD:"Public facility density (PFD)",MajorRD:"Major road length (MajorRD)",MinorRD:"Minor road length (MinorRD)",BSP:"Bus stop provision (BSP)",SSP:"Distance to metro station (SSP)",GDP:"Economic output (GDP)"};
+const VAR_DEF={LUM:"Entropy index of the mix of land-use types in the cell.",RD:"Number of residential points of interest in the cell.",ID:"Number of road intersections in the cell.",PFD:"Number of public facilities in the cell.",MajorRD:"Length of major roads in the cell.",MinorRD:"Length of minor roads in the cell.",BSP:"Number of bus stops within 1.5 km.",SSP:"Shortest distance to a metro station.",GDP:"Gross domestic product of the cell."};
+const LAYERS=[["mm","Mismatch type (relative and absolute)"],["tg","Demand-supply gap score"],["q","Demand and supply levels"],["sup","PTS supply intensity"]];
+
+let CELLS,CITIES,META,CI={},VIEW="mis",GRP="A",LAYER="mm",VARN="",CITY=-1;
+let W=700,H=530,k=1,tx=0,ty=0,base=1,DPR=1;
+
+Promise.all([fetch("data/cells.json").then(r=>r.json()),fetch("data/cities.json").then(r=>r.json()),fetch("data/meta.json").then(r=>r.json())]).then(([c,ci,m])=>{
+  CELLS=c;CITIES=ci;META=m;
+  for(let i=0;i<c.n;i++) CI[c.col[i]*1000+c.row[i]]=i;
+  c.maxc=Math.max(...c.col)+1; c.maxr=Math.max(...c.row)+1;
+  fillCity(); fillLayer(); setSize(); fit(); redraw();
+  const sel=$("fCity"); sel.addEventListener("change",()=>{CITY=+sel.value;redraw();});
+  $("fGroup").addEventListener("change",()=>{GRP=$("fGroup").value; if(VIEW==="mg") fillLayer(); redraw();});
+  $("fLayer").addEventListener("change",()=>{ if(VIEW==="mis") LAYER=$("fLayer").value; else VARN=$("fLayer").value; redraw();});
+  $("tMis").addEventListener("click",()=>setView("mis")); $("tMg").addEventListener("click",()=>setView("mg"));
+  window.addEventListener("resize",()=>{setSize();redraw();});
+  wire();
+});
+function fill(sel,pairs,def){ sel.innerHTML=""; pairs.forEach(([v,t])=>{const o=document.createElement("option");o.value=v;o.textContent=t;sel.appendChild(o);}); if(def!=null) sel.value=def; }
+function fillCity(){ fill($("fCity"),[[-1,"All eight cities"]].concat(CITIES.cities.map((c,i)=>[i,c.name])),-1); }
+function fillLayer(){
+  if(VIEW==="mis"){ $("lLayer").textContent="Layer"; fill($("fLayer"),LAYERS,LAYER); }
+  else{ $("lLayer").textContent="Factor"; const vs=CELLS[GRP].mg.vars; if(!vs.includes(VARN)) VARN=vs[0]; fill($("fLayer"),vs.map(v=>[v,VAR_NAME[v]||v]),VARN); }
+}
+function setView(v){ VIEW=v; $("tMis").classList.toggle("on",v==="mis"); $("tMg").classList.toggle("on",v==="mg"); fillLayer(); redraw(); }
+
+function setSize(){ const cv=$("map"); W=Math.max(320,cv.parentElement.clientWidth); H=Math.round(W*CELLS.maxr/CELLS.maxc); DPR=Math.min(2,window.devicePixelRatio||1);
+  cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+"px"; base=W/(CELLS.maxc*CELLS.size); }
+function fit(){ k=1; tx=0; ty=0; }
+// plane metres -> canvas px
+function px(x,y){ return [x*base*k+tx, y*base*k+ty]; }
+
+/* ---- colours ---- */
+function hex(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+function mix(a,b,t){ return "rgb("+a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(",")+")"; }
+const NEG=hex("#2166ac"),MID=hex("#f7f3ea"),POS=hex("#b2182b"),LOW=hex("#f6efe3"),HIGH=hex("#7a4b2b");
+function div(t){ t=Math.max(-1,Math.min(1,t)); return t<0?mix(MID,NEG,-t):mix(MID,POS,t); }
+function seq(t){ return mix(LOW,HIGH,Math.max(0,Math.min(1,t))); }
+function pct(arr,p){ const a=arr.filter(v=>v>0).sort((x,y)=>x-y); return a[Math.floor(p*(a.length-1))]||1; }
+
+function scaleFor(){
+  if(VIEW==="mis"){
+    if(LAYER==="tg"){ const g=CELLS[GRP].tg.map(Math.abs); return {kind:"div",lim:pct(g,.95)}; }
+    if(LAYER==="sup"){ return {kind:"seq",lo:0,hi:pct(CELLS.supply,.95)}; }
+    return null;
+  }
+  const m=CELLS[GRP].mg, v=m.val[VARN], mn=Math.min(...v), mx=Math.max(...v);
+  return (mn<0&&mx>0)?{kind:"div",lim:Math.max(-mn,mx),mn,mx}:{kind:"seq",lo:mn,hi:mx,mn,mx};
+}
+function colourOf(i,sc){
+  const G=CELLS[GRP];
+  if(VIEW==="mis"){
+    if(LAYER==="mm"){ return MM_COL[G.mm[i]]; }
+    if(LAYER==="q"){ return Q_COL[G.q[i]]; }
+    if(LAYER==="tg"){ const v=G.tg[i]; return v===0?"#efe8da":div(v/sc.lim); }
+    const v=CELLS.supply[i]; return v===0?"#efe8da":seq(v/sc.hi);
+  }
+  return null;
+}
+let MGPOS=null;
+function mgIndex(){ const m=CELLS[GRP].mg; MGPOS={}; m.idx.forEach((ci,j)=>MGPOS[ci]=j); }
+
+function redraw(){ if(!CELLS) return; mgIndex(); draw(); legend(); panel(); }
+function draw(){
+  const cv=$("map"), g=cv.getContext("2d"); g.setTransform(DPR,0,0,DPR,0,0); g.clearRect(0,0,W,H);
+  g.fillStyle="#eef2f4"; g.fillRect(0,0,W,H);
+  const sc=scaleFor(), S=CELLS.size, s=S*base*k+0.6, G=CELLS[GRP];
+  for(let i=0;i<CELLS.n;i++){
+    const x=CELLS.col[i]*S*base*k+tx, y=CELLS.row[i]*S*base*k+ty;
+    if(x>W||y>H||x+s<0||y+s<0) continue;
+    let c;
+    if(VIEW==="mis") c=colourOf(i,sc);
+    else{ const j=MGPOS[i]; if(j==null){ c="#f1ece1"; } else { const v=G.mg.val[VARN][j]; c=sc.kind==="div"?div(v/sc.lim):seq((v-sc.lo)/((sc.hi-sc.lo)||1)); } }
+    g.fillStyle=c; g.fillRect(x,y,s,s);
+  }
+  // city outlines
+  const u=CITIES.unit;
+  CITIES.cities.forEach((c,ci)=>{
+    g.beginPath();
+    c.rings.forEach(r=>{ r.forEach((p,j)=>{ const [X,Y]=px(p[0]*u,p[1]*u); j?g.lineTo(X,Y):g.moveTo(X,Y); }); g.closePath(); });
+    g.lineWidth=(ci===CITY)?2.2:0.8; g.strokeStyle=(ci===CITY)?"#1c1b18":"rgba(60,52,38,.55)"; g.stroke();
+  });
+  g.font="italic 11.5px Georgia,serif"; g.textAlign="center"; g.textBaseline="middle";
+  CITIES.cities.forEach((c,ci)=>{ const [X,Y]=px(c.label[0]*u,c.label[1]*u);
+    g.lineWidth=3; g.strokeStyle="rgba(251,248,242,.85)"; g.strokeText(c.name,X,Y); g.fillStyle=(ci===CITY)?"#1c1b18":"#3d3a33"; g.fillText(c.name,X,Y); });
+  // scale bar (km)
+  const nice=[5,10,20,25,50,100].reduce((a,b)=>Math.abs(b*1000*base*k-90)<Math.abs(a*1000*base*k-90)?b:a);
+  const len=nice*1000*base*k; g.fillStyle="#1c1b18"; g.fillRect(14,H-18,len,3); g.font="11.5px Georgia,serif"; g.textAlign="left"; g.fillText(nice+" km",14,H-26);
+}
+
+function legend(){
+  const L=$("legend"), G=CELLS[GRP], sc=scaleFor(); let h="";
+  if(VIEW==="mis"){
+    if(LAYER==="mm"){
+      const t=META.table6, col=GRP==="A"?1:2;
+      const rows=[[1,t[1][col]],[2,t[2][col]],[3,t[3][col]],[4,t[4][col]]];
+      h=rows.map(([c,p])=>`<div class="lg"><span class="sw" style="background:${MM_COL[c]}"></span>${esc(MM_LABEL[c])}${MM_NOTE[c]?" ("+MM_NOTE[c]+")":""}<span class="pc">${p.toFixed(1)}%</span></div>`).join("")+
+        `<div class="lg"><span class="sw" style="background:${MM_COL[0]}"></span>${esc(MM_LABEL[0])}<span class="pc">${META.counts[GRP]["0"].toLocaleString()} cells</span></div>`+
+        `<div class="note" style="margin-top:2px">Percentages are shares of the cells with residents in this group, as in Table 6 of the paper.</div>`;
+    } else if(LAYER==="q"){
+      const qc=META.q_counts[GRP];
+      h=[1,2,3,0].map(c=>`<div class="lg"><span class="sw" style="background:${Q_COL[c]}"></span>${esc(Q_LABEL[c])}<span class="pc">${qc[c].toLocaleString()} cells</span></div>`).join("");
+    } else if(LAYER==="tg"){
+      h=`<div class="ramp" style="background:linear-gradient(90deg,#2166ac,#f7f3ea,#b2182b)"></div><div class="rampl"><span>${(-sc.lim).toFixed(1)}</span><span>0</span><span>${sc.lim.toFixed(1)}</span></div><div class="note" style="margin-top:2px">Blue: supply exceeds demand. Red: demand exceeds supply. Grey: no gap score (not a mismatch hot spot).</div>`;
+    } else {
+      h=`<div class="ramp" style="background:linear-gradient(90deg,#f6efe3,#7a4b2b)"></div><div class="rampl"><span>0</span><span>${sc.hi.toFixed(1)} or more</span></div>`;
+    }
+  } else {
+    const m=G.mg.val[VARN], mn=Math.min(...m), mx=Math.max(...m);
+    h=sc.kind==="div"
+      ? `<div class="ramp" style="background:linear-gradient(90deg,#2166ac,#f7f3ea,#b2182b)"></div><div class="rampl"><span>${(-sc.lim).toFixed(2)}</span><span>0</span><span>${sc.lim.toFixed(2)}</span></div>`
+      : `<div class="ramp" style="background:linear-gradient(90deg,#f6efe3,#7a4b2b)"></div><div class="rampl"><span>${mn.toFixed(3)}</span><span>${mx.toFixed(3)}</span></div>`;
+    h+=`<div class="note" style="margin-top:2px">Local coefficient of the factor on the demand-supply gap. Pale cells are outside the regression sample.</div>`;
+  }
+  L.innerHTML=h;
+}
+
+function panel(){
+  const G=GRP, T=$("pTitle"), D=$("pDesc"), X=$("pExtra");
+  const grpName=G==="A"?"all housing":"indemnificatory housing";
+  if(VIEW==="mis"){
+    T.textContent=LAYERS.find(l=>l[0]===LAYER)[1]+" ("+grpName+")";
+    const d={
+      mm:"Each cell is compared on two things. Is its share of residents larger or smaller than its share of public transport service (the relative mismatch)? And is the absolute level of service in the cell high or low? In these results a low absolute level means a supply intensity below about "+META.supply_threshold+". Cells with no residents in the chosen group are left pale.",
+      tg:"The gap score is the cell's share of demand minus its share of supply, in basis points of the regional total. It is shown only for cells where demand and supply sit at opposite levels, high demand with low supply or low demand with high supply. Everywhere else it is zero.",
+      q:"Each cell is classed by whether its share of demand and its share of supply are high or low. The two off-diagonal classes are the cells that carry a gap score.",
+      sup:"The paper's measure of public transport service intensity in each cell, built from bus stops and metro stations within a catchment radius. It is the same for both resident groups."}[LAYER];
+    D.textContent=d+(G==="I"?" Indemnificatory housing is the paper's low-income housing group.":"");
+    const t=G==="A"?META.table3:META.table4;
+    const rows=t.slice(1);
+    X.innerHTML=`<div class="psub" style="margin-top:14px">Equity indices, ${esc(grpName)} (Table ${G==="A"?3:4} of the paper)</div>`+
+      `<table class="t"><thead><tr><th>Area</th><th>Gini</th><th>Moran&rsquo;s I</th><th>SE (&alpha;=0.5)</th></tr></thead><tbody>`+
+      rows.map(r=>{ const hi=(CITY>=0&&CITIES.cities[CITY].name===r[0])?' class="hi"':''; return `<tr${hi}><td>${esc(r[0])}</td><td>${(+r[1]).toFixed(2)}</td><td>${(+r[2]).toFixed(2)}</td><td>${(+r[5]).toFixed(2)}</td></tr>`;}).join("")+
+      `</tbody></table><div class="note">Gini: inequality in the distribution of service against residents (higher is less equal). Moran&rsquo;s I: spatial clustering of the mismatch. SE: the spatial equity index, where higher is more equitable.</div>`;
+  } else {
+    T.textContent=(VAR_NAME[VARN]||VARN)+" ("+grpName+")";
+    D.textContent=(G==="I"?"Indemnificatory housing is the paper's low-income housing group. ":"")+(VAR_DEF[VARN]||"")+" The map shows where, locally, a higher value of this factor goes with a larger demand-supply gap (red, positive) or a smaller one (blue, negative), whichever way the mismatch points. Estimated by multiscale geographically weighted regression, so the effect is allowed to differ from place to place.";
+    const t=(G==="A"?META.table7:META.table8).filter(r=>r[0]===VARN)[0];
+    if(t){ X.innerHTML=`<div class="psub" style="margin-top:14px">Summary of the coefficients (Table ${G==="A"?7:8} of the paper)</div><div class="stat"><span>Mean</span><span>${t[1]}</span><span>Standard deviation</span><span>${t[2]}</span><span>Minimum</span><span>${t[3]}</span><span>Maximum</span><span>${t[4]}</span><span>Bandwidth (share of cells)</span><span>${esc(t[5])}</span><span>Significant cells</span><span>${esc(t[6])}</span></div><div class="note">The regression sample is the cells with a non-zero gap score: ${G==="A"?416:432} cells.</div>`; }
+    else X.innerHTML="";
+  }
+}
+
+/* ---- interaction ---- */
+function wire(){
+  const cv=$("map"), tip=$("tip"); let drag=null;
+  cv.addEventListener("wheel",ev=>{ ev.preventDefault(); const r=cv.getBoundingClientRect(); zoomAt(ev.clientX-r.left,ev.clientY-r.top,ev.deltaY<0?1.25:0.8); },{passive:false});
+  cv.addEventListener("pointerdown",ev=>{ cv.setPointerCapture(ev.pointerId); drag={x:ev.clientX,y:ev.clientY,tx,ty}; cv.classList.add("drag"); });
+  cv.addEventListener("pointerup",()=>{ drag=null; cv.classList.remove("drag"); });
+  cv.addEventListener("pointermove",ev=>{
+    const r=cv.getBoundingClientRect(), X=ev.clientX-r.left, Y=ev.clientY-r.top;
+    if(drag){ tx=drag.tx+ev.clientX-drag.x; ty=drag.ty+ev.clientY-drag.y; clamp(); draw(); tip.style.display="none"; return; }
+    hover(X,Y);
+  });
+  cv.addEventListener("pointerleave",()=>{ tip.style.display="none"; });
+  $("zIn").onclick=()=>zoomAt(W/2,H/2,1.5); $("zOut").onclick=()=>zoomAt(W/2,H/2,1/1.5); $("zReset").onclick=()=>{fit();redraw();};
+}
+function clamp(){ const mw=CELLS.maxc*CELLS.size*base*k, mh=CELLS.maxr*CELLS.size*base*k; tx=Math.min(W*0.5,Math.max(W*0.5-mw,tx)); ty=Math.min(H*0.5,Math.max(H*0.5-mh,ty)); }
+function zoomAt(x,y,f){ const nk=Math.max(1,Math.min(14,k*f)); f=nk/k; tx=x-(x-tx)*f; ty=y-(y-ty)*f; k=nk; if(k===1){tx=0;ty=0;} clamp(); draw(); }
+function hover(X,Y){
+  const S=CELLS.size, c=Math.floor((X-tx)/(S*base*k)), r=Math.floor((Y-ty)/(S*base*k)), i=CI[c*1000+r], tip=$("tip");
+  if(i==null){ tip.style.display="none"; return; }
+  const G=CELLS[GRP]; let h=`<b>Cell ${CELLS.fid[i]}</b> &middot; ${esc(CITIES.cities[CELLS.city[i]].name)}<br>`;
+  h+=`PTS supply intensity ${CELLS.supply[i].toFixed(2)}<br>`;
+  if(VIEW==="mis"){
+    h+=`${esc(MM_LABEL[G.mm[i]])}<br>`;
+    h+=`Gap score ${G.tg[i]===0?"none":G.tg[i].toFixed(1)}`;
+  } else { const j=MGPOS[i]; h+= j==null?"Outside the regression sample":`${esc(VARN)} coefficient ${G.mg.val[VARN][j].toFixed(3)}`; }
+  tip.innerHTML=h; tip.style.display="block";
+  const w=tip.offsetWidth; tip.style.left=Math.min(X+14,W-w-6)+"px"; tip.style.top=(Y+10)+"px";
+}
+</script>
+<script data-pageviews="1">
+(function () {
+  if (window.__pageviews) return;
+  window.__pageviews = true;
+  var CODE = "helenxhbao";
+  var BASE = "https://" + CODE + ".goatcounter.com/counter/";
+
+  // GoatCounter answers with a JSON body even when it replies 404, which is what
+  // it does for a path that has had no views yet, so the body is read regardless
+  // of status. Returns {n, text} with the count as a number and as GoatCounter's
+  // own formatted string, which carries the thousands separators.
+  function read(url) {
+    return fetch(url, { mode: "cors" })
+      .then(function (r) { return r.json().catch(function () { return null; }); })
+      .then(function (d) {
+        if (!d || d.count === undefined || d.count === null) return { n: 0, text: null };
+        var n = parseInt(String(d.count).replace(/[^0-9]/g, ""), 10);
+        return { n: isNaN(n) ? 0 : n, text: String(d.count) };
+      })
+      .catch(function () { return { n: 0, text: null }; });
+  }
+
+  // The documented path form keeps its leading slash, which leaves a double
+  // slash after /counter/. The undoubled form also answers, so if the documented
+  // one comes back empty the other is tried before giving up.
+  function pageCount(path) {
+    return read(BASE + path + ".json").then(function (a) {
+      if (a.n > 0) return a;
+      return read(BASE + path.replace(/^[/]/, "") + ".json");
+    });
+  }
+
+  function render() {
+    var host = document.querySelector("article") ||
+               document.querySelector(".center") ||
+               document.body;
+    if (!host) return;
+    var old = document.querySelector(".pageviews");
+    if (old) old.remove();
+
+    var path = location.pathname.replace(/index[.]html$/, "");
+    if (path.length > 1) path = path.replace(/[/]$/, "");
+    var isHome = path === "/" || path === "";
+
+    var jobs = [pageCount(isHome ? "/" : path)];
+    if (isHome) jobs.push(read(BASE + "TOTAL.json"));
+
+    Promise.all(jobs).then(function (res) {
+      var parts = [];
+      if (res[0].n > 0) parts.push(res[0].text + " views of this page");
+      if (isHome && res[1] && res[1].n > 0) parts.push(res[1].text + " views across the site");
+      if (!parts.length) return;   // nothing recorded yet: show nothing at all
+      var el = document.createElement("p");
+      el.className = "pageviews";
+      el.setAttribute("aria-live", "polite");
+      el.textContent = parts.join(" · ");
+      host.appendChild(el);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", render);
+  } else {
+    render();
+  }
+  document.addEventListener("nav", render);
+})();
+</script></body>
+</html>
