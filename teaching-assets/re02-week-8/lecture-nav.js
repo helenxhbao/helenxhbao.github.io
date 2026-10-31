@@ -31,7 +31,8 @@
         { id: 're07-week-4', label: '4 Financing', href: '../re07-week-4/' },
         { id: 're07-week-5', label: '5 Intermediation', href: '../re07-week-5/' },
         { id: 're07-week-6', label: '6 Performance', href: '../re07-week-6/' },
-        { id: 're07-week-7', label: '7 Sustainability', href: '../re07-week-7/' }
+        { id: 're07-week-7', label: '7 Technology and asset life', href: '../re07-week-7/' },
+        { id: 're07-week-8', label: '8 Sustainability and ESG', href: '../re07-week-8/' }
       ]
     },
     {
